@@ -15,8 +15,8 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.post('/', async (req: Request, res: Response) => {
-  const { title, description, start_time, end_time, all_day, color } = req.body;
-  const id = uuidv4();
+  const { title, description, start_time, end_time, all_day, color, id: clientId } = req.body;
+  const id = clientId || uuidv4();
   const now = new Date().toISOString();
 
   await db.prepare(`

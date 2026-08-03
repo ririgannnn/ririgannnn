@@ -17,8 +17,7 @@ export default function InspirationView() {
   const handleAdd = () => {
     if (!content.trim()) return;
     addInspiration({
-      id: '', content, source, tags, color,
-      createdAt: new Date().toISOString(),
+      content, source, tags, color,
     });
     setContent(''); setSource(''); setTagInput(''); setTags([]);
     setColor(cardColors[Math.floor(Math.random() * cardColors.length)]);
@@ -70,7 +69,7 @@ export default function InspirationView() {
                 <p className="text-xs mt-2 opacity-60" style={{ color: insp.color }}>来源: {insp.source}</p>
               )}
               <div className="flex flex-wrap gap-1 mt-2">
-                {insp.tags.map((t) => (
+                {(Array.isArray(insp.tags) ? insp.tags : []).map((t) => (
                   <span key={t} className="text-xs px-1.5 py-0.5 rounded-full border" style={{ borderColor: insp.color + '40', color: insp.color }}>
                     {t}
                   </span>

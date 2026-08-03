@@ -37,9 +37,8 @@ export default function TaskView() {
   const handleAdd = () => {
     if (!title.trim()) return;
     addTask({
-      id: '', title, description: desc, status: 'todo', priority,
+      title, description: desc, status: 'todo', priority,
       dueDate: null, tags: [],
-      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
     });
     setTitle(''); setDesc(''); setPriority('medium'); setShowForm(false);
   };

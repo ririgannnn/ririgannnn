@@ -42,8 +42,7 @@ export default function CalendarView() {
     const startDate = allDay ? selectedDate : `${selectedDate}T${startTime}:00`;
     const endDate = allDay ? selectedDate : `${selectedDate}T${endTime}:00`;
     addEvent({
-      id: '', title, description: desc, startDate, endDate, allDay, color,
-      createdAt: new Date().toISOString(),
+      title, description: desc, startDate, endDate, allDay, color,
     });
     setTitle(''); setDesc(''); setShowForm(false);
   };

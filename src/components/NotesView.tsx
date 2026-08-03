@@ -32,9 +32,8 @@ export default function NotesView() {
     if (!newTitle.trim()) return;
     const folder = showCustomFolder && customFolder.trim() ? customFolder.trim() : newFolder;
     addNote({
-      id: '', title: newTitle, content: newContent, folder,
+      title: newTitle, content: newContent, folder,
       tags: newTags.split(',').map((t) => t.trim()).filter(Boolean),
-      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
     });
     setNewTitle(''); setNewContent(''); setNewTags('');
     setShowCustomFolder(false); setCustomFolder('');
@@ -179,7 +178,7 @@ export default function NotesView() {
               </div>
               <div className="flex gap-2 text-xs text-muted-fg">
                 <span className="flex items-center gap-1"><FolderOpen size={12} /> {selected.folder}</span>
-                {selected.tags.map((t) => (
+                {(Array.isArray(selected.tags) ? selected.tags : []).map((t) => (
                   <span key={t} className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-muted"><Tag size={10} /> {t}</span>
                 ))}
               </div>

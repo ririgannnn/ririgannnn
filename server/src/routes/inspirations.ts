@@ -15,8 +15,8 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.post('/', async (req: Request, res: Response) => {
-  const { content, tags, color } = req.body;
-  const id = uuidv4();
+  const { content, tags, color, id: clientId } = req.body;
+  const id = clientId || uuidv4();
   const now = new Date().toISOString();
   const tagsJson = JSON.stringify(tags || []);
 

@@ -6,6 +6,15 @@ import api from '../services/api';
 
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
+// Parse tags from various formats (array, JSON string, undefined)
+function parseTags(tags: unknown): string[] {
+  if (Array.isArray(tags)) return tags as string[];
+  if (typeof tags === 'string') {
+    try { return JSON.parse(tags) as string[]; } catch { return []; }
+  }
+  return [];
+}
+
 // Track if sync engine is initialized
 let syncInitialized = false;
 
@@ -78,16 +87,16 @@ export const useStore = create<AppState>()(
         const newId = uid();
         const now = new Date().toISOString();
         const newTask: Task = {
-          id: newId,
+          ...task,
+          id: task.id || newId,
           title: task.title || '',
           description: task.description || '',
           status: task.status || 'todo',
           priority: task.priority || 'medium',
           category: task.category || '',
-          dueDate: null,
-          createdAt: now,
-          updatedAt: now,
-          ...task,
+          dueDate: task.dueDate ?? null,
+          createdAt: task.createdAt || now,
+          updatedAt: task.updatedAt || now,
         };
         set((s) => ({ tasks: [...s.tasks, newTask] }));
 
@@ -169,14 +178,14 @@ export const useStore = create<AppState>()(
         const newId = uid();
         const now = new Date().toISOString();
         const newNote: Note = {
-          id: newId,
+          ...note,
+          id: note.id || newId,
           title: note.title || '',
           content: note.content || '',
           folder: note.folder || '',
-          tags: note.tags || [],
-          createdAt: now,
-          updatedAt: now,
-          ...note,
+          tags: parseTags(note.tags),
+          createdAt: note.createdAt || now,
+          updatedAt: note.updatedAt || now,
         };
         set((s) => ({ notes: [...s.notes, newNote] }));
 
@@ -222,14 +231,31 @@ export const useStore = create<AppState>()(
         if (action === 'delete') {
           set((s) => ({ notes: s.notes.filter((n) => n.id !== id) }));
         } else if (action === 'create') {
-          const d = data as Note;
+          const d = data as Record<string, unknown>;
+          const note: Note = {
+            id: (d.id as string) || id,
+            title: (d.title as string) || '',
+            content: (d.content as string) || '',
+            folder: (d.folder as string) || '',
+            tags: parseTags(d.tags),
+            createdAt: (d.createdAt || d.created_at || '') as string,
+            updatedAt: (d.updatedAt || d.updated_at || '') as string,
+          };
           set((s) => {
-            if (s.notes.find((n) => n.id === d.id)) return s;
-            return { notes: [...s.notes, d] };
+            if (s.notes.find((n) => n.id === note.id)) return s;
+            return { notes: [...s.notes, note] };
           });
         } else {
+          const d = data as Record<string, unknown>;
           set((s) => ({
-            notes: s.notes.map((n) => n.id === id ? { ...n, ...(data as Partial<Note>) } : n),
+            notes: s.notes.map((n) => n.id === id ? {
+              ...n,
+              ...(d.title !== undefined ? { title: d.title as string } : {}),
+              ...(d.content !== undefined ? { content: d.content as string } : {}),
+              ...(d.folder !== undefined ? { folder: d.folder as string } : {}),
+              ...(d.tags !== undefined ? { tags: parseTags(d.tags) } : {}),
+              ...(d.updatedAt || d.updated_at ? { updatedAt: (d.updatedAt || d.updated_at) as string } : {}),
+            } : n),
           }));
         }
       },
@@ -241,28 +267,28 @@ export const useStore = create<AppState>()(
         const newId = uid();
         const now = new Date().toISOString();
         const mergedEvent: CalendarEvent = {
-          id: newId,
+          ...event,
+          id: event.id || newId,
           title: event.title || '',
           description: event.description || '',
           allDay: event.allDay ?? false,
           color: event.color || '#3b82f6',
-          createdAt: now,
+          createdAt: event.createdAt || now,
           startDate: event.startDate || event.startTime || now,
           endDate: event.endDate || event.endTime || now,
         };
-        const newEvent: CalendarEvent = { ...mergedEvent, ...event };
-        set((s) => ({ events: [...s.events, newEvent] }));
+        set((s) => ({ events: [...s.events, mergedEvent] }));
 
         if (syncInitialized) {
-          api.createEvent(newEvent as unknown as Record<string, unknown>).catch(() => {
+          api.createEvent(mergedEvent as unknown as Record<string, unknown>).catch(() => {
             syncEngine.addToQueue({
               id: uid(), entity: 'events', action: 'create',
-              entityId: newId, data: newEvent, timestamp: now,
+              entityId: mergedEvent.id, data: mergedEvent, timestamp: now,
             });
           });
         }
 
-        return newEvent;
+        return mergedEvent;
       },
       updateEvent: (id, partial) => {
         set((s) => ({
@@ -323,12 +349,12 @@ export const useStore = create<AppState>()(
         const newId = uid();
         const now = new Date().toISOString();
         const newInsp: Inspiration = {
-          id: newId,
-          content: insp.content || '',
-          tags: insp.tags || [],
-          color: insp.color || '#6366f1',
-          createdAt: now,
           ...insp,
+          id: insp.id || newId,
+          content: insp.content || '',
+          tags: parseTags(insp.tags),
+          color: insp.color || '#6366f1',
+          createdAt: insp.createdAt || now,
         };
         set((s) => ({ inspirations: [...s.inspirations, newInsp] }));
 
@@ -359,14 +385,27 @@ export const useStore = create<AppState>()(
         if (action === 'delete') {
           set((s) => ({ inspirations: s.inspirations.filter((i) => i.id !== id) }));
         } else if (action === 'create') {
-          const d = data as Inspiration;
+          const d = data as Record<string, unknown>;
+          const insp: Inspiration = {
+            id: (d.id as string) || id,
+            content: (d.content as string) || '',
+            tags: parseTags(d.tags),
+            color: (d.color as string) || '#6366f1',
+            createdAt: (d.createdAt || d.created_at || '') as string,
+          };
           set((s) => {
-            if (s.inspirations.find((i) => i.id === d.id)) return s;
-            return { inspirations: [...s.inspirations, d] };
+            if (s.inspirations.find((i) => i.id === insp.id)) return s;
+            return { inspirations: [...s.inspirations, insp] };
           });
         } else {
+          const d = data as Record<string, unknown>;
           set((s) => ({
-            inspirations: s.inspirations.map((i) => i.id === id ? { ...i, ...(data as Partial<Inspiration>) } : i),
+            inspirations: s.inspirations.map((i) => i.id === id ? {
+              ...i,
+              ...(d.content !== undefined ? { content: d.content as string } : {}),
+              ...(d.tags !== undefined ? { tags: parseTags(d.tags) } : {}),
+              ...(d.color !== undefined ? { color: d.color as string } : {}),
+            } : i),
           }));
         }
       },
@@ -378,14 +417,14 @@ export const useStore = create<AppState>()(
         const newId = uid();
         const now = new Date().toISOString();
         const newEntry: KnowledgeEntry = {
-          id: newId,
+          ...entry,
+          id: entry.id || newId,
           title: entry.title || '',
           content: entry.content || '',
           category: entry.category || '',
-          tags: entry.tags || [],
-          createdAt: now,
-          updatedAt: now,
-          ...entry,
+          tags: parseTags(entry.tags),
+          createdAt: entry.createdAt || now,
+          updatedAt: entry.updatedAt || now,
         };
         set((s) => ({ knowledge: [...s.knowledge, newEntry] }));
 
@@ -431,14 +470,31 @@ export const useStore = create<AppState>()(
         if (action === 'delete') {
           set((s) => ({ knowledge: s.knowledge.filter((k) => k.id !== id) }));
         } else if (action === 'create') {
-          const d = data as KnowledgeEntry;
+          const d = data as Record<string, unknown>;
+          const entry: KnowledgeEntry = {
+            id: (d.id as string) || id,
+            title: (d.title as string) || '',
+            content: (d.content as string) || '',
+            category: (d.category as string) || '',
+            tags: parseTags(d.tags),
+            createdAt: (d.createdAt || d.created_at || '') as string,
+            updatedAt: (d.updatedAt || d.updated_at || '') as string,
+          };
           set((s) => {
-            if (s.knowledge.find((k) => k.id === d.id)) return s;
-            return { knowledge: [...s.knowledge, d] };
+            if (s.knowledge.find((k) => k.id === entry.id)) return s;
+            return { knowledge: [...s.knowledge, entry] };
           });
         } else {
+          const d = data as Record<string, unknown>;
           set((s) => ({
-            knowledge: s.knowledge.map((k) => k.id === id ? { ...k, ...(data as Partial<KnowledgeEntry>) } : k),
+            knowledge: s.knowledge.map((k) => k.id === id ? {
+              ...k,
+              ...(d.title !== undefined ? { title: d.title as string } : {}),
+              ...(d.content !== undefined ? { content: d.content as string } : {}),
+              ...(d.category !== undefined ? { category: d.category as string } : {}),
+              ...(d.tags !== undefined ? { tags: parseTags(d.tags) } : {}),
+              ...(d.updatedAt || d.updated_at ? { updatedAt: (d.updatedAt || d.updated_at) as string } : {}),
+            } : k),
           }));
         }
       },
@@ -447,15 +503,67 @@ export const useStore = create<AppState>()(
       initSync: async (token: string) => {
         await syncEngine.start(token);
 
-        // Load cached data into store
+        // Load cached data into store, normalizing any old cached data
         const cache = await syncEngine.getLocalCache();
         const batchApply = get();
 
-        if (cache.tasks?.length) batchApply.setTasks(cache.tasks as Task[]);
-        if (cache.notes?.length) batchApply.setNotes(cache.notes as Note[]);
-        if (cache.events?.length) batchApply.setEvents(cache.events as CalendarEvent[]);
-        if (cache.inspirations?.length) batchApply.setInspirations(cache.inspirations as Inspiration[]);
-        if (cache.knowledge?.length) batchApply.setKnowledge(cache.knowledge as KnowledgeEntry[]);
+        if (cache.tasks?.length) {
+          batchApply.setTasks(cache.tasks.map((t: Record<string, unknown>) => ({
+            id: t.id as string,
+            title: (t.title as string) || '',
+            description: (t.description as string) || '',
+            status: (t.status as Task['status']) || 'todo',
+            priority: (t.priority as Task['priority']) || 'medium',
+            dueDate: (t.dueDate ?? t.due_date ?? null) as string | null,
+            category: (t.category as string) || '',
+            tags: parseTags(t.tags),
+            createdAt: (t.createdAt || t.created_at || '') as string,
+            updatedAt: (t.updatedAt || t.updated_at || '') as string,
+          }) as Task[]));
+        }
+        if (cache.notes?.length) {
+          batchApply.setNotes(cache.notes.map((n: Record<string, unknown>) => ({
+            id: n.id as string,
+            title: (n.title as string) || '',
+            content: (n.content as string) || '',
+            folder: (n.folder as string) || '',
+            tags: parseTags(n.tags),
+            createdAt: (n.createdAt || n.created_at || '') as string,
+            updatedAt: (n.updatedAt || n.updated_at || '') as string,
+          }) as Note[]));
+        }
+        if (cache.events?.length) {
+          batchApply.setEvents(cache.events.map((e: Record<string, unknown>) => ({
+            id: e.id as string,
+            title: (e.title as string) || '',
+            description: (e.description as string) || '',
+            startDate: (e.startDate || e.start_time || '') as string,
+            endDate: (e.endDate || e.end_time || '') as string,
+            allDay: !!(e.allDay ?? e.all_day),
+            color: (e.color as string) || '#3b82f6',
+            createdAt: (e.createdAt || e.created_at || '') as string,
+          }) as CalendarEvent[]));
+        }
+        if (cache.inspirations?.length) {
+          batchApply.setInspirations(cache.inspirations.map((i: Record<string, unknown>) => ({
+            id: i.id as string,
+            content: (i.content as string) || '',
+            tags: parseTags(i.tags),
+            color: (i.color as string) || '#6366f1',
+            createdAt: (i.createdAt || i.created_at || '') as string,
+          }) as Inspiration[]));
+        }
+        if (cache.knowledge?.length) {
+          batchApply.setKnowledge(cache.knowledge.map((k: Record<string, unknown>) => ({
+            id: k.id as string,
+            title: (k.title as string) || '',
+            content: (k.content as string) || '',
+            category: (k.category as string) || '',
+            tags: parseTags(k.tags),
+            createdAt: (k.createdAt || k.created_at || '') as string,
+            updatedAt: (k.updatedAt || k.updated_at || '') as string,
+          }) as KnowledgeEntry[]));
+        }
 
         // Listen for WebSocket updates
         syncEngine.onDataChange((entity, action, data) => {

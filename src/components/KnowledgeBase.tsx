@@ -31,9 +31,8 @@ export default function KnowledgeBase() {
     if (!title.trim() || !content.trim()) return;
     const cat = showNewCategory && customCategory.trim() ? customCategory.trim() : category;
     addKnowledge({
-      id: '', title, content, category: cat,
+      title, content, category: cat,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
-      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
     });
     setTitle(''); setContent(''); setTags(''); setShowNewCategory(false); setCustomCategory('');
     setShowForm(false);
@@ -128,7 +127,7 @@ export default function KnowledgeBase() {
             <div className="flex gap-3 text-xs text-muted-fg mb-4">
               <span className="flex items-center gap-1"><BookOpen size={12} /> {selected.category}</span>
               <span>{format(new Date(selected.createdAt), 'yyyy-MM-dd HH:mm')}</span>
-              {selected.tags.map((t) => (
+              {(Array.isArray(selected.tags) ? selected.tags : []).map((t) => (
                 <span key={t} className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-muted"><Tag size={10} /> {t}</span>
               ))}
             </div>

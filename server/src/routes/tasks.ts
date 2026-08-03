@@ -17,8 +17,8 @@ router.get('/', async (req: Request, res: Response) => {
 
 // Create task
 router.post('/', async (req: Request, res: Response) => {
-  const { title, description, status, priority, due_date, category } = req.body;
-  const id = uuidv4();
+  const { title, description, status, priority, due_date, category, id: clientId } = req.body;
+  const id = clientId || uuidv4();
   const now = new Date().toISOString();
 
   await db.prepare(`

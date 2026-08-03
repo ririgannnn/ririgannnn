@@ -41,12 +41,30 @@ const FIELD_MAP: Record<string, string> = {
   password_hash: 'passwordHash',
 };
 
+// ── JSON 字段：PostgreSQL 中存储为 TEXT，返回时需解析为数组 ──
+const JSON_FIELDS = new Set(['tags']);
+
 function transformRow(row: QueryResultRow): QueryResultRow {
   const result: QueryResultRow = {};
   for (const [key, value] of Object.entries(row)) {
     const newKey = FIELD_MAP[key] || key;
+    let newValue = value;
+
+    // Parse JSON fields (tags stored as JSON string in PostgreSQL)
+    if (JSON_FIELDS.has(key) && typeof value === 'string') {
+      try {
+        newValue = JSON.parse(value);
+      } catch {
+        newValue = [];
+      }
+    }
+
     // pg 对 TIMESTAMPTZ 返回 JS Date 对象，转为 ISO 字符串确保前端一致
-    result[newKey] = value instanceof Date ? value.toISOString() : value;
+    if (newValue instanceof Date) {
+      newValue = newValue.toISOString();
+    }
+
+    result[newKey] = newValue;
   }
   return result;
 }
