@@ -60,22 +60,22 @@ export default function Layout() {
 
   return (
     <div className="relative flex h-screen overflow-hidden">
-      {/* ===== Background Layer ===== */}
-      <img
-        src="/bg-main.jpg"
-        alt=""
-        className="fixed inset-0 w-full h-full object-cover -z-20"
-        style={{ objectPosition: 'center 40%' }}
-      />
-      {/* Dark overlay — ensure readability */}
-      <div className="fixed inset-0 bg-slate-900/40 -z-10" />
-      {/* Bottom gradient */}
-      <div className="fixed inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-slate-900/30 -z-10" />
-      {/* Vignette */}
+      {/* ===== White Frosted Glass Background ===== */}
       <div
-        className="fixed inset-0 -z-10 pointer-events-none"
+        className="fixed inset-0 -z-10"
         style={{
-          background: 'radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(15,23,42,0.45) 100%)',
+          background: `
+            radial-gradient(ellipse at 20% 0%, hsl(${220} 30% 94%) 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 100%, hsl(${260} 25% 93%) 0%, transparent 50%),
+            linear-gradient(180deg, hsl(220 20% 98%) 0%, hsl(220 15% 95%) 100%)
+          `,
+        }}
+      />
+      {/* Subtle noise texture overlay for depth */}
+      <div
+        className="fixed inset-0 -z-10 pointer-events-none opacity-[0.015]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E")`,
         }}
       />
 
@@ -90,13 +90,13 @@ export default function Layout() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden relative z-0">
-        {/* Top bar */}
+        {/* Top bar — white frosted glass */}
         <header
-          className="h-14 shrink-0 flex items-center px-3 md:px-6 border-b border-white/10 relative z-10"
+          className="h-14 shrink-0 flex items-center px-3 md:px-6 border-b border-black/5 relative z-10"
           style={{
-            background: 'rgba(255,255,255,0.08)',
-            backdropFilter: 'blur(20px) saturate(150%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+            background: 'rgba(255,255,255,0.6)',
+            backdropFilter: 'blur(20px) saturate(140%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(140%)',
           }}
         >
           {/* Mobile hamburger */}

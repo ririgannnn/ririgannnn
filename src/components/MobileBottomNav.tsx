@@ -21,8 +21,10 @@ export default function MobileBottomNav({ onMenuClick }: Props) {
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around h-16 px-1 pb-safe"
       style={{
-        background: 'hsl(var(--card))',
-        borderTop: '1px solid hsl(var(--border))',
+        background: 'rgba(255,255,255,0.7)',
+        backdropFilter: 'blur(20px) saturate(140%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(140%)',
+        borderTop: '1px solid rgba(0,0,0,0.06)',
       }}
     >
       {navItems.map((item) => {

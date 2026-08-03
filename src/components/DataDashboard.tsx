@@ -48,7 +48,7 @@ export default function DataDashboard() {
           { label: '日程', value: events.length, sub: '本月活动', color: '#f59e0b' },
           { label: '知识条目', value: tasks.length, sub: '综合数据', color: '#10b981' },
         ].map((card) => (
-          <div key={card.label} className="rounded-xl border border-white/30 p-4" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}>
+          <div key={card.label} className="rounded-xl border border-black/5 p-4" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}>
             <div className="text-2xl font-bold text-fg">{card.value}</div>
             <div className="text-sm mt-1" style={{ color: card.color }}>{card.label}</div>
             <div className="text-xs text-muted-fg mt-0.5">{card.sub}</div>
@@ -59,7 +59,7 @@ export default function DataDashboard() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Activity Line Chart */}
-        <div className="rounded-xl border border-white/30 p-4" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}>
+        <div className="rounded-xl border border-black/5 p-4" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}>
           <h3 className="text-sm font-semibold text-fg mb-3">近 7 天活跃度</h3>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={activityData}>
@@ -74,7 +74,7 @@ export default function DataDashboard() {
         </div>
 
         {/* Task Priority Distribution */}
-        <div className="rounded-xl border border-white/30 p-4" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}>
+        <div className="rounded-xl border border-black/5 p-4" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}>
           <h3 className="text-sm font-semibold text-fg mb-3">任务优先级分布</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={taskByPriority}>
@@ -92,7 +92,7 @@ export default function DataDashboard() {
         </div>
 
         {/* Task Status Pie */}
-        <div className="rounded-xl border border-white/30 p-4" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}>
+        <div className="rounded-xl border border-black/5 p-4" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}>
           <h3 className="text-sm font-semibold text-fg mb-3">任务状态</h3>
           {taskByStatus.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
@@ -111,7 +111,7 @@ export default function DataDashboard() {
         </div>
 
         {/* Notes by Folder */}
-        <div className="rounded-xl border border-white/30 p-4" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}>
+        <div className="rounded-xl border border-black/5 p-4" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}>
           <h3 className="text-sm font-semibold text-fg mb-3">笔记分类</h3>
           {notesByFolder.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>

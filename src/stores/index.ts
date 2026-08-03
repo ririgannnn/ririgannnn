@@ -68,7 +68,7 @@ export const useStore = create<AppState>()(
       activeModule: 'dashboard',
       setActiveModule: (m) => set({ activeModule: m }),
 
-      settings: { primaryHue: 220, sidebarCollapsed: false },
+      settings: { primaryHue: 220, primarySaturation: 52, sidebarCollapsed: false },
       updateSettings: (partial) => set((s) => ({ settings: { ...s.settings, ...partial } })),
 
       // === Tasks ===

@@ -129,7 +129,7 @@ export default function CalendarView() {
             <div className="space-y-2">
               {todayEvents.map((ev) => (
                 <div key={ev.id}
-                  className="p-3 rounded-lg border-l-3 border border-white/30 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                  className="p-3 rounded-lg border-l-3 border border-black/5 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                   style={{ borderLeftColor: ev.color, borderLeftWidth: 4, background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}
                   onClick={() => setSelectedEvent(ev)}>
                   <div className="text-sm font-medium text-fg">{ev.title}</div>
@@ -164,7 +164,7 @@ export default function CalendarView() {
       {/* Add Event Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
-          <div className="rounded-2xl border border-white/30 shadow-xl p-6 w-full max-w-md animate-scale-in" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }} onClick={(e) => e.stopPropagation()}>
+          <div className="rounded-2xl border border-black/5 shadow-xl p-6 w-full max-w-md animate-scale-in" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-fg">新建日程</h2>
               <button onClick={() => setShowForm(false)} className="p-1 rounded hover:bg-muted"><X size={18} className="text-muted-fg" /></button>
@@ -217,7 +217,7 @@ export default function CalendarView() {
       {/* Event Detail Modal */}
       {selectedEvent && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={() => setSelectedEvent(null)}>
-          <div className="rounded-2xl border border-white/30 shadow-xl p-6 w-full max-w-md animate-scale-in" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }} onClick={(e) => e.stopPropagation()}>
+          <div className="rounded-2xl border border-black/5 shadow-xl p-6 w-full max-w-md animate-scale-in" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: selectedEvent.color }} />
               <div className="flex gap-2">

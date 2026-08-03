@@ -60,7 +60,7 @@ export default function TaskView() {
           <input
             type="text" placeholder="搜索任务..." value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-white/30 text-fg outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+            className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-black/5 text-fg outline-none focus:ring-2 focus:ring-primary/30 transition-all"
             style={{ background: 'rgba(255,255,255,0.65)' }}
           />
         </div>
@@ -84,7 +84,7 @@ export default function TaskView() {
           return (
             <div
               key={col}
-              className="rounded-xl p-3 border border-white/20"
+              className="rounded-xl p-3 border border-black/5"
               style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(12px) saturate(130%)', WebkitBackdropFilter: 'blur(12px) saturate(130%)' }}
             >
               <div className="flex items-center justify-between mb-3 px-1">
@@ -93,7 +93,7 @@ export default function TaskView() {
                   <span className="text-sm font-semibold text-fg">{statusLabels[col].label}</span>
                 </div>
                 <span
-                  className="text-xs text-muted-fg px-2 py-0.5 rounded-full border border-white/25"
+                  className="text-xs text-muted-fg px-2 py-0.5 rounded-full border border-black/5"
                   style={{ background: 'rgba(255,255,255,0.6)' }}
                 >{colTasks.length}</span>
               </div>
@@ -119,7 +119,7 @@ export default function TaskView() {
       {showForm && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
           <div
-            className="rounded-2xl shadow-xl p-6 w-full max-w-md animate-scale-in border border-white/30"
+            className="rounded-2xl shadow-xl p-6 w-full max-w-md animate-scale-in border border-black/5"
             style={{
               background: 'rgba(255,255,255,0.82)',
               backdropFilter: 'blur(24px) saturate(150%)',
@@ -183,7 +183,7 @@ function TaskCard({ task, onStatus, onDelete, onEdit, isEditing, onEditingChange
 
   return (
     <div
-      className="rounded-lg p-3 border border-white/30 shadow-sm hover:shadow-md transition-shadow group"
+      className="rounded-lg p-3 border border-black/5 shadow-sm hover:shadow-md transition-shadow group"
       style={{ background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
     >
       {isEditing ? (

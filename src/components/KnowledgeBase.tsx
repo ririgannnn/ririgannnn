@@ -141,7 +141,7 @@ export default function KnowledgeBase() {
             ) : (
               filtered.map((k) => (
                 <button key={k.id} onClick={() => setSelectedId(k.id)}
-                  className="text-left p-4 rounded-xl border border-white/30 hover:shadow-md transition-all text-left"
+                  className="text-left p-4 rounded-xl border border-black/5 hover:shadow-md transition-all text-left"
                   style={{ background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(12px) saturate(150%)', WebkitBackdropFilter: 'blur(12px) saturate(150%)' }}>
                   <h3 className="text-sm font-semibold text-fg mb-1 truncate">{k.title}</h3>
                   <p className="text-xs text-muted-fg line-clamp-2 mb-2">{k.content}</p>

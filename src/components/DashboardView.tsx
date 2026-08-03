@@ -35,8 +35,8 @@ function SortableWidget({ widget, children }: { widget: typeof defaultWidgets[0]
       background: 'rgba(255,255,255,0.72)',
       backdropFilter: 'blur(16px) saturate(140%)',
       WebkitBackdropFilter: 'blur(16px) saturate(140%)',
-    }} className="rounded-xl border border-white/30 shadow-lg shadow-black/5 overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-white/20 cursor-grab active:cursor-grabbing"
+    }} className="rounded-xl border border-black/5 shadow-lg shadow-black/5 overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-black/5 cursor-grab active:cursor-grabbing"
         style={{ background: 'rgba(255,255,255,0.45)' }}
         {...attributes} {...listeners}>
         <widget.icon size={16} style={{ color: widget.color }} />
@@ -74,7 +74,7 @@ export default function DashboardView() {
     <div className="space-y-6">
       {/* Header with decorative watermark */}
       <div
-        className="relative overflow-hidden rounded-2xl border border-white/30 p-6 pb-8 shadow-lg shadow-black/5"
+        className="relative overflow-hidden rounded-2xl border border-black/5 p-6 pb-8 shadow-lg shadow-black/5"
         style={{
           background: 'rgba(255,255,255,0.78)',
           backdropFilter: 'blur(20px) saturate(150%)',
@@ -154,7 +154,7 @@ function TaskWidget({ tasks, onClick }: { tasks: Task[]; onClick: () => void }) 
         ].map((stat) => (
           <div
             key={stat.label}
-            className="flex-1 text-center p-2 rounded-lg border border-white/30"
+            className="flex-1 text-center p-2 rounded-lg border border-black/5"
             style={{ background: 'rgba(255,255,255,0.55)' }}
           >
             <div className="text-lg font-bold" style={{ color: stat.color }}>{stat.count}</div>

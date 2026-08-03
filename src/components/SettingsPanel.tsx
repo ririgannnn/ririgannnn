@@ -2,15 +2,16 @@ import { useState, useEffect, useRef } from 'react';
 import { useStore } from '../stores';
 import { Settings, X, Palette, RotateCcw, Download, Upload } from 'lucide-react';
 
-const presetColors = [
-  { hue: 220, label: '蓝', class: 'bg-blue-500' },
-  { hue: 260, label: '紫', class: 'bg-purple-500' },
-  { hue: 340, label: '粉', class: 'bg-pink-500' },
-  { hue: 170, label: '青', class: 'bg-teal-500' },
-  { hue: 30, label: '橙', class: 'bg-orange-500' },
-  { hue: 0, label: '红', class: 'bg-red-500' },
-  { hue: 120, label: '绿', class: 'bg-green-500' },
-  { hue: 50, label: '黄', class: 'bg-yellow-500' },
+/* Low-saturation preset themes — each defines hue + saturation */
+const presetThemes = [
+  { hue: 220, sat: 52, label: '雾蓝' },
+  { hue: 260, sat: 45, label: '薰衣草' },
+  { hue: 340, sat: 48, label: '藕粉' },
+  { hue: 170, sat: 38, label: '灰青' },
+  { hue: 30,  sat: 50, label: '陶土' },
+  { hue: 0,   sat: 45, label: '砖红' },
+  { hue: 120, sat: 35, label: '苔绿' },
+  { hue: 50,  sat: 45, label: '燕麦' },
 ];
 
 export default function SettingsPanel() {
@@ -18,11 +19,13 @@ export default function SettingsPanel() {
   const [open, setOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const sat = settings.primarySaturation ?? 52;
+
   useEffect(() => {
     const root = document.documentElement;
-    root.style.setProperty('--primary', `${settings.primaryHue} 85% 48%`);
-    root.style.setProperty('--sidebar-accent', `${settings.primaryHue} 85% 48%`);
-  }, [settings.primaryHue]);
+    root.style.setProperty('--primary', `${settings.primaryHue} ${sat}% 48%`);
+    root.style.setProperty('--sidebar-accent', `${settings.primaryHue} ${sat}% 48%`);
+  }, [settings.primaryHue, sat]);
 
   const handleExport = () => {
     const raw = localStorage.getItem('personal-workspace');
@@ -68,7 +71,14 @@ export default function SettingsPanel() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-white/30 shadow-xl z-50 p-4 animate-scale-in" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}>
+          <div
+            className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-black/5 shadow-xl z-50 p-4 animate-scale-in"
+            style={{
+              background: 'rgba(255,255,255,0.82)',
+              backdropFilter: 'blur(24px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+            }}
+          >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-fg flex items-center gap-2">
                 <Palette size={15} /> 个性化设置
@@ -78,26 +88,33 @@ export default function SettingsPanel() {
               </button>
             </div>
 
-            {/* Theme Color */}
+            {/* Theme Color Presets */}
             <div className="mb-4">
-              <p className="text-xs font-medium text-muted-fg mb-2">主题色</p>
-              <div className="grid grid-cols-8 gap-2">
-                {presetColors.map((c) => (
+              <p className="text-xs font-medium text-muted-fg mb-2">主题色（低饱和度预设）</p>
+              <div className="grid grid-cols-4 gap-2">
+                {presetThemes.map((c) => (
                   <button
-                    key={c.hue}
-                    onClick={() => updateSettings({ primaryHue: c.hue })}
-                    className={`w-7 h-7 rounded-full ${c.class} transition-transform hover:scale-110 ${
-                      settings.primaryHue === c.hue ? 'ring-2 ring-offset-2 ring-offset-card ring-fg scale-110' : ''
-                    }`}
-                    title={c.label}
-                  />
+                    key={c.label}
+                    onClick={() => updateSettings({ primaryHue: c.hue, primarySaturation: c.sat })}
+                    className="flex flex-col items-center gap-1 p-1.5 rounded-lg transition-all hover:bg-muted"
+                    style={{
+                      outline: settings.primaryHue === c.hue ? `2px solid hsl(${c.hue} ${c.sat}% 48%)` : 'none',
+                      outlineOffset: -1,
+                    }}
+                  >
+                    <div
+                      className="w-7 h-7 rounded-full"
+                      style={{ background: `hsl(${c.hue} ${c.sat}% 48%)` }}
+                    />
+                    <span className="text-[10px] text-muted-fg">{c.label}</span>
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* Custom Color */}
-            <div className="mb-4">
-              <p className="text-xs font-medium text-muted-fg mb-2">自定义色调</p>
+            {/* Custom Hue */}
+            <div className="mb-3">
+              <p className="text-xs font-medium text-muted-fg mb-2">自定义色相</p>
               <input
                 type="range" min={0} max={360} value={settings.primaryHue}
                 onChange={(e) => updateSettings({ primaryHue: Number(e.target.value) })}
@@ -105,14 +122,29 @@ export default function SettingsPanel() {
               />
               <div className="flex justify-between text-xs text-muted-fg mt-1">
                 <span>0&deg;</span>
-                <span style={{ color: `hsl(${settings.primaryHue}, 85%, 48%)` }}>{settings.primaryHue}&deg;</span>
+                <span style={{ color: `hsl(${settings.primaryHue} ${sat}% 48%)` }}>{settings.primaryHue}&deg;</span>
                 <span>360&deg;</span>
+              </div>
+            </div>
+
+            {/* Saturation Slider */}
+            <div className="mb-4">
+              <p className="text-xs font-medium text-muted-fg mb-2">饱和度</p>
+              <input
+                type="range" min={10} max={90} value={sat}
+                onChange={(e) => updateSettings({ primarySaturation: Number(e.target.value) })}
+                className="w-full accent-primary h-1.5"
+              />
+              <div className="flex justify-between text-xs text-muted-fg mt-1">
+                <span>低</span>
+                <span style={{ color: `hsl(${settings.primaryHue} ${sat}% 48%)` }}>{sat}%</span>
+                <span>高</span>
               </div>
             </div>
 
             {/* Reset */}
             <button
-              onClick={() => updateSettings({ primaryHue: 220, sidebarCollapsed: false })}
+              onClick={() => updateSettings({ primaryHue: 220, primarySaturation: 52, sidebarCollapsed: false })}
               className="w-full flex items-center justify-center gap-2 py-2 text-sm rounded-lg bg-muted text-muted-fg hover:bg-border transition-colors"
             >
               <RotateCcw size={14} /> 恢复默认设置

@@ -1,32 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --primary: 220 85% 48%;
+  --primary: 220 52% 48%;
   --primary-foreground: 0 0% 100%;
 
-  --background: 0 0% 98%;
+  --background: 220 20% 97%;
   --foreground: 220 15% 15%;
 
   --card: 0 0% 100%;
   --card-foreground: 220 15% 15%;
 
-  --sidebar: 220 15% 12%;
-  --sidebar-foreground: 0 0% 92%;
-  --sidebar-accent: 220 85% 48%;
+  --sidebar: 220 18% 97%;
+  --sidebar-foreground: 220 15% 25%;
+  --sidebar-accent: 220 52% 48%;
 
   --border: 220 13% 90%;
-  --muted: 220 14% 96%;
+  --muted: 220 14% 94%;
   --muted-foreground: 220 8% 46%;
 
   --radius: 0.75rem;
 
-  /* Bold English Color-Blocking Accents */
-  --accent-pink: 340 82% 52%;
-  --accent-teal: 172 66% 40%;
-  --accent-amber: 38 92% 50%;
-  --accent-purple: 258 90% 66%;
-  --accent-lime: 84 81% 44%;
-  --accent-coral: 6 89% 64%;
+  /* Muted, low-saturation accent palette */
+  --accent-pink: 340 48% 55%;
+  --accent-teal: 172 38% 42%;
+  --accent-amber: 38 55% 52%;
+  --accent-purple: 258 45% 60%;
+  --accent-lime: 84 40% 46%;
+  --accent-coral: 6 50% 60%;
 }
 
 @theme inline {

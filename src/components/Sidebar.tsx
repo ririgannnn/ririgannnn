@@ -34,23 +34,23 @@ export default function Sidebar({ mobileOpen, onMobileClose }: Props) {
       className="h-full flex flex-col shrink-0 overflow-hidden transition-all duration-300 relative"
       style={{
         width: collapsed ? 64 : 240,
-        background: 'rgba(15,23,42,0.55)',
-        backdropFilter: 'blur(24px) saturate(160%)',
-        WebkitBackdropFilter: 'blur(24px) saturate(160%)',
+        background: 'rgba(255,255,255,0.6)',
+        backdropFilter: 'blur(24px) saturate(140%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(140%)',
         color: 'hsl(var(--sidebar-foreground))',
-        borderRight: '1px solid rgba(255,255,255,0.08)',
+        borderRight: '1px solid rgba(0,0,0,0.06)',
       }}
     >
       {/* Inner glass edge highlight */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.08)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8)',
         }}
       />
 
       {/* Logo — gradient color-block */}
-      <div className="flex items-center h-14 px-4 shrink-0 border-b relative z-10" style={{ borderColor: 'hsl(var(--sidebar-foreground) / 0.1)' }}>
+      <div className="flex items-center h-14 px-4 shrink-0 border-b relative z-10" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
         {!collapsed && (
           <div className="flex items-center gap-3 animate-fade-in">
             <div
@@ -71,15 +71,15 @@ export default function Sidebar({ mobileOpen, onMobileClose }: Props) {
         )}
         {/* Close button on mobile */}
         {onMobileClose && (
-          <button onClick={onMobileClose} className="md:hidden ml-auto p-1.5 rounded-md hover:bg-white/10 transition-colors" style={{ color: 'hsl(var(--sidebar-foreground) / 0.7)' }}>
+          <button onClick={onMobileClose} className="md:hidden ml-auto p-1.5 rounded-md hover:bg-black/5 transition-colors" style={{ color: 'hsl(var(--sidebar-foreground) / 0.6)' }}>
             <X size={20} />
           </button>
         )}
         {!onMobileClose && (
           <button
             onClick={() => updateSettings({ sidebarCollapsed: !collapsed })}
-            className="ml-auto p-1 rounded-md hover:bg-white/10 transition-colors"
-            style={{ opacity: collapsed ? 1 : undefined, color: 'hsl(var(--sidebar-foreground) / 0.6)' }}
+            className="ml-auto p-1 rounded-md hover:bg-black/5 transition-colors"
+            style={{ opacity: collapsed ? 1 : undefined, color: 'hsl(var(--sidebar-foreground) / 0.5)' }}
           >
             <ChevronLeft size={18} style={{ transform: collapsed ? 'rotate(180deg)' : undefined, transition: 'transform 0.3s' }} />
           </button>
@@ -117,7 +117,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: Props) {
       </nav>
 
       {/* Bottom: decorative English + settings */}
-      <div className="border-t relative z-10" style={{ borderColor: 'hsl(var(--sidebar-foreground) / 0.1)' }}>
+      <div className="border-t relative z-10" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
         {!collapsed && (
           <div className="px-4 pt-3 pb-1 flex gap-2 text-[9px] uppercase tracking-[0.2em] font-bold opacity-30 select-none">
             <span style={{ color: 'hsl(var(--accent-pink))' }}>Create</span>
@@ -148,7 +148,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: Props) {
       <>
         {/* Backdrop */}
         <div
-          className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 md:hidden ${mobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          className={`fixed inset-0 z-40 bg-black/20 transition-opacity duration-300 md:hidden ${mobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={onMobileClose}
         />
         {/* Drawer */}

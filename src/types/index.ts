@@ -65,5 +65,6 @@ export type ModuleType = 'dashboard' | 'tasks' | 'notes' | 'knowledge' | 'calend
 
 export interface AppSettings {
   primaryHue: number;
+  primarySaturation: number;
   sidebarCollapsed: boolean;
 }
