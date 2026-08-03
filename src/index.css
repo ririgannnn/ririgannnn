@@ -68,6 +68,7 @@ body {
 
 #root {
   height: 100vh;
+  height: 100dvh; /* dynamic viewport height — fixes mobile browser toolbar overlap */
   overflow: hidden;
 }
 
@@ -228,5 +229,13 @@ body {
   /* Dashboard card single column */
   .dashboard-grid {
     grid-template-columns: 1fr !important;
+  }
+
+  /* ===== CRITICAL: Disable backdrop-filter on mobile to prevent GPU crash → white screen =====
+     Mobile GPUs cannot handle 8+ simultaneous backdrop-filter:blur() layers.
+     The semi-transparent backgrounds remain, just without the blur effect. */
+  * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 }

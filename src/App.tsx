@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function AppContent() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -31,8 +32,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

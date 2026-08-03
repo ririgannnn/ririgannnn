@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['pwa-icon.svg'],
       manifest: {
         name: '荔荔绀工作台 · Ririgannnn',
