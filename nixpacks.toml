@@ -14,7 +14,7 @@ cmds = [
 cmds = [
   "rm -rf dist",
   "npm run build",
-  "cd server && npm run build"
+  "cd server && npx tsc"
 ]
 
 [start]
