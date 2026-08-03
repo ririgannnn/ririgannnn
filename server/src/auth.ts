@@ -49,7 +49,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
 }
 
 // Register
-router.post('/register', (req: Request, res: Response) => {
+router.post('/register', async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -67,7 +67,7 @@ router.post('/register', (req: Request, res: Response) => {
     return;
   }
 
-  const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+  const existing = await db.prepare('SELECT id FROM users WHERE username = ?').get(username);
   if (existing) {
     res.status(409).json({ error: '用户名已被注册' });
     return;
@@ -76,7 +76,7 @@ router.post('/register', (req: Request, res: Response) => {
   const id = uuidv4();
   const passwordHash = bcrypt.hashSync(password, 10);
 
-  db.prepare(
+  await db.prepare(
     'INSERT INTO users (id, username, password_hash) VALUES (?, ?, ?)'
   ).run(id, username, passwordHash);
 
@@ -90,7 +90,7 @@ router.post('/register', (req: Request, res: Response) => {
 });
 
 // Login
-router.post('/login', (req: Request, res: Response) => {
+router.post('/login', async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -98,7 +98,7 @@ router.post('/login', (req: Request, res: Response) => {
     return;
   }
 
-  const row = db.prepare(
+  const row = await db.prepare(
     'SELECT id, username, password_hash FROM users WHERE username = ?'
   ).get(username) as { id: string; username: string; password_hash: string } | undefined;
 
@@ -117,8 +117,8 @@ router.post('/login', (req: Request, res: Response) => {
 });
 
 // Get current user info
-router.get('/me', authMiddleware, (req: Request, res: Response) => {
-  const row = db.prepare(
+router.get('/me', authMiddleware, async (req: Request, res: Response) => {
+  const row = await db.prepare(
     'SELECT id, username, created_at FROM users WHERE id = ?'
   ).get(req.user!.id) as { id: string; username: string; created_at: string };
 

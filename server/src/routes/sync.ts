@@ -7,27 +7,27 @@ router.use(authMiddleware);
 
 // GET /api/sync?since=ISO_TIMESTAMP
 // Returns all entities modified since the given timestamp for this user
-router.get('/', (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   const since = (req.query.since as string) || '1970-01-01T00:00:00.000Z';
   const userId = req.user!.id;
 
-  const tasks = db.prepare(
+  const tasks = await db.prepare(
     'SELECT * FROM tasks WHERE user_id = ? AND updated_at > ?'
   ).all(userId, since);
 
-  const notes = db.prepare(
+  const notes = await db.prepare(
     'SELECT * FROM notes WHERE user_id = ? AND updated_at > ?'
   ).all(userId, since);
 
-  const events = db.prepare(
+  const events = await db.prepare(
     'SELECT * FROM events WHERE user_id = ? AND updated_at > ?'
   ).all(userId, since);
 
-  const knowledge = db.prepare(
+  const knowledge = await db.prepare(
     'SELECT * FROM knowledge WHERE user_id = ? AND updated_at > ?'
   ).all(userId, since);
 
-  const inspirations = db.prepare(
+  const inspirations = await db.prepare(
     'SELECT * FROM inspirations WHERE user_id = ? AND updated_at > ?'
   ).all(userId, since);
 

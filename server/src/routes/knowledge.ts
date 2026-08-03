@@ -7,31 +7,31 @@ import { broadcastChange } from '../sync.js';
 const router = Router();
 router.use(authMiddleware);
 
-router.get('/', (req: Request, res: Response) => {
-  const entries = db.prepare(
+router.get('/', async (req: Request, res: Response) => {
+  const entries = await db.prepare(
     'SELECT * FROM knowledge WHERE user_id = ? AND deleted_at IS NULL ORDER BY updated_at DESC'
   ).all(req.user!.id);
   res.json({ knowledge: entries });
 });
 
-router.post('/', (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   const { title, content, category, tags } = req.body;
   const id = uuidv4();
   const now = new Date().toISOString();
   const tagsJson = JSON.stringify(tags || []);
 
-  db.prepare(`
+  await db.prepare(`
     INSERT INTO knowledge (id, user_id, title, content, category, tags, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).run(id, req.user!.id, title, content || '', category || '', tagsJson, now, now);
 
-  const entry = db.prepare('SELECT * FROM knowledge WHERE id = ?').get(id);
+  const entry = await db.prepare('SELECT * FROM knowledge WHERE id = ?').get(id);
   broadcastChange(req.user!.id, 'knowledge', 'create', entry);
   res.status(201).json({ knowledge: entry });
 });
 
-router.put('/:id', (req: Request, res: Response) => {
-  const existing = db.prepare(
+router.put('/:id', async (req: Request, res: Response) => {
+  const existing = await db.prepare(
     'SELECT * FROM knowledge WHERE id = ? AND user_id = ? AND deleted_at IS NULL'
   ).get(req.params.id, req.user!.id);
 
@@ -41,7 +41,7 @@ router.put('/:id', (req: Request, res: Response) => {
   const { title, content, category, tags } = req.body;
   const tagsJson = tags ? JSON.stringify(tags) : null;
 
-  db.prepare(`
+  await db.prepare(`
     UPDATE knowledge SET
       title = COALESCE(?, title),
       content = COALESCE(?, content),
@@ -51,20 +51,20 @@ router.put('/:id', (req: Request, res: Response) => {
     WHERE id = ? AND user_id = ?
   `).run(title ?? null, content ?? null, category ?? null, tagsJson, now, req.params.id, req.user!.id);
 
-  const entry = db.prepare('SELECT * FROM knowledge WHERE id = ?').get(req.params.id);
+  const entry = await db.prepare('SELECT * FROM knowledge WHERE id = ?').get(req.params.id);
   broadcastChange(req.user!.id, 'knowledge', 'update', entry);
   res.json({ knowledge: entry });
 });
 
-router.delete('/:id', (req: Request, res: Response) => {
-  const existing = db.prepare(
+router.delete('/:id', async (req: Request, res: Response) => {
+  const existing = await db.prepare(
     'SELECT * FROM knowledge WHERE id = ? AND user_id = ? AND deleted_at IS NULL'
   ).get(req.params.id, req.user!.id);
 
   if (!existing) { res.status(404).json({ error: '知识条目不存在' }); return; }
 
   const now = new Date().toISOString();
-  db.prepare('UPDATE knowledge SET deleted_at = ?, updated_at = ? WHERE id = ?').run(now, now, req.params.id);
+  await db.prepare('UPDATE knowledge SET deleted_at = ?, updated_at = ? WHERE id = ?').run(now, now, req.params.id);
   broadcastChange(req.user!.id, 'knowledge', 'delete', { id: req.params.id });
   res.json({ success: true });
 });
