@@ -286,10 +286,10 @@ export default function NotesView() {
                   </span>
                 </div>
 
-                {/* Content - Rich read-only display */}
+                {/* Content - Rich read-only display with serif font */}
                 <div className="prose prose-sm max-w-none">
                   {selected.content ? (
-                    <div className="text-[15px] text-fg leading-[1.85] whitespace-pre-wrap">
+                    <div className="font-serif-cn text-[17px] md:text-[18px] text-fg leading-[2] whitespace-pre-wrap">
                       {selected.content}
                     </div>
                   ) : (

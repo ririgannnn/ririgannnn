@@ -66,6 +66,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Serif font for note reading mode — Source Han Serif (思源宋体) */
+.font-serif-cn {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
 #root {
   height: 100vh;
   height: 100dvh; /* dynamic viewport height — fixes mobile browser toolbar overlap */
