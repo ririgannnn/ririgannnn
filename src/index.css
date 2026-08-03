@@ -79,13 +79,75 @@ body {
 
 /* Animations */
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideIn { from { transform: translateX(-16px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes slideInRight { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 @keyframes colorShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 33% { transform: translateY(-12px) rotate(2deg); } 66% { transform: translateY(-6px) rotate(-1deg); } }
+@keyframes floatSlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+@keyframes floatSlower { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-16px) scale(1.05); } }
+@keyframes blob { 0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; } 50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); } 20%, 40%, 60%, 80% { transform: translateX(4px); } }
+@keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
 .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+.animate-fade-in-up { animation: fadeInUp 0.5s ease-out; }
 .animate-slide-in { animation: slideIn 0.3s ease-out; }
+.animate-slide-in-right { animation: slideInRight 0.4s ease-out; }
 .animate-scale-in { animation: scaleIn 0.2s ease-out; }
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-float-slow { animation: floatSlow 8s ease-in-out infinite; }
+.animate-float-slower { animation: floatSlower 10s ease-in-out infinite; }
+.animate-blob { animation: blob 8s ease-in-out infinite; }
+.animate-shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent); background-size: 200% 100%; animation: shimmer 2s infinite; }
+.animate-shake { animation: shake 0.5s ease-in-out; }
+.animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+/* Login page specific utilities */
+.login-gradient-bg {
+  background: linear-gradient(135deg, hsl(var(--sidebar)), hsl(220 18% 8%), hsl(260 25% 14%));
+}
+
+.login-accent-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.login-input {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.login-input:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.15), 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.login-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.login-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px hsl(var(--primary) / 0.3);
+}
+.login-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Responsive login split */
+@media (max-width: 768px) {
+  .login-split {
+    flex-direction: column;
+  }
+  .login-brand-panel {
+    height: auto;
+    min-height: 180px;
+    padding: 2rem 1.5rem;
+  }
+}
 
 /* ========================================
    Bold English Color-Blocking Utilities
