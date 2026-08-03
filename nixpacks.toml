@@ -1,6 +1,9 @@
 # Railway Nixpacks Configuration
 # Deploy: 荔荔绀工作台 · Ririgannnn (Backend + Frontend)
 
+# 明确指定使用 Node.js 运行时（覆盖静态站点自动检测）
+providers = ["nodejs"]
+
 [phases.setup]
 nixPkgs = ["nodejs_22"]
 
