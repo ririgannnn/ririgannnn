@@ -59,7 +59,26 @@ export default function Layout() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="relative flex h-screen overflow-hidden">
+      {/* ===== Background Layer ===== */}
+      <img
+        src="/bg-main.jpg"
+        alt=""
+        className="fixed inset-0 w-full h-full object-cover -z-20"
+        style={{ objectPosition: 'center 40%' }}
+      />
+      {/* Dark overlay — ensure readability */}
+      <div className="fixed inset-0 bg-slate-900/40 -z-10" />
+      {/* Bottom gradient */}
+      <div className="fixed inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-slate-900/30 -z-10" />
+      {/* Vignette */}
+      <div
+        className="fixed inset-0 -z-10 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(15,23,42,0.45) 100%)',
+        }}
+      />
+
       {/* Desktop Sidebar */}
       <Sidebar />
 
@@ -70,9 +89,16 @@ export default function Layout() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
+      <main className="flex-1 flex flex-col overflow-hidden relative z-0">
         {/* Top bar */}
-        <header className="h-14 shrink-0 flex items-center px-3 md:px-6 border-b" style={{ backgroundColor: 'hsl(var(--card))' }}>
+        <header
+          className="h-14 shrink-0 flex items-center px-3 md:px-6 border-b border-white/10 relative z-10"
+          style={{
+            background: 'rgba(255,255,255,0.08)',
+            backdropFilter: 'blur(20px) saturate(150%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+          }}
+        >
           {/* Mobile hamburger */}
           <button
             className="md:hidden p-1.5 mr-2 rounded-lg hover:bg-muted transition-colors"
@@ -97,7 +123,10 @@ export default function Layout() {
         </header>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-3 md:p-6 pb-20 md:pb-6" key={activeModule}>
+        <div
+          className="flex-1 overflow-y-auto p-3 md:p-6 pb-20 md:pb-6 relative"
+          key={activeModule}
+        >
           <div className="animate-scale-in max-w-[1600px] mx-auto">
             {/* Module accent header (non-dashboard modules, desktop) */}
             {meta && (

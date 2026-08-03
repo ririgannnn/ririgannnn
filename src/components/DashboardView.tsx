@@ -30,8 +30,14 @@ function SortableWidget({ widget, children }: { widget: typeof defaultWidgets[0]
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="bg-card rounded-xl border shadow-sm overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/50 cursor-grab active:cursor-grabbing"
+    <div ref={setNodeRef} style={{
+      ...style,
+      background: 'rgba(255,255,255,0.72)',
+      backdropFilter: 'blur(16px) saturate(140%)',
+      WebkitBackdropFilter: 'blur(16px) saturate(140%)',
+    }} className="rounded-xl border border-white/30 shadow-lg shadow-black/5 overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-white/20 cursor-grab active:cursor-grabbing"
+        style={{ background: 'rgba(255,255,255,0.45)' }}
         {...attributes} {...listeners}>
         <widget.icon size={16} style={{ color: widget.color }} />
         <h3 className="text-sm font-semibold text-fg">{widget.title}</h3>
@@ -67,7 +73,14 @@ export default function DashboardView() {
   return (
     <div className="space-y-6">
       {/* Header with decorative watermark */}
-      <div className="relative overflow-hidden rounded-2xl bg-card border p-6 pb-8">
+      <div
+        className="relative overflow-hidden rounded-2xl border border-white/30 p-6 pb-8 shadow-lg shadow-black/5"
+        style={{
+          background: 'rgba(255,255,255,0.78)',
+          backdropFilter: 'blur(20px) saturate(150%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+        }}
+      >
         {/* Decorative "RIRIGANNNN" watermark */}
         <div className="decorative-english color-block-text absolute -top-6 -right-4 text-[6rem] md:text-[8rem] leading-none opacity-[0.06] select-none pointer-events-none"
           style={{ wordBreak: 'break-all' }}>
@@ -94,7 +107,11 @@ export default function DashboardView() {
           <button
             key={btn.label}
             onClick={btn.action}
-            className="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-fg hover:opacity-90 transition-opacity flex items-center gap-2"
+            className="px-4 py-2 text-sm font-medium rounded-lg text-white hover:opacity-90 transition-opacity flex items-center gap-2 shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent-purple)))',
+              boxShadow: '0 4px 16px hsl(var(--primary) / 0.3)',
+            }}
           >
             <ArrowUpRight size={15} />
             {btn.label}
@@ -135,7 +152,11 @@ function TaskWidget({ tasks, onClick }: { tasks: Task[]; onClick: () => void }) 
           { label: '进行中', count: inProgress.length, color: '#3b82f6' },
           { label: '已完成', count: done.length, color: '#10b981' },
         ].map((stat) => (
-          <div key={stat.label} className="flex-1 text-center p-2 rounded-lg bg-muted">
+          <div
+            key={stat.label}
+            className="flex-1 text-center p-2 rounded-lg border border-white/30"
+            style={{ background: 'rgba(255,255,255,0.55)' }}
+          >
             <div className="text-lg font-bold" style={{ color: stat.color }}>{stat.count}</div>
             <div className="text-xs text-muted-fg">{stat.label}</div>
           </div>
@@ -249,7 +270,7 @@ function StatsWidget({ tasks, notes }: {
             <span>进度</span>
             <span>{completionRate}%</span>
           </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
+          <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.45)' }}>
             <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${completionRate}%` }} />
           </div>
         </div>

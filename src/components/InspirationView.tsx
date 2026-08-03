@@ -85,7 +85,7 @@ export default function InspirationView() {
       {/* Add Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
-          <div className="bg-card rounded-2xl shadow-xl p-6 w-full max-w-lg animate-scale-in" onClick={(e) => e.stopPropagation()}>
+          <div className="rounded-2xl border border-white/30 shadow-xl p-6 w-full max-w-lg animate-scale-in" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-fg flex items-center gap-2">
                 <Sparkles size={18} style={{ color }} /> 记录灵感

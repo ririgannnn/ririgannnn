@@ -121,13 +121,15 @@ export default function NotesView() {
               <input
                 type="text" placeholder="笔记标题" value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                className="w-full px-3 py-2 text-lg font-semibold rounded-lg border bg-card text-fg outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full px-3 py-2 text-lg font-semibold rounded-lg border border-white/30 text-fg outline-none focus:ring-2 focus:ring-primary/30"
+                style={{ background: 'rgba(255,255,255,0.72)' }}
                 autoFocus
               />
               <textarea
                 placeholder="开始书写..." value={newContent}
                 onChange={(e) => setNewContent(e.target.value)}
-                className="w-full px-3 py-3 text-sm rounded-lg border bg-card text-fg outline-none focus:ring-2 focus:ring-primary/30 min-h-[300px] resize-none leading-relaxed"
+                className="w-full px-3 py-3 text-sm rounded-lg border border-white/30 text-fg outline-none focus:ring-2 focus:ring-primary/30 min-h-[300px] resize-none leading-relaxed"
+                style={{ background: 'rgba(255,255,255,0.72)' }}
               />
 
               <div className="flex gap-2 items-center flex-wrap">
@@ -184,7 +186,8 @@ export default function NotesView() {
               <textarea
                 value={selected.content}
                 onChange={(e) => handleSaveEdit(selected.id, selected.title, e.target.value)}
-                className="w-full px-3 py-3 text-sm rounded-lg border bg-card text-fg outline-none focus:ring-2 focus:ring-primary/30 min-h-[300px] resize-none leading-relaxed"
+                className="w-full px-3 py-3 text-sm rounded-lg border border-white/30 text-fg outline-none focus:ring-2 focus:ring-primary/30 min-h-[300px] resize-none leading-relaxed"
+                style={{ background: 'rgba(255,255,255,0.72)' }}
                 placeholder="开始书写..."
               />
             </div>

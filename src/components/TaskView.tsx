@@ -60,7 +60,8 @@ export default function TaskView() {
           <input
             type="text" placeholder="搜索任务..." value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border bg-card text-fg outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+            className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-white/30 text-fg outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+            style={{ background: 'rgba(255,255,255,0.65)' }}
           />
         </div>
         {(['all', 'todo', 'in-progress', 'done'] as const).map((s) => (
@@ -81,13 +82,20 @@ export default function TaskView() {
         {columns.map((col) => {
           const colTasks = filtered.filter((t) => t.status === col);
           return (
-            <div key={col} className="bg-muted/50 rounded-xl p-3">
+            <div
+              key={col}
+              className="rounded-xl p-3 border border-white/20"
+              style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(12px) saturate(130%)', WebkitBackdropFilter: 'blur(12px) saturate(130%)' }}
+            >
               <div className="flex items-center justify-between mb-3 px-1">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: statusLabels[col].color }} />
                   <span className="text-sm font-semibold text-fg">{statusLabels[col].label}</span>
                 </div>
-                <span className="text-xs text-muted-fg bg-card px-2 py-0.5 rounded-full">{colTasks.length}</span>
+                <span
+                  className="text-xs text-muted-fg px-2 py-0.5 rounded-full border border-white/25"
+                  style={{ background: 'rgba(255,255,255,0.6)' }}
+                >{colTasks.length}</span>
               </div>
               <div className="space-y-2">
                 {colTasks.map((task) => (
@@ -110,7 +118,15 @@ export default function TaskView() {
       {/* Add Task Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
-          <div className="bg-card rounded-2xl shadow-xl p-6 w-full max-w-md animate-scale-in" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="rounded-2xl shadow-xl p-6 w-full max-w-md animate-scale-in border border-white/30"
+            style={{
+              background: 'rgba(255,255,255,0.82)',
+              backdropFilter: 'blur(24px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="text-lg font-bold text-fg mb-4">新建任务</h2>
             <input
               type="text" placeholder="任务标题" value={title}
@@ -166,7 +182,10 @@ function TaskCard({ task, onStatus, onDelete, onEdit, isEditing, onEditingChange
   };
 
   return (
-    <div className="bg-card rounded-lg p-3 border shadow-sm hover:shadow-md transition-shadow group">
+    <div
+      className="rounded-lg p-3 border border-white/30 shadow-sm hover:shadow-md transition-shadow group"
+      style={{ background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
+    >
       {isEditing ? (
         <div className="space-y-2">
           <input

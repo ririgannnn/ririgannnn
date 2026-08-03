@@ -31,11 +31,26 @@ export default function Sidebar({ mobileOpen, onMobileClose }: Props) {
 
   const sidebarContent = (
     <aside
-      className="h-full flex flex-col shrink-0 overflow-hidden transition-all duration-300"
-      style={{ width: collapsed ? 64 : 240, backgroundColor: 'hsl(var(--sidebar))', color: 'hsl(var(--sidebar-foreground))' }}
+      className="h-full flex flex-col shrink-0 overflow-hidden transition-all duration-300 relative"
+      style={{
+        width: collapsed ? 64 : 240,
+        background: 'rgba(15,23,42,0.55)',
+        backdropFilter: 'blur(24px) saturate(160%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(160%)',
+        color: 'hsl(var(--sidebar-foreground))',
+        borderRight: '1px solid rgba(255,255,255,0.08)',
+      }}
     >
+      {/* Inner glass edge highlight */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.08)',
+        }}
+      />
+
       {/* Logo — gradient color-block */}
-      <div className="flex items-center h-14 px-4 shrink-0 border-b" style={{ borderColor: 'hsl(var(--sidebar-foreground) / 0.1)' }}>
+      <div className="flex items-center h-14 px-4 shrink-0 border-b relative z-10" style={{ borderColor: 'hsl(var(--sidebar-foreground) / 0.1)' }}>
         {!collapsed && (
           <div className="flex items-center gap-3 animate-fade-in">
             <div
@@ -72,7 +87,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: Props) {
       </div>
 
       {/* Menu */}
-      <nav className="flex-1 py-3 overflow-y-auto">
+      <nav className="flex-1 py-3 overflow-y-auto relative z-10">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const active = activeModule === item.id;
@@ -102,7 +117,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: Props) {
       </nav>
 
       {/* Bottom: decorative English + settings */}
-      <div className="border-t" style={{ borderColor: 'hsl(var(--sidebar-foreground) / 0.1)' }}>
+      <div className="border-t relative z-10" style={{ borderColor: 'hsl(var(--sidebar-foreground) / 0.1)' }}>
         {!collapsed && (
           <div className="px-4 pt-3 pb-1 flex gap-2 text-[9px] uppercase tracking-[0.2em] font-bold opacity-30 select-none">
             <span style={{ color: 'hsl(var(--accent-pink))' }}>Create</span>

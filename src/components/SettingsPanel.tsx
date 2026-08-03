@@ -68,7 +68,7 @@ export default function SettingsPanel() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full mt-2 w-72 bg-card rounded-xl border shadow-xl z-50 p-4 animate-scale-in">
+          <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-white/30 shadow-xl z-50 p-4 animate-scale-in" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-fg flex items-center gap-2">
                 <Palette size={15} /> 个性化设置
