@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && cd server && npx tsc",
+    "build": "vite build",
+    "build:server": "cd server && npx tsc",
     "lint": "oxlint",
     "preview": "vite preview",
     "start": "node server/dist/index.js"
