@@ -36,11 +36,19 @@ export default function Layout() {
   useEffect(() => {
     if (token && !syncStarted.current && !isOfflineMode) {
       syncStarted.current = true;
-      initSync(token);
+      // Wrap in try-catch to prevent unhandled rejection from crashing the page
+      initSync(token).catch((err) => {
+        console.error('[Layout] initSync failed:', err);
+        syncStarted.current = false;
+      });
     }
     return () => {
       if (syncStarted.current) {
-        stopSync();
+        try {
+          stopSync();
+        } catch (err) {
+          console.error('[Layout] stopSync failed:', err);
+        }
         syncStarted.current = false;
       }
     };
@@ -59,7 +67,7 @@ export default function Layout() {
   };
 
   return (
-    <div className="relative flex h-screen overflow-hidden">
+    <div className="relative flex h-full overflow-hidden">
       {/* ===== White Frosted Glass Background ===== */}
       <div
         className="fixed inset-0 -z-10"

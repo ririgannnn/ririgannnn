@@ -25,6 +25,9 @@ class SyncEngine {
   private isOnline = navigator.onLine;
   private syncInterval: ReturnType<typeof setInterval> | null = null;
   private lastSyncTimestamp: string = '1970-01-01T00:00:00.000Z';
+  private wsReconnectCount = 0;
+  private wsReconnectMax = 5;
+  private wsReconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     window.addEventListener('online', () => this.handleOnline());
@@ -249,6 +252,7 @@ class SyncEngine {
 
     this.ws.onopen = () => {
       console.log('[WS] Connected to sync server');
+      this.wsReconnectCount = 0; // Reset on successful connection
     };
 
     this.ws.onmessage = async (event) => {
@@ -274,12 +278,20 @@ class SyncEngine {
     };
 
     this.ws.onclose = () => {
-      console.log('[WS] Disconnected, will reconnect...');
-      setTimeout(() => {
-        if (this.ws?.readyState === WebSocket.CLOSED) {
-          this.connectWebSocket(token);
-        }
-      }, 5000);
+      console.log('[WS] Disconnected');
+      // Limit reconnection attempts to prevent infinite loops on mobile
+      if (this.wsReconnectCount < this.wsReconnectMax) {
+        this.wsReconnectCount++;
+        const delay = Math.min(5000 * this.wsReconnectCount, 30000); // Exponential backoff
+        console.log(`[WS] Reconnecting in ${delay}ms (attempt ${this.wsReconnectCount}/${this.wsReconnectMax})`);
+        this.wsReconnectTimer = setTimeout(() => {
+          if (this.ws?.readyState === WebSocket.CLOSED || !this.ws) {
+            this.connectWebSocket(token);
+          }
+        }, delay);
+      } else {
+        console.warn('[WS] Max reconnection attempts reached, giving up');
+      }
     };
 
     this.ws.onerror = () => {
@@ -288,6 +300,11 @@ class SyncEngine {
   }
 
   disconnectWebSocket() {
+    if (this.wsReconnectTimer) {
+      clearTimeout(this.wsReconnectTimer);
+      this.wsReconnectTimer = null;
+    }
+    this.wsReconnectCount = this.wsReconnectMax; // Prevent reconnection
     if (this.ws) {
       this.ws.close();
       this.ws = null;
@@ -323,6 +340,7 @@ class SyncEngine {
   // === Lifecycle ===
 
   async start(token: string) {
+    this.wsReconnectCount = 0; // Reset reconnection counter on new start
     await this.initCache();
     this.connectWebSocket(token);
 
