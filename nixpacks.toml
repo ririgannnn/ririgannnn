@@ -1,20 +1,11 @@
 # Railway Nixpacks Configuration
 # Deploy: 荔荔绀工作台 · Ririgannnn (Backend + Frontend)
-
-[phases.setup]
-nixPkgs = ["nodejs"]
+# Build is auto-detected from root package.json: "npm run build"
 
 [phases.install]
 cmds = [
   "npm install",
   "cd server && npm install"
-]
-
-[phases.build]
-cmds = [
-  "rm -rf dist",
-  "npm run build",
-  "cd server && npx tsc"
 ]
 
 [start]
