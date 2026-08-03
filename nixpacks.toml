@@ -5,7 +5,7 @@
 [phases.install]
 cmds = [
   "npm install",
-  "cd server && npm install"
+  "cd server && npm install --include=dev"
 ]
 
 [start]
