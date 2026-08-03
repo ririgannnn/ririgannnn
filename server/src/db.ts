@@ -42,7 +42,7 @@ const FIELD_MAP: Record<string, string> = {
 };
 
 // ── JSON 字段：PostgreSQL 中存储为 TEXT，返回时需解析为数组 ──
-const JSON_FIELDS = new Set(['tags']);
+const JSON_FIELDS = new Set(['tags', 'images']);
 
 function transformRow(row: QueryResultRow): QueryResultRow {
   const result: QueryResultRow = {};
@@ -134,6 +134,7 @@ export async function initDatabase(): Promise<void> {
         content TEXT DEFAULT '',
         folder TEXT DEFAULT '',
         tags TEXT DEFAULT '[]',
+        images TEXT DEFAULT '[]',
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         deleted_at TIMESTAMPTZ
@@ -160,6 +161,7 @@ export async function initDatabase(): Promise<void> {
         content TEXT DEFAULT '',
         category TEXT DEFAULT '',
         tags TEXT DEFAULT '[]',
+        images TEXT DEFAULT '[]',
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         deleted_at TIMESTAMPTZ
@@ -170,12 +172,25 @@ export async function initDatabase(): Promise<void> {
         user_id TEXT NOT NULL REFERENCES users(id),
         content TEXT NOT NULL,
         tags TEXT DEFAULT '[]',
+        images TEXT DEFAULT '[]',
         color TEXT DEFAULT '#6366f1',
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         deleted_at TIMESTAMPTZ
       );
     `);
+
+    // ── 为已有表添加 images 列（兼容升级）──
+    const addColumnIfNotExists = async (tableName: string, columnName: string) => {
+      try {
+        await client.query(`ALTER TABLE ${tableName} ADD COLUMN IF NOT EXISTS ${columnName} TEXT DEFAULT '[]'`);
+      } catch {
+        // Column may already exist, ignore
+      }
+    };
+    await addColumnIfNotExists('notes', 'images');
+    await addColumnIfNotExists('knowledge', 'images');
+    await addColumnIfNotExists('inspirations', 'images');
 
     // 创建索引
     const tables = ['tasks', 'notes', 'events', 'knowledge', 'inspirations'];

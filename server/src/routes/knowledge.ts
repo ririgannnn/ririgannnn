@@ -15,15 +15,16 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.post('/', async (req: Request, res: Response) => {
-  const { title, content, category, tags, id: clientId } = req.body;
+  const { title, content, category, tags, images, id: clientId } = req.body;
   const id = clientId || uuidv4();
   const now = new Date().toISOString();
   const tagsJson = JSON.stringify(tags || []);
+  const imagesJson = JSON.stringify(images || []);
 
   await db.prepare(`
-    INSERT INTO knowledge (id, user_id, title, content, category, tags, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, req.user!.id, title, content || '', category || '', tagsJson, now, now);
+    INSERT INTO knowledge (id, user_id, title, content, category, tags, images, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(id, req.user!.id, title, content || '', category || '', tagsJson, imagesJson, now, now);
 
   const entry = await db.prepare('SELECT * FROM knowledge WHERE id = ?').get(id);
   broadcastChange(req.user!.id, 'knowledge', 'create', entry);
@@ -38,8 +39,9 @@ router.put('/:id', async (req: Request, res: Response) => {
   if (!existing) { res.status(404).json({ error: '知识条目不存在' }); return; }
 
   const now = new Date().toISOString();
-  const { title, content, category, tags } = req.body;
+  const { title, content, category, tags, images } = req.body;
   const tagsJson = tags ? JSON.stringify(tags) : null;
+  const imagesJson = images ? JSON.stringify(images) : null;
 
   await db.prepare(`
     UPDATE knowledge SET
@@ -47,9 +49,10 @@ router.put('/:id', async (req: Request, res: Response) => {
       content = COALESCE(?, content),
       category = COALESCE(?, category),
       tags = COALESCE(?, tags),
+      images = COALESCE(?, images),
       updated_at = ?
     WHERE id = ? AND user_id = ?
-  `).run(title ?? null, content ?? null, category ?? null, tagsJson, now, req.params.id, req.user!.id);
+  `).run(title ?? null, content ?? null, category ?? null, tagsJson, imagesJson, now, req.params.id, req.user!.id);
 
   const entry = await db.prepare('SELECT * FROM knowledge WHERE id = ?').get(req.params.id);
   broadcastChange(req.user!.id, 'knowledge', 'update', entry);

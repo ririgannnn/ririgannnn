@@ -24,7 +24,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 // Middleware
 app.use(cors({ origin: true, credentials: true }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '25mb' }));
 
 // Health check
 app.get('/api/health', (_req, res) => {

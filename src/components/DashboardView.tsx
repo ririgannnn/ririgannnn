@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useStore } from '../stores';
-import type { Task, Note, CalendarEvent, Inspiration } from '../types';
+import type { Task, Note, CalendarEvent, Inspiration, KnowledgeEntry } from '../types';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { CheckSquare, FileText, Calendar, Lightbulb, TrendingUp, ArrowUpRight } from 'lucide-react';
+import { CheckSquare, FileText, Calendar, Lightbulb, TrendingUp, ArrowUpRight, BookOpen, Sparkle } from 'lucide-react';
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
   type DragEndEvent
@@ -48,7 +48,7 @@ function SortableWidget({ widget, children }: { widget: typeof defaultWidgets[0]
 }
 
 export default function DashboardView() {
-  const { tasks, notes, events, inspirations, setActiveModule } = useStore();
+  const { tasks, notes, events, inspirations, knowledge, setActiveModule } = useStore();
   const [widgets, setWidgets] = useState(defaultWidgets);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
@@ -69,6 +69,19 @@ export default function DashboardView() {
   const pendingTasks = tasks.filter((t) => t.status !== 'done');
   const urgentTasks = pendingTasks.filter((t) => t.priority === 'high');
   const todayEvents = events.filter((e) => format(new Date(e.startDate), 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd'));
+
+  // Daily random knowledge selection - deterministic per day
+  const dailyKnowledge = useMemo(() => {
+    if (knowledge.length === 0) return null;
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    let hash = 0;
+    for (let i = 0; i < todayStr.length; i++) {
+      hash = ((hash << 5) - hash) + todayStr.charCodeAt(i);
+      hash = hash & hash;
+    }
+    const index = Math.abs(hash) % knowledge.length;
+    return knowledge[index];
+  }, [knowledge]);
 
   return (
     <div className="space-y-6">
@@ -96,6 +109,11 @@ export default function DashboardView() {
           <p className="mt-2 text-xs font-bold uppercase tracking-[0.25em] opacity-25">YOUR PERSONAL WORKSPACE</p>
         </div>
       </div>
+
+      {/* Daily Knowledge Card */}
+      {dailyKnowledge && (
+        <DailyKnowledgeCard entry={dailyKnowledge} onClick={() => setActiveModule('knowledge')} />
+      )}
 
       {/* Quick Actions */}
       <div className="flex gap-3 flex-wrap">
@@ -276,5 +294,62 @@ function StatsWidget({ tasks, notes }: {
         </div>
       )}
     </div>
+  );
+}
+
+function DailyKnowledgeCard({ entry, onClick }: { entry: KnowledgeEntry; onClick: () => void }) {
+  const hasImage = Array.isArray(entry.images) && entry.images.length > 0;
+  const summary = entry.content.length > 150 ? entry.content.slice(0, 150) + '...' : entry.content;
+
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-left rounded-2xl border border-black/5 shadow-lg shadow-black/5 overflow-hidden transition-all hover:shadow-xl hover:shadow-black/10 group"
+      style={{
+        background: 'rgba(255,255,255,0.78)',
+        backdropFilter: 'blur(20px) saturate(150%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+      }}
+    >
+      <div className="flex flex-col sm:flex-row">
+        {/* Image section */}
+        {hasImage && (
+          <div className="sm:w-2/5 h-40 sm:h-auto overflow-hidden shrink-0">
+            <img
+              src={entry.images![0]}
+              alt={entry.title}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+        )}
+
+        {/* Content section */}
+        <div className={`p-5 flex flex-col justify-center ${hasImage ? 'sm:w-3/5' : 'w-full'}`}>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+              <Sparkle size={13} />
+              <span>每日知识</span>
+            </div>
+            <span className="text-xs text-muted-fg px-1.5 py-0.5 rounded bg-muted">{entry.category}</span>
+          </div>
+
+          <h3 className="text-lg font-bold text-fg mb-1.5 line-clamp-1">{entry.title}</h3>
+          <p className="text-sm text-muted-fg leading-relaxed line-clamp-3">{summary || '暂无内容摘要'}</p>
+
+          <div className="flex items-center gap-3 mt-3">
+            {(Array.isArray(entry.tags) ? entry.tags : []).slice(0, 3).map((t) => (
+              <span key={t} className="text-xs text-muted-fg flex items-center gap-0.5">
+                <span className="w-1 h-1 rounded-full bg-primary/50" />
+                {t}
+              </span>
+            ))}
+            <span className="text-xs text-muted-fg ml-auto flex items-center gap-1 group-hover:text-primary transition-colors">
+              <BookOpen size={12} />
+              阅读全文
+            </span>
+          </div>
+        </div>
+      </div>
+    </button>
   );
 }

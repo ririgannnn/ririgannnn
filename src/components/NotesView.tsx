@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../stores';
 import { format } from 'date-fns';
 import { Plus, Search, Trash2, FolderOpen, Tag, FileText, X } from 'lucide-react';
+import ImageUpload from './ImageUpload';
 
 const defaultFolders = ['工作', '学习', '生活', '项目'];
 
@@ -19,6 +20,7 @@ export default function NotesView() {
   const [newTags, setNewTags] = useState('');
   const [customFolder, setCustomFolder] = useState('');
   const [showCustomFolder, setShowCustomFolder] = useState(false);
+  const [newImages, setNewImages] = useState<string[]>([]);
 
   const folders = [...new Set([...defaultFolders, ...notes.map((n) => n.folder).filter((f) => f && !defaultFolders.includes(f))])];
 
@@ -34,14 +36,19 @@ export default function NotesView() {
     addNote({
       title: newTitle, content: newContent, folder,
       tags: newTags.split(',').map((t) => t.trim()).filter(Boolean),
+      images: newImages,
     });
-    setNewTitle(''); setNewContent(''); setNewTags('');
+    setNewTitle(''); setNewContent(''); setNewTags(''); setNewImages([]);
     setShowCustomFolder(false); setCustomFolder('');
     setIsNew(false);
   };
 
   const handleSaveEdit = (id: string, title: string, content: string) => {
     updateNote(id, { title, content });
+  };
+
+  const handleSaveImages = (id: string, images: string[]) => {
+    updateNote(id, { images });
   };
 
   return (
@@ -127,9 +134,11 @@ export default function NotesView() {
               <textarea
                 placeholder="开始书写..." value={newContent}
                 onChange={(e) => setNewContent(e.target.value)}
-                className="w-full px-3 py-3 text-sm rounded-lg border border-black/5 text-fg outline-none focus:ring-2 focus:ring-primary/30 min-h-[300px] resize-none leading-relaxed"
+                className="w-full px-3 py-3 text-sm rounded-lg border border-black/5 text-fg outline-none focus:ring-2 focus:ring-primary/30 min-h-[200px] resize-none leading-relaxed"
                 style={{ background: 'rgba(255,255,255,0.72)' }}
               />
+
+              <ImageUpload images={newImages} onChange={setNewImages} />
 
               <div className="flex gap-2 items-center flex-wrap">
                 <span className="text-xs text-muted-fg">文件夹：</span>
@@ -185,9 +194,14 @@ export default function NotesView() {
               <textarea
                 value={selected.content}
                 onChange={(e) => handleSaveEdit(selected.id, selected.title, e.target.value)}
-                className="w-full px-3 py-3 text-sm rounded-lg border border-black/5 text-fg outline-none focus:ring-2 focus:ring-primary/30 min-h-[300px] resize-none leading-relaxed"
+                className="w-full px-3 py-3 text-sm rounded-lg border border-black/5 text-fg outline-none focus:ring-2 focus:ring-primary/30 min-h-[200px] resize-none leading-relaxed"
                 style={{ background: 'rgba(255,255,255,0.72)' }}
                 placeholder="开始书写..."
+              />
+
+              <ImageUpload
+                images={Array.isArray(selected.images) ? selected.images : []}
+                onChange={(imgs) => handleSaveImages(selected.id, imgs)}
               />
             </div>
           ) : (

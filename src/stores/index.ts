@@ -15,6 +15,15 @@ function parseTags(tags: unknown): string[] {
   return [];
 }
 
+// Parse images from various formats (array, JSON string, undefined)
+function parseImages(images: unknown): string[] {
+  if (Array.isArray(images)) return images as string[];
+  if (typeof images === 'string') {
+    try { return JSON.parse(images) as string[]; } catch { return []; }
+  }
+  return [];
+}
+
 // Track if sync engine is initialized
 let syncInitialized = false;
 
@@ -184,6 +193,7 @@ export const useStore = create<AppState>()(
           content: note.content || '',
           folder: note.folder || '',
           tags: parseTags(note.tags),
+          images: parseImages(note.images),
           createdAt: note.createdAt || now,
           updatedAt: note.updatedAt || now,
         };
@@ -238,6 +248,7 @@ export const useStore = create<AppState>()(
             content: (d.content as string) || '',
             folder: (d.folder as string) || '',
             tags: parseTags(d.tags),
+            images: parseImages(d.images),
             createdAt: (d.createdAt || d.created_at || '') as string,
             updatedAt: (d.updatedAt || d.updated_at || '') as string,
           };
@@ -254,6 +265,7 @@ export const useStore = create<AppState>()(
               ...(d.content !== undefined ? { content: d.content as string } : {}),
               ...(d.folder !== undefined ? { folder: d.folder as string } : {}),
               ...(d.tags !== undefined ? { tags: parseTags(d.tags) } : {}),
+              ...(d.images !== undefined ? { images: parseImages(d.images) } : {}),
               ...(d.updatedAt || d.updated_at ? { updatedAt: (d.updatedAt || d.updated_at) as string } : {}),
             } : n),
           }));
@@ -353,6 +365,7 @@ export const useStore = create<AppState>()(
           id: insp.id || newId,
           content: insp.content || '',
           tags: parseTags(insp.tags),
+          images: parseImages(insp.images),
           color: insp.color || '#6366f1',
           createdAt: insp.createdAt || now,
         };
@@ -390,6 +403,7 @@ export const useStore = create<AppState>()(
             id: (d.id as string) || id,
             content: (d.content as string) || '',
             tags: parseTags(d.tags),
+            images: parseImages(d.images),
             color: (d.color as string) || '#6366f1',
             createdAt: (d.createdAt || d.created_at || '') as string,
           };
@@ -404,6 +418,7 @@ export const useStore = create<AppState>()(
               ...i,
               ...(d.content !== undefined ? { content: d.content as string } : {}),
               ...(d.tags !== undefined ? { tags: parseTags(d.tags) } : {}),
+              ...(d.images !== undefined ? { images: parseImages(d.images) } : {}),
               ...(d.color !== undefined ? { color: d.color as string } : {}),
             } : i),
           }));
@@ -423,6 +438,7 @@ export const useStore = create<AppState>()(
           content: entry.content || '',
           category: entry.category || '',
           tags: parseTags(entry.tags),
+          images: parseImages(entry.images),
           createdAt: entry.createdAt || now,
           updatedAt: entry.updatedAt || now,
         };
@@ -477,6 +493,7 @@ export const useStore = create<AppState>()(
             content: (d.content as string) || '',
             category: (d.category as string) || '',
             tags: parseTags(d.tags),
+            images: parseImages(d.images),
             createdAt: (d.createdAt || d.created_at || '') as string,
             updatedAt: (d.updatedAt || d.updated_at || '') as string,
           };
@@ -493,6 +510,7 @@ export const useStore = create<AppState>()(
               ...(d.content !== undefined ? { content: d.content as string } : {}),
               ...(d.category !== undefined ? { category: d.category as string } : {}),
               ...(d.tags !== undefined ? { tags: parseTags(d.tags) } : {}),
+              ...(d.images !== undefined ? { images: parseImages(d.images) } : {}),
               ...(d.updatedAt || d.updated_at ? { updatedAt: (d.updatedAt || d.updated_at) as string } : {}),
             } : k),
           }));
@@ -528,6 +546,7 @@ export const useStore = create<AppState>()(
             content: (n.content as string) || '',
             folder: (n.folder as string) || '',
             tags: parseTags(n.tags),
+            images: parseImages(n.images),
             createdAt: (n.createdAt || n.created_at || '') as string,
             updatedAt: (n.updatedAt || n.updated_at || '') as string,
           }) as Note[]));
@@ -549,6 +568,7 @@ export const useStore = create<AppState>()(
             id: i.id as string,
             content: (i.content as string) || '',
             tags: parseTags(i.tags),
+            images: parseImages(i.images),
             color: (i.color as string) || '#6366f1',
             createdAt: (i.createdAt || i.created_at || '') as string,
           }) as Inspiration[]));
@@ -560,6 +580,7 @@ export const useStore = create<AppState>()(
             content: (k.content as string) || '',
             category: (k.category as string) || '',
             tags: parseTags(k.tags),
+            images: parseImages(k.images),
             createdAt: (k.createdAt || k.created_at || '') as string,
             updatedAt: (k.updatedAt || k.updated_at || '') as string,
           }) as KnowledgeEntry[]));

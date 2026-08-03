@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { useStore } from '../stores';
 import { format } from 'date-fns';
 import { Plus, Search, Trash2, BookOpen, Tag, ChevronRight, X } from 'lucide-react';
+import ImageUpload from './ImageUpload';
 
 const defaultCategories = ['技术', '设计', '产品', '工具', '阅读', '其他'];
 
 export default function KnowledgeBase() {
-  const { knowledge, addKnowledge, deleteKnowledge } = useStore();
+  const { knowledge, addKnowledge, updateKnowledge, deleteKnowledge } = useStore();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | 'all'>('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -18,6 +19,7 @@ export default function KnowledgeBase() {
   const [category, setCategory] = useState('技术');
   const [tags, setTags] = useState('');
   const [customCategory, setCustomCategory] = useState('');
+  const [formImages, setFormImages] = useState<string[]>([]);
 
   const categories = [...new Set([...defaultCategories, ...knowledge.map((k) => k.category).filter((c) => !defaultCategories.includes(c))])];
 
@@ -33,8 +35,9 @@ export default function KnowledgeBase() {
     addKnowledge({
       title, content, category: cat,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+      images: formImages,
     });
-    setTitle(''); setContent(''); setTags(''); setShowNewCategory(false); setCustomCategory('');
+    setTitle(''); setContent(''); setTags(''); setFormImages([]); setShowNewCategory(false); setCustomCategory('');
     setShowForm(false);
   };
 
@@ -86,6 +89,8 @@ export default function KnowledgeBase() {
             <textarea placeholder="内容..." value={content} onChange={(e) => setContent(e.target.value)}
               className="w-full px-3 py-3 text-sm rounded-lg border bg-card text-fg outline-none focus:ring-2 focus:ring-primary/30 min-h-[200px] resize-none leading-relaxed" />
 
+            <ImageUpload images={formImages} onChange={setFormImages} />
+
             <div className="flex gap-2 items-center flex-wrap">
               <span className="text-xs text-muted-fg">分类：</span>
               {!showNewCategory ? (
@@ -132,6 +137,23 @@ export default function KnowledgeBase() {
               ))}
             </div>
             <div className="prose prose-sm max-w-none text-fg leading-relaxed whitespace-pre-wrap">{selected.content}</div>
+
+            {Array.isArray(selected.images) && selected.images.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+                {selected.images.map((img, i) => (
+                  <div key={i} className="rounded-lg overflow-hidden border border-black/5">
+                    <img src={img} alt={`图片 ${i + 1}`} className="w-full h-auto object-cover" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-4 pt-4 border-t border-black/5">
+              <ImageUpload
+                images={Array.isArray(selected.images) ? selected.images : []}
+                onChange={(imgs) => updateKnowledge(selected.id, { images: imgs })}
+              />
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -140,8 +162,13 @@ export default function KnowledgeBase() {
             ) : (
               filtered.map((k) => (
                 <button key={k.id} onClick={() => setSelectedId(k.id)}
-                  className="text-left p-4 rounded-xl border border-black/5 hover:shadow-md transition-all text-left"
+                  className="text-left p-4 rounded-xl border border-black/5 hover:shadow-md transition-all text-left overflow-hidden"
                   style={{ background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(12px) saturate(150%)', WebkitBackdropFilter: 'blur(12px) saturate(150%)' }}>
+                  {Array.isArray(k.images) && k.images.length > 0 && (
+                    <div className="mb-2 -mx-4 -mt-4 h-32 overflow-hidden">
+                      <img src={k.images[0]} alt={k.title} className="w-full h-full object-cover" />
+                    </div>
+                  )}
                   <h3 className="text-sm font-semibold text-fg mb-1 truncate">{k.title}</h3>
                   <p className="text-xs text-muted-fg line-clamp-2 mb-2">{k.content}</p>
                   <div className="flex items-center gap-2 text-xs text-muted-fg">

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../stores';
 import { format } from 'date-fns';
 import { Trash2, Lightbulb, X, Sparkles } from 'lucide-react';
+import ImageUpload from './ImageUpload';
 
 const cardColors = ['#ec4899', '#8b5cf6', '#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#06b6d4'];
 
@@ -13,13 +14,14 @@ export default function InspirationView() {
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [color, setColor] = useState(cardColors[Math.floor(Math.random() * cardColors.length)]);
+  const [formImages, setFormImages] = useState<string[]>([]);
 
   const handleAdd = () => {
     if (!content.trim()) return;
     addInspiration({
-      content, source, tags, color,
+      content, source, tags, color, images: formImages,
     });
-    setContent(''); setSource(''); setTagInput(''); setTags([]);
+    setContent(''); setSource(''); setTagInput(''); setTags([]); setFormImages([]);
     setColor(cardColors[Math.floor(Math.random() * cardColors.length)]);
     setShowForm(false);
   };
@@ -65,6 +67,15 @@ export default function InspirationView() {
                 <Trash2 size={13} className="text-muted-fg" />
               </button>
               <p className="text-sm text-fg leading-relaxed whitespace-pre-wrap">{insp.content}</p>
+              {Array.isArray(insp.images) && insp.images.length > 0 && (
+                <div className="grid grid-cols-2 gap-1.5 mt-2">
+                  {insp.images.slice(0, 4).map((img, i) => (
+                    <div key={i} className="rounded-md overflow-hidden aspect-square">
+                      <img src={img} alt={`图片 ${i + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              )}
               {insp.source && (
                 <p className="text-xs mt-2 opacity-60" style={{ color: insp.color }}>来源: {insp.source}</p>
               )}
@@ -132,6 +143,10 @@ export default function InspirationView() {
                   className="w-6 h-6 rounded-full border-2 transition-all"
                   style={{ backgroundColor: c, borderColor: color === c ? 'hsl(var(--foreground))' : 'transparent' }} />
               ))}
+            </div>
+
+            <div className="mb-4">
+              <ImageUpload images={formImages} onChange={setFormImages} compact />
             </div>
 
             <div className="flex gap-2 justify-end">

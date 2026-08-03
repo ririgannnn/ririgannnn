@@ -21,6 +21,7 @@ export interface Note {
   content: string;
   folder: string;
   tags: string[];
+  images?: string[];
   createdAt: string;
   updatedAt?: string;
 }
@@ -47,6 +48,7 @@ export interface Inspiration {
   content: string;
   source?: string;
   tags: string[];
+  images?: string[];
   color: string;
   createdAt: string;
 }
@@ -57,6 +59,7 @@ export interface KnowledgeEntry {
   content: string;
   category: string;
   tags: string[];
+  images?: string[];
   createdAt: string;
   updatedAt?: string;
 }
