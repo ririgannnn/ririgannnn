@@ -1,17 +1,12 @@
 # Railway Nixpacks Configuration
 # Deploy: 荔荔绀工作台 · Ririgannnn (Backend + Frontend)
+# All server deps merged into root package.json for reliable builds
 
 [phases.install]
-cmds = [
-  "npm ci",
-  "cd server && npm ci"
-]
+cmds = ["npm ci"]
 
 [phases.build]
-cmds = [
-  "npm run build",
-  "cd server && npx tsc"
-]
+cmds = ["npm run build"]
 
 [start]
 cmd = "node server/dist/index.js"
