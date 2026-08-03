@@ -27,6 +27,30 @@ function convertPlaceholders(sql: string): string {
   return sql.replace(/\?/g, () => `$${++index}`);
 }
 
+// ── 字段名映射：PostgreSQL snake_case → 前端 camelCase ──
+const FIELD_MAP: Record<string, string> = {
+  user_id: 'userId',
+  created_at: 'createdAt',
+  updated_at: 'updatedAt',
+  deleted_at: 'deletedAt',
+  start_time: 'startDate',
+  end_time: 'endDate',
+  due_date: 'dueDate',
+  all_day: 'allDay',
+  sort_order: 'sortOrder',
+  password_hash: 'passwordHash',
+};
+
+function transformRow(row: QueryResultRow): QueryResultRow {
+  const result: QueryResultRow = {};
+  for (const [key, value] of Object.entries(row)) {
+    const newKey = FIELD_MAP[key] || key;
+    // pg 对 TIMESTAMPTZ 返回 JS Date 对象，转为 ISO 字符串确保前端一致
+    result[newKey] = value instanceof Date ? value.toISOString() : value;
+  }
+  return result;
+}
+
 // ── 兼容旧代码的 prepare() API，但返回异步结果 ──
 interface PreparedStatement {
   run(...params: unknown[]): Promise<void>;
@@ -43,11 +67,12 @@ const dbApi = {
       },
       async get(...params: unknown[]): Promise<QueryResultRow | undefined> {
         const result = await pool.query(pgSql, params);
-        return result.rows[0];
+        const row = result.rows[0];
+        return row ? transformRow(row) : undefined;
       },
       async all(...params: unknown[]): Promise<QueryResultRow[]> {
         const result = await pool.query(pgSql, params);
-        return result.rows;
+        return result.rows.map(transformRow);
       },
     };
   },
