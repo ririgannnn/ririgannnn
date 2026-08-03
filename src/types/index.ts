@@ -1,6 +1,12 @@
 export type TaskStatus = 'todo' | 'in-progress' | 'done';
 export type TaskPriority = 'low' | 'medium' | 'high';
 
+export interface SubTask {
+  id: string;
+  title: string;
+  done: boolean;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -11,6 +17,7 @@ export interface Task {
   due_date?: string | null;
   tags?: string[];
   category?: string;
+  subtasks?: SubTask[];
   createdAt: string;
   updatedAt?: string;
 }

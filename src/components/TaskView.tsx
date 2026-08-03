@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useStore } from '../stores';
-import type { Task, TaskStatus, TaskPriority } from '../types';
+import type { Task, TaskStatus, TaskPriority, SubTask } from '../types';
 import { format } from 'date-fns';
-import { Plus, Trash2, GripVertical, Search, Calendar } from 'lucide-react';
+import { Plus, Trash2, Search, Calendar, ChevronDown, ChevronRight, Check, Pencil, X, ListChecks } from 'lucide-react';
 
 const statusLabels: Record<TaskStatus, { label: string; color: string }> = {
   'todo': { label: '待办', color: '#f59e0b' },
@@ -15,6 +15,8 @@ const priorityColors: Record<TaskPriority, string> = {
   medium: '#f59e0b',
   low: '#94a3b8',
 };
+
+const MAX_SUBTASKS = 20;
 
 export default function TaskView() {
   const { tasks, addTask, updateTask, deleteTask } = useStore();
@@ -38,7 +40,7 @@ export default function TaskView() {
     if (!title.trim()) return;
     addTask({
       title, description: desc, status: 'todo', priority,
-      dueDate: null, tags: [],
+      dueDate: null, tags: [], subtasks: [],
     });
     setTitle(''); setDesc(''); setPriority('medium'); setShowForm(false);
   };
@@ -101,7 +103,7 @@ export default function TaskView() {
                   <TaskCard
                     key={task.id}
                     task={task}
-                    onStatus={(s) => updateTask(task.id, { status: s })}
+                    onUpdate={(partial) => updateTask(task.id, partial)}
                     onDelete={() => deleteTask(task.id)}
                     onEdit={(t) => updateTask(task.id, t)}
                     isEditing={editing === task.id}
@@ -163,9 +165,9 @@ export default function TaskView() {
   );
 }
 
-function TaskCard({ task, onStatus, onDelete, onEdit, isEditing, onEditingChange }: {
+function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange }: {
   task: Task;
-  onStatus: (s: TaskStatus) => void;
+  onUpdate: (partial: Partial<Task>) => void;
   onDelete: () => void;
   onEdit: (partial: Partial<Task>) => void;
   isEditing: boolean;
@@ -173,11 +175,99 @@ function TaskCard({ task, onStatus, onDelete, onEdit, isEditing, onEditingChange
 }) {
   const [editTitle, setEditTitle] = useState(task.title);
   const [editDesc, setEditDesc] = useState(task.description);
+  const [showSubtasks, setShowSubtasks] = useState(false);
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+  const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
+  const [editingSubtaskTitle, setEditingSubtaskTitle] = useState('');
+  const [subtaskError, setSubtaskError] = useState('');
+
+  const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
+  const completedSubtasks = subtasks.filter((st) => st.done).length;
+  const isDone = task.status === 'done';
 
   const nextStatus = (current: TaskStatus): TaskStatus => {
     if (current === 'todo') return 'in-progress';
     if (current === 'in-progress') return 'done';
     return 'todo';
+  };
+
+  // ── Subtask operations ──
+
+  const handleAddSubtask = () => {
+    if (!newSubtaskTitle.trim()) return;
+    if (subtasks.length >= MAX_SUBTASKS) {
+      setSubtaskError(`最多 ${MAX_SUBTASKS} 个子任务`);
+      setTimeout(() => setSubtaskError(''), 3000);
+      return;
+    }
+    const newSubtask: SubTask = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      title: newSubtaskTitle.trim(),
+      done: false,
+    };
+    onUpdate({ subtasks: [...subtasks, newSubtask] });
+    setNewSubtaskTitle('');
+  };
+
+  const handleToggleSubtask = (subtaskId: string) => {
+    const updated = subtasks.map((st) =>
+      st.id === subtaskId ? { ...st, done: !st.done } : st
+    );
+    // Check if all subtasks are now done → auto-complete parent
+    const allDone = updated.length > 0 && updated.every((st) => st.done);
+    if (allDone && task.status !== 'done') {
+      onUpdate({ subtasks: updated, status: 'done' });
+    } else if (!allDone && task.status === 'done') {
+      // A subtask was un-completed while parent is done → set parent to in-progress
+      onUpdate({ subtasks: updated, status: 'in-progress' });
+    } else {
+      onUpdate({ subtasks: updated });
+    }
+  };
+
+  const handleDeleteSubtask = (subtaskId: string) => {
+    const updated = subtasks.filter((st) => st.id !== subtaskId);
+    // If remaining subtasks are all done, keep parent done
+    const allDone = updated.length > 0 && updated.every((st) => st.done);
+    if (updated.length === 0) {
+      // No subtasks left, don't auto-change parent status
+      onUpdate({ subtasks: updated });
+    } else if (allDone && task.status !== 'done') {
+      onUpdate({ subtasks: updated, status: 'done' });
+    } else {
+      onUpdate({ subtasks: updated });
+    }
+  };
+
+  const handleStartEditSubtask = (st: SubTask) => {
+    setEditingSubtaskId(st.id);
+    setEditingSubtaskTitle(st.title);
+  };
+
+  const handleSaveEditSubtask = () => {
+    if (!editingSubtaskId) return;
+    const updated = subtasks.map((st) =>
+      st.id === editingSubtaskId ? { ...st, title: editingSubtaskTitle.trim() || st.title } : st
+    );
+    onUpdate({ subtasks: updated });
+    setEditingSubtaskId(null);
+    setEditingSubtaskTitle('');
+  };
+
+  // ── Parent status toggle with subtask sync ──
+
+  const handleParentStatusToggle = () => {
+    const next = nextStatus(task.status);
+    if (next === 'done' && subtasks.length > 0) {
+      // Marking parent as done → sync all subtasks to done
+      const updated = subtasks.map((st) => ({ ...st, done: true }));
+      onUpdate({ status: 'done', subtasks: updated });
+    } else if (task.status === 'done' && subtasks.length > 0) {
+      // Moving away from done → don't change subtask states
+      onUpdate({ status: next });
+    } else {
+      onUpdate({ status: next });
+    }
   };
 
   return (
@@ -198,7 +288,7 @@ function TaskCard({ task, onStatus, onDelete, onEdit, isEditing, onEditingChange
           />
           <div className="flex gap-1 justify-end">
             <button onClick={() => onEditingChange(false)} className="px-2 py-1 text-xs rounded bg-muted text-muted-fg">取消</button>
-            <button onClick={() => { onEdit({ title: editTitle, description: editDesc }); onEditingChange(false); }} className="px-2 py-1 text-xs rounded bg-primary text-primary-fg">��存</button>
+            <button onClick={() => { onEdit({ title: editTitle, description: editDesc }); onEditingChange(false); }} className="px-2 py-1 text-xs rounded bg-primary text-primary-fg">保存</button>
           </div>
         </div>
       ) : (
@@ -206,23 +296,157 @@ function TaskCard({ task, onStatus, onDelete, onEdit, isEditing, onEditingChange
           <div className="flex items-start gap-2">
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
               <div className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ backgroundColor: priorityColors[task.priority] }} />
-              <span className={`text-sm font-medium text-fg cursor-pointer hover:text-primary transition-colors truncate ${task.status === 'done' ? 'line-through opacity-60' : ''}`}
-                onClick={() => onEditingChange(true)}>
+              <span
+                className={`text-sm font-medium text-fg cursor-pointer hover:text-primary transition-colors truncate ${isDone ? 'line-through opacity-50' : ''}`}
+                onClick={() => onEditingChange(true)}
+              >
                 {task.title}
               </span>
             </div>
-            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button onClick={() => onStatus(nextStatus(task.status))} className="p-1 rounded hover:bg-muted transition-colors" title="切换状态">
-                <GripVertical size={13} className="text-muted-fg" />
+            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+              <button onClick={handleParentStatusToggle} className="p-1 rounded hover:bg-muted transition-colors" title="切换状态">
+                <Check size={13} className={isDone ? 'text-green-500' : 'text-muted-fg'} />
               </button>
               <button onClick={onDelete} className="p-1 rounded hover:bg-red-50 transition-colors" title="删除">
                 <Trash2 size={13} className="text-muted-fg hover:text-red-500" />
               </button>
             </div>
           </div>
+
           {task.description && (
-            <p className="text-xs text-muted-fg mt-1.5 line-clamp-2 ml-3.5">{task.description}</p>
+            <p className={`text-xs text-muted-fg mt-1.5 line-clamp-2 ml-3.5 ${isDone ? 'line-through opacity-40' : ''}`}>{task.description}</p>
           )}
+
+          {/* Subtask progress bar */}
+          {subtasks.length > 0 && (
+            <div className="mt-2 ml-3.5">
+              <button
+                onClick={() => setShowSubtasks(!showSubtasks)}
+                className="flex items-center gap-1.5 text-xs text-muted-fg hover:text-fg transition-colors"
+              >
+                {showSubtasks ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                <ListChecks size={12} />
+                <span>{completedSubtasks}/{subtasks.length} 子任务</span>
+              </button>
+              {/* Progress bar */}
+              <div className="h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{
+                    width: `${subtasks.length > 0 ? (completedSubtasks / subtasks.length) * 100 : 0}%`,
+                    backgroundColor: isDone ? '#10b981' : '#3b82f6',
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Subtask list (expandable) */}
+          {showSubtasks && (
+            <div className="mt-2 ml-3.5 space-y-1 animate-scale-in">
+              {subtasks.map((st) => (
+                <div key={st.id} className="flex items-center gap-1.5 group/sub">
+                  {/* Checkbox */}
+                  <button
+                    onClick={() => handleToggleSubtask(st.id)}
+                    className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${
+                      st.done
+                        ? 'bg-green-500 border-green-500'
+                        : 'border-muted-fg/40 hover:border-primary'
+                    }`}
+                  >
+                    {st.done && <Check size={10} className="text-white" />}
+                  </button>
+
+                  {/* Title / Edit input */}
+                  {editingSubtaskId === st.id ? (
+                    <input
+                      value={editingSubtaskTitle}
+                      onChange={(e) => setEditingSubtaskTitle(e.target.value)}
+                      onBlur={handleSaveEditSubtask}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveEditSubtask();
+                        if (e.key === 'Escape') { setEditingSubtaskId(null); setEditingSubtaskTitle(''); }
+                      }}
+                      className="flex-1 text-xs px-1.5 py-0.5 rounded border border-primary/30 bg-white/80 text-fg outline-none"
+                      autoFocus
+                    />
+                  ) : (
+                    <span
+                      className={`flex-1 text-xs text-fg cursor-text truncate ${st.done ? 'line-through opacity-40' : ''}`}
+                      onDoubleClick={() => handleStartEditSubtask(st)}
+                    >
+                      {st.title}
+                    </span>
+                  )}
+
+                  {/* Actions */}
+                  {editingSubtaskId !== st.id && (
+                    <div className="flex gap-0.5 opacity-0 group-hover/sub:opacity-100 transition-opacity shrink-0">
+                      <button
+                        onClick={() => handleStartEditSubtask(st)}
+                        className="p-0.5 rounded hover:bg-muted transition-colors"
+                        title="编辑"
+                      >
+                        <Pencil size={10} className="text-muted-fg" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteSubtask(st.id)}
+                        className="p-0.5 rounded hover:bg-red-50 transition-colors"
+                        title="删除"
+                      >
+                        <Trash2 size={10} className="text-muted-fg hover:text-red-500" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Add subtask input */}
+              <div className="flex items-center gap-1.5 pt-1">
+                <div className="w-4 h-4 shrink-0" />
+                <input
+                  type="text"
+                  placeholder={subtasks.length >= MAX_SUBTASKS ? `已达上限 ${MAX_SUBTASKS} 个` : '添加子任务...'}
+                  value={newSubtaskTitle}
+                  onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleAddSubtask(); }}
+                  disabled={subtasks.length >= MAX_SUBTASKS}
+                  className="flex-1 text-xs px-1.5 py-0.5 rounded border border-black/5 bg-white/50 text-fg outline-none focus:ring-1 focus:ring-primary/30 disabled:opacity-50"
+                />
+                {newSubtaskTitle.trim() && subtasks.length < MAX_SUBTASKS && (
+                  <button
+                    onClick={handleAddSubtask}
+                    className="p-0.5 rounded hover:bg-muted transition-colors"
+                  >
+                    <Plus size={12} className="text-primary" />
+                  </button>
+                )}
+              </div>
+
+              {/* Error message */}
+              {subtaskError && (
+                <p className="text-xs text-red-500 mt-1 ml-5.5">{subtaskError}</p>
+              )}
+
+              {/* Count */}
+              <p className="text-xs text-muted-fg/60 mt-0.5 ml-5.5">
+                {subtasks.length}/{MAX_SUBTASKS}
+              </p>
+            </div>
+          )}
+
+          {/* Add subtask button (when collapsed) */}
+          {!showSubtasks && subtasks.length < MAX_SUBTASKS && (
+            <button
+              onClick={() => setShowSubtasks(true)}
+              className="mt-2 ml-3.5 flex items-center gap-1 text-xs text-muted-fg/60 hover:text-primary transition-colors"
+            >
+              <Plus size={11} /> 添加子任务
+            </button>
+          )}
+
+          {/* Meta */}
           <div className="flex items-center gap-2 mt-2 ml-3.5">
             <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: statusLabels[task.status].color + '20', color: statusLabels[task.status].color }}>
               {statusLabels[task.status].label}

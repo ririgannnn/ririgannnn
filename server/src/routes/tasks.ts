@@ -17,14 +17,15 @@ router.get('/', async (req: Request, res: Response) => {
 
 // Create task
 router.post('/', async (req: Request, res: Response) => {
-  const { title, description, status, priority, due_date, category, id: clientId } = req.body;
+  const { title, description, status, priority, due_date, category, subtasks, id: clientId } = req.body;
   const id = clientId || uuidv4();
   const now = new Date().toISOString();
+  const subtasksJson = JSON.stringify(subtasks || []);
 
   await db.prepare(`
-    INSERT INTO tasks (id, user_id, title, description, status, priority, due_date, category, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, req.user!.id, title, description || '', status || 'todo', priority || 'medium', due_date || null, category || '', now, now);
+    INSERT INTO tasks (id, user_id, title, description, status, priority, due_date, category, subtasks, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(id, req.user!.id, title, description || '', status || 'todo', priority || 'medium', due_date || null, category || '', subtasksJson, now, now);
 
   const task = await db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   broadcastChange(req.user!.id, 'task', 'create', task);
@@ -43,7 +44,8 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 
   const now = new Date().toISOString();
-  const { title, description, status, priority, due_date, category, sort_order } = req.body;
+  const { title, description, status, priority, due_date, category, sort_order, subtasks } = req.body;
+  const subtasksJson = subtasks !== undefined ? JSON.stringify(subtasks) : null;
 
   await db.prepare(`
     UPDATE tasks SET
@@ -54,12 +56,13 @@ router.put('/:id', async (req: Request, res: Response) => {
       due_date = ?,
       category = COALESCE(?, category),
       sort_order = COALESCE(?, sort_order),
+      subtasks = COALESCE(?, subtasks),
       updated_at = ?
     WHERE id = ? AND user_id = ?
   `).run(
     title ?? null, description ?? null, status ?? null, priority ?? null,
     due_date !== undefined ? due_date : (existing as any).due_date,
-    category ?? null, sort_order ?? null,
+    category ?? null, sort_order ?? null, subtasksJson,
     now, req.params.id, req.user!.id
   );
 

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Task, Note, CalendarEvent, Inspiration, KnowledgeEntry, AppSettings, ModuleType } from '../types';
+import type { Task, Note, CalendarEvent, Inspiration, KnowledgeEntry, AppSettings, ModuleType, SubTask } from '../types';
 import syncEngine from '../services/syncEngine';
 import api from '../services/api';
 
@@ -20,6 +20,15 @@ function parseImages(images: unknown): string[] {
   if (Array.isArray(images)) return images as string[];
   if (typeof images === 'string') {
     try { return JSON.parse(images) as string[]; } catch { return []; }
+  }
+  return [];
+}
+
+// Parse subtasks from various formats (array, JSON string, undefined)
+function parseSubtasks(subtasks: unknown): SubTask[] {
+  if (Array.isArray(subtasks)) return subtasks as SubTask[];
+  if (typeof subtasks === 'string') {
+    try { return JSON.parse(subtasks) as SubTask[]; } catch { return []; }
   }
   return [];
 }
@@ -104,6 +113,7 @@ export const useStore = create<AppState>()(
           priority: task.priority || 'medium',
           category: task.category || '',
           dueDate: task.dueDate ?? null,
+          subtasks: parseSubtasks(task.subtasks),
           createdAt: task.createdAt || now,
           updatedAt: task.updatedAt || now,
         };
@@ -161,6 +171,7 @@ export const useStore = create<AppState>()(
             dueDate: (d.due_date || d.dueDate || null) as string | null,
             category: (d.category as string) || '',
             tags: Array.isArray(d.tags) ? d.tags as string[] : [],
+            subtasks: parseSubtasks(d.subtasks),
             createdAt: (d.created_at || d.createdAt || '') as string,
             updatedAt: (d.updated_at || d.updatedAt || '') as string,
           };
@@ -169,12 +180,18 @@ export const useStore = create<AppState>()(
             return { tasks: [...s.tasks, task] };
           });
         } else {
+          const d = data as Record<string, unknown>;
           set((s) => ({
             tasks: s.tasks.map((t) => t.id === id ? {
               ...t,
-              ...(data as Partial<Task>),
-              // Normalize server field names
-              ...(data as Record<string, unknown>).due_date !== undefined ? { dueDate: (data as Record<string, unknown>).due_date as string } : {},
+              ...(d.title !== undefined ? { title: d.title as string } : {}),
+              ...(d.description !== undefined ? { description: d.description as string } : {}),
+              ...(d.status !== undefined ? { status: d.status as Task['status'] } : {}),
+              ...(d.priority !== undefined ? { priority: d.priority as Task['priority'] } : {}),
+              ...(d.due_date !== undefined ? { dueDate: d.due_date as string | null } : {}),
+              ...(d.category !== undefined ? { category: d.category as string } : {}),
+              ...(d.subtasks !== undefined ? { subtasks: parseSubtasks(d.subtasks) } : {}),
+              ...(d.updatedAt || d.updated_at ? { updatedAt: (d.updatedAt || d.updated_at) as string } : {}),
             } : t),
           }));
         }
@@ -535,6 +552,7 @@ export const useStore = create<AppState>()(
             dueDate: (t.dueDate ?? t.due_date ?? null) as string | null,
             category: (t.category as string) || '',
             tags: parseTags(t.tags),
+            subtasks: parseSubtasks(t.subtasks),
             createdAt: (t.createdAt || t.created_at || '') as string,
             updatedAt: (t.updatedAt || t.updated_at || '') as string,
           }) as Task[]));

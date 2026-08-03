@@ -42,7 +42,7 @@ const FIELD_MAP: Record<string, string> = {
 };
 
 // ── JSON 字段：PostgreSQL 中存储为 TEXT，返回时需解析为数组 ──
-const JSON_FIELDS = new Set(['tags', 'images']);
+const JSON_FIELDS = new Set(['tags', 'images', 'subtasks']);
 
 function transformRow(row: QueryResultRow): QueryResultRow {
   const result: QueryResultRow = {};
@@ -122,6 +122,7 @@ export async function initDatabase(): Promise<void> {
         due_date TEXT,
         category TEXT DEFAULT '',
         sort_order INTEGER DEFAULT 0,
+        subtasks TEXT DEFAULT '[]',
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         deleted_at TIMESTAMPTZ
@@ -191,6 +192,7 @@ export async function initDatabase(): Promise<void> {
     await addColumnIfNotExists('notes', 'images');
     await addColumnIfNotExists('knowledge', 'images');
     await addColumnIfNotExists('inspirations', 'images');
+    await addColumnIfNotExists('tasks', 'subtasks');
 
     // 创建索引
     const tables = ['tasks', 'notes', 'events', 'knowledge', 'inspirations'];
