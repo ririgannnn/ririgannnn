@@ -470,7 +470,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             <span className="w-2 h-2 rounded-full shrink-0 mt-1" style={{ backgroundColor: '#86efac' }} />
             <div className="flex-1 min-w-0">
               <div className="flex items-start gap-2">
-                <span className="text-sm font-medium leading-relaxed" style={{ opacity: 0.55, textDecoration: 'line-through', color: 'var(--text-primary)' }}>
+                <span className="text-xs font-medium leading-relaxed" style={{ opacity: 0.55, textDecoration: 'line-through', color: 'var(--text-primary)' }}>
                   {task.title}
                 </span>
                 <button
@@ -542,7 +542,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                 </span>
               )}
               <span
-                className="text-sm font-medium cursor-pointer truncate transition-colors"
+                className="text-xs font-medium cursor-pointer truncate transition-colors"
                 style={{ color: 'var(--text-primary)' }}
                 onClick={() => onEditingChange(true)}
                 onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--kon-dark)'; }}
@@ -551,11 +551,28 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                 {task.title}
               </span>
             </div>
-            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-              <button onClick={handleParentStatusToggle} className="p-1 rounded hover:bg-black/5 transition-colors" title="切换状态">
-                <Check size={13} style={{ color: isDone ? 'var(--accent-teal)' : 'var(--text-dim)' }} />
-              </button>
-              <button onClick={onDelete} className="p-1 rounded hover:bg-red-50 transition-colors" title="删除">
+            <div className="flex gap-1 shrink-0">
+              {task.status === 'in-progress' && (
+                <button
+                  onClick={handleParentStatusToggle}
+                  className="flex items-center gap-1 px-2 py-1 rounded border text-[11px] transition-all hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]"
+                  style={{ borderColor: 'var(--line)', color: 'var(--text-dim)' }}
+                  title="标记完成"
+                >
+                  <Check size={12} /> 完成
+                </button>
+              )}
+              {task.status === 'todo' && (
+                <button
+                  onClick={handleParentStatusToggle}
+                  className="flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium transition-all hover:opacity-90"
+                  style={{ background: 'var(--accent-orange)', color: 'white' }}
+                  title="开始任务"
+                >
+                  <Play size={11} /> 开始
+                </button>
+              )}
+              <button onClick={onDelete} className="p-1 rounded hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100" title="删除">
                 <Trash2 size={13} style={{ color: 'var(--text-dim)' }} />
               </button>
             </div>
