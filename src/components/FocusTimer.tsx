@@ -116,7 +116,7 @@ export default function FocusTimer({ taskId, taskTitle, focusSession, onRestart 
                     animation: isRunning ? 'pulse 2s infinite' : 'none',
                   }}
                 />
-                <span className="text-xs font-semibold" style={{ color: 'var(--accent-orange)' }}>
+                <span className="text-[10px] font-semibold" style={{ color: 'var(--accent-orange)' }}>
                   {isPaused ? '已暂停' : '专注中'}
                 </span>
               </div>
@@ -169,12 +169,12 @@ export default function FocusTimer({ taskId, taskTitle, focusSession, onRestart 
 
             <div className="flex items-center justify-center gap-2">
               {isRunning ? (
-                <button onClick={pauseTimer} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all hover:scale-105 active:scale-95"
+                <button onClick={pauseTimer} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 active:scale-95"
                   style={{ background: 'rgba(184,160,136,0.15)', color: 'var(--accent-warm)' }}>
                   <Pause size={14} /> 暂停
                 </button>
               ) : (
-                <button onClick={resumeTimer} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all hover:scale-105 active:scale-95"
+                <button onClick={resumeTimer} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 active:scale-95"
                   style={{ background: 'rgba(216,107,66,0.12)', color: 'var(--accent-orange)' }}>
                   <Play size={14} /> 继续
                 </button>
@@ -182,7 +182,7 @@ export default function FocusTimer({ taskId, taskTitle, focusSession, onRestart 
               <button onClick={resetTimer} className="p-1.5 rounded-lg hover:bg-black/5 transition-colors" title="重置" style={{ color: 'var(--text-dim)' }}>
                 <RotateCcw size={14} />
               </button>
-              <button onClick={stopTimer} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all hover:scale-105 active:scale-95"
+              <button onClick={stopTimer} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 active:scale-95"
                 style={{ background: 'rgba(184,151,157,0.15)', color: 'var(--accent-dust)' }}>
                 <Square size={13} /> 停止
               </button>
@@ -203,8 +203,8 @@ export default function FocusTimer({ taskId, taskTitle, focusSession, onRestart 
           >
             <div className="w-2 h-2 rounded-full"
               style={{ background: isRunning ? 'var(--accent-teal)' : 'var(--accent-warm)', animation: isRunning ? 'pulse 2s infinite' : 'none' }} />
-            <span className="text-sm font-mono font-bold" style={{ color: 'var(--text-primary)' }}>{formatTime(elapsedMs)}</span>
-            <span className="text-xs max-w-[80px] truncate" style={{ color: 'var(--text-dim)' }}>{taskTitle}</span>
+            <span className="text-xs font-mono font-bold" style={{ color: 'var(--text-primary)' }}>{formatTime(elapsedMs)}</span>
+            <span className="text-[10px] max-w-[80px] truncate" style={{ color: 'var(--text-dim)' }}>{taskTitle}</span>
             <button onClick={(e) => { e.stopPropagation(); stopTimer(); }} className="ml-1 p-0.5 rounded-full hover:bg-red-50 transition-colors" title="停止计时">
               <X size={12} className="text-red-400" />
             </button>
@@ -220,7 +220,7 @@ export default function FocusTimer({ taskId, taskTitle, focusSession, onRestart 
     return (
       <button
         onClick={() => startTimer(taskId, taskTitle)}
-        className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-all hover:scale-[1.01] active:scale-[0.99]"
+        className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-medium transition-all hover:scale-[1.01] active:scale-[0.99]"
         style={{ background: 'rgba(74,138,122,0.08)', color: 'var(--accent-teal)' }}
       >
         <Timer size={12} /> 开始专注计时
@@ -240,13 +240,13 @@ export default function FocusTimer({ taskId, taskTitle, focusSession, onRestart 
         onClick={() => setShowDetails(!showDetails)}
       >
         <Timer size={11} style={{ color: 'var(--accent-teal)' }} className="shrink-0" />
-        <span className="text-[11px] font-medium whitespace-nowrap" style={{ color: 'var(--text-mid)' }}>
+        <span className="text-[10px] font-medium whitespace-nowrap" style={{ color: 'var(--text-mid)' }}>
           专注 {formatTotal(totalAccumulated)}
         </span>
         <span className="text-[10px] whitespace-nowrap shrink-0" style={{ color: 'var(--text-dim)' }}>· {sessions.length} 次</span>
         <span className="flex-1 min-w-[4px]" />
         <button onClick={(e) => { e.stopPropagation(); startTimer(taskId, taskTitle); }}
-          className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium transition-colors opacity-0 group-hover:opacity-100 whitespace-nowrap shrink-0"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors opacity-0 group-hover:opacity-100 whitespace-nowrap shrink-0"
           style={{ background: 'rgba(74,138,122,0.12)', color: 'var(--accent-teal)' }}>
           <Play size={9} /> 开始
         </button>
@@ -264,22 +264,22 @@ export default function FocusTimer({ taskId, taskTitle, focusSession, onRestart 
           <div className="flex gap-3 mb-3">
             <div className="flex-1 rounded-lg px-2.5 py-1.5" style={{ background: 'var(--bg-deep)' }}>
               <div className="text-[10px]" style={{ color: 'var(--text-dim)' }}>专注次数</div>
-              <div className="text-sm font-bold" style={{ color: 'var(--accent-teal)' }}>{sessions.length} 次</div>
+              <div className="text-xs font-bold" style={{ color: 'var(--accent-teal)' }}>{sessions.length} 次</div>
             </div>
             <div className="flex-1 rounded-lg px-2.5 py-1.5" style={{ background: 'var(--bg-deep)' }}>
               <div className="text-[10px]" style={{ color: 'var(--text-dim)' }}>累计时长</div>
-              <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{formatTotal(totalAccumulated)}</div>
+              <div className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{formatTotal(totalAccumulated)}</div>
             </div>
             {lastSession && (
               <div className="flex-1 rounded-lg px-2.5 py-1.5" style={{ background: 'var(--bg-deep)' }}>
                 <div className="text-[10px]" style={{ color: 'var(--text-dim)' }}>最后记录</div>
-                <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{formatTotal(lastSession.duration)}</div>
+                <div className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{formatTotal(lastSession.duration)}</div>
               </div>
             )}
           </div>
 
           <button onClick={(e) => { e.stopPropagation(); startTimer(taskId, taskTitle); }}
-            className="w-full mb-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5"
+            className="w-full mb-3 py-1.5 rounded-lg text-[10px] font-semibold transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5"
             style={{ background: 'rgba(74,138,122,0.1)', color: 'var(--accent-teal)' }}>
             <Play size={12} /> 开始新的专注
           </button>
@@ -287,7 +287,7 @@ export default function FocusTimer({ taskId, taskTitle, focusSession, onRestart 
           {/* ── Manual time entry ── */}
           {!showManualEntry ? (
             <button onClick={(e) => { e.stopPropagation(); setShowManualEntry(true); }}
-              className="w-full mb-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
+              className="w-full mb-3 py-1.5 rounded-lg text-[10px] font-medium transition-colors flex items-center justify-center gap-1.5"
               style={{ border: '1px dashed var(--line)', color: 'var(--text-dim)' }}>
               <Plus size={11} /> 手动补录专注时间
             </button>
@@ -296,25 +296,25 @@ export default function FocusTimer({ taskId, taskTitle, focusSession, onRestart 
               onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center gap-2 mb-2">
                 <Clock size={12} style={{ color: 'var(--text-dim)' }} />
-                <span className="text-xs font-medium" style={{ color: 'var(--text-mid)' }}>手动补录专注时间</span>
+                <span className="text-[10px] font-medium" style={{ color: 'var(--text-mid)' }}>手动补录专注时间</span>
               </div>
               <div className="flex items-center gap-1.5 mb-2">
                 <input
                   type="number" min="0" max="24"
                   value={manualHours} onChange={(e) => setManualHours(e.target.value)}
                   placeholder="0"
-                  className="w-12 text-center text-sm px-1 py-1 rounded outline-none"
+                  className="w-12 text-center text-xs px-1 py-1 rounded outline-none"
                   style={{ background: 'var(--bg-surface)', border: '1px solid var(--line)', color: 'var(--text-primary)' }}
                 />
-                <span className="text-xs" style={{ color: 'var(--text-dim)' }}>小时</span>
+                <span className="text-[10px]" style={{ color: 'var(--text-dim)' }}>小时</span>
                 <input
                   type="number" min="0" max="59"
                   value={manualMins} onChange={(e) => setManualMins(e.target.value)}
                   placeholder="25"
-                  className="w-12 text-center text-sm px-1 py-1 rounded outline-none"
+                  className="w-12 text-center text-xs px-1 py-1 rounded outline-none"
                   style={{ background: 'var(--bg-surface)', border: '1px solid var(--line)', color: 'var(--text-primary)' }}
                 />
-                <span className="text-xs" style={{ color: 'var(--text-dim)' }}>分钟</span>
+                <span className="text-[10px]" style={{ color: 'var(--text-dim)' }}>分钟</span>
               </div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-[10px] shrink-0" style={{ color: 'var(--text-dim)' }}>日期</span>
@@ -322,19 +322,19 @@ export default function FocusTimer({ taskId, taskTitle, focusSession, onRestart 
                   type="date"
                   value={manualDate}
                   onChange={(e) => setManualDate(e.target.value)}
-                  className="flex-1 text-xs px-2 py-1 rounded outline-none"
+                  className="flex-1 text-[10px] px-2 py-1 rounded outline-none"
                   style={{ background: 'var(--bg-surface)', border: '1px solid var(--line)', color: 'var(--text-primary)' }}
                 />
                 <span className="text-[10px]" style={{ color: 'var(--text-dim)' }}>（留空为今天）</span>
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={() => setShowManualEntry(false)}
-                  className="flex-1 py-1.5 text-xs rounded-lg transition-colors"
+                  className="flex-1 py-1.5 text-[10px] rounded-lg transition-colors"
                   style={{ color: 'var(--text-dim)', border: '1px solid var(--line)' }}>
                   取消
                 </button>
                 <button onClick={handleManualSubmit}
-                  className="flex-1 py-1.5 text-xs rounded-lg text-white transition-colors"
+                  className="flex-1 py-1.5 text-[10px] rounded-lg text-white transition-colors"
                   style={{ background: 'var(--accent-teal)' }}>
                   确认补录
                 </button>
@@ -347,15 +347,15 @@ export default function FocusTimer({ taskId, taskTitle, focusSession, onRestart 
               <div className="text-[10px] font-semibold mb-2" style={{ color: 'var(--text-dim)' }}>专注历史</div>
               <div className="space-y-1 max-h-40 overflow-y-auto custom-focus-scroll">
                 {reversedSessions.map((s, i) => (
-                  <div key={i} className="flex items-center justify-between px-2 py-1 rounded text-xs"
+                  <div key={i} className="flex items-center justify-between px-2 py-1 rounded text-[10px]"
                     style={{ background: 'var(--bg-deep)' }}>
                     <div className="min-w-0">
-                      <span className="text-[11px]" style={{ color: 'var(--text-mid)' }}>
+                      <span className="text-[10px]" style={{ color: 'var(--text-mid)' }}>
                         {formatDateTime(s.start)} → {formatDateTime(s.end)}
                       </span>
                       <span className="text-[10px] ml-2" style={{ color: 'var(--text-dim)' }}>{sessionSummary(s.duration)}</span>
                     </div>
-                    <span className="font-mono font-semibold text-[11px] shrink-0 ml-2" style={{ color: 'var(--text-primary)' }}>
+                    <span className="font-mono font-semibold text-[10px] shrink-0 ml-2" style={{ color: 'var(--text-primary)' }}>
                       {formatTotal(s.duration)}
                     </span>
                   </div>

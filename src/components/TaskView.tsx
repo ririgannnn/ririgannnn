@@ -80,7 +80,7 @@ export default function TaskView({ projectId }: { projectId?: string }) {
           <h1 className="text-2xl font-bold text-fg">任务管理</h1>
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-xs font-medium transition-all"
             style={{
               background: 'linear-gradient(135deg, var(--kon-dark), var(--kon-deeper))',
               boxShadow: '0 2px 8px rgba(153,167,188,0.25)',
@@ -229,7 +229,7 @@ export default function TaskView({ projectId }: { projectId?: string }) {
             <input
               type="text" placeholder="任务标题" value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg text-sm outline-none focus:ring-2 transition-all mb-3"
+              className="w-full px-3 py-2.5 rounded-lg text-xs outline-none focus:ring-2 transition-all mb-3"
               style={{ border: '1px solid var(--line)', background: 'var(--bg-deep)', color: 'var(--text-primary)' }}
               onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--kon-main)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(153,167,188,0.12)'; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line)'; e.currentTarget.style.boxShadow = 'none'; }}
@@ -238,7 +238,7 @@ export default function TaskView({ projectId }: { projectId?: string }) {
             <textarea
               placeholder="任务描述（可选）" value={desc}
               onChange={(e) => setDesc(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg text-sm outline-none focus:ring-2 transition-all mb-3 h-20 resize-none"
+              className="w-full px-3 py-2.5 rounded-lg text-xs outline-none focus:ring-2 transition-all mb-3 h-20 resize-none"
               style={{ border: '1px solid var(--line)', background: 'var(--bg-deep)', color: 'var(--text-primary)' }}
               onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--kon-main)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(153,167,188,0.12)'; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line)'; e.currentTarget.style.boxShadow = 'none'; }}
@@ -248,7 +248,7 @@ export default function TaskView({ projectId }: { projectId?: string }) {
                 <button
                   key={p}
                   onClick={() => setPriority(p)}
-                  className="flex-1 py-1.5 rounded-md text-xs border transition-all"
+                  className="flex-1 py-1.5 rounded-md text-[10px] border transition-all"
                   style={{
                     background: priority === p ? priorityColors[p] : 'var(--bg-surface)',
                     color: priority === p ? '#fff' : 'var(--text-dim)',
@@ -261,11 +261,11 @@ export default function TaskView({ projectId }: { projectId?: string }) {
             </div>
             {/* Project selector */}
             <div className="mb-4">
-              <label className="block text-xs font-semibold text-fg-mid mb-1.5">所属项目</label>
+              <label className="block text-[10px] font-semibold text-fg-mid mb-1.5">所属项目</label>
               <select
                 value={taskProjectId}
                 onChange={(e) => setTaskProjectId(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+                className="w-full px-3 py-2 rounded-lg text-xs outline-none"
                 style={{ border: '1px solid var(--line)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
               >
                 <option value="">无项目</option>
@@ -276,11 +276,11 @@ export default function TaskView({ projectId }: { projectId?: string }) {
             </div>
             {/* Parent task selector */}
             <div className="mb-4">
-              <label className="block text-xs font-semibold text-fg-mid mb-1.5">父任务（可选）</label>
+              <label className="block text-[10px] font-semibold text-fg-mid mb-1.5">父任务（可选）</label>
               <select
                 value={taskParentId}
                 onChange={(e) => setTaskParentId(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+                className="w-full px-3 py-2 rounded-lg text-xs outline-none"
                 style={{ border: '1px solid var(--line)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
               >
                 <option value="">无（独立任务）</option>
@@ -294,14 +294,14 @@ export default function TaskView({ projectId }: { projectId?: string }) {
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setShowForm(false)}
-                className="px-4 py-2 text-sm rounded-lg transition-colors"
+                className="px-4 py-2 text-xs rounded-lg transition-colors"
                 style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}
               >
                 取消
               </button>
               <button
                 onClick={handleAdd}
-                className="px-4 py-2 text-sm rounded-lg text-white font-medium transition-all"
+                className="px-4 py-2 text-xs rounded-lg text-white font-medium transition-all"
                 style={{ background: 'linear-gradient(135deg, var(--kon-dark), var(--kon-deeper))' }}
               >
                 创建
@@ -442,24 +442,24 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
         <div className="space-y-2">
           <input
             value={editTitle} onChange={(e) => setEditTitle(e.target.value)}
-            className="w-full text-sm font-medium px-2 py-1 rounded border outline-none"
+            className="w-full text-xs font-medium px-2 py-1 rounded border outline-none"
             style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)' }}
             autoFocus
           />
           <textarea
             value={editDesc} onChange={(e) => setEditDesc(e.target.value)}
-            className="w-full text-xs px-2 py-1 rounded border outline-none h-16 resize-none"
+            className="w-full text-[10px] px-2 py-1 rounded border outline-none h-16 resize-none"
             style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)' }}
           />
           <div className="flex gap-1 justify-end">
             <button
               onClick={() => onEditingChange(false)}
-              className="px-2 py-1 text-xs rounded"
+              className="px-2 py-1 text-[10px] rounded"
               style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}
             >取消</button>
             <button
               onClick={() => { onEdit({ title: editTitle, description: editDesc }); onEditingChange(false); }}
-              className="px-2 py-1 text-xs rounded text-white"
+              className="px-2 py-1 text-[10px] rounded text-white"
               style={{ background: 'var(--kon-dark)' }}
             >保存</button>
           </div>
@@ -470,7 +470,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             <span className="w-2 h-2 rounded-full shrink-0 mt-1" style={{ backgroundColor: '#86efac' }} />
             <div className="flex-1 min-w-0">
               <div className="flex items-start gap-2">
-                <span className="text-xs font-medium leading-relaxed" style={{ opacity: 0.55, textDecoration: 'line-through', color: 'var(--text-primary)' }}>
+                <span className="text-[10px] font-medium leading-relaxed" style={{ opacity: 0.55, textDecoration: 'line-through', color: 'var(--text-primary)' }}>
                   {task.title}
                 </span>
                 <button
@@ -483,7 +483,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                 </button>
               </div>
               {!showDetails && (
-                <div className="text-xs mt-1.5 flex items-center gap-2 flex-wrap" style={{ color: 'var(--text-dim)' }}>
+                <div className="text-[10px] mt-1.5 flex items-center gap-2 flex-wrap" style={{ color: 'var(--text-dim)' }}>
                   {subtasks.length > 0 && <span>{completedSubtasks}/{subtasks.length} 子任务</span>}
                   {(task.focusSession?.totalDuration ?? 0) > 0 && <span>专注 {formatDuration(task.focusSession!.totalDuration)} · {task.focusSession!.sessionCount} 次</span>}
                   {task.dueDate && <span>{format(new Date(task.dueDate), 'MM/dd')}</span>}
@@ -495,16 +495,16 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
           {showDetails && (
             <div className="mt-3 space-y-3 animate-scale-in" style={{ marginLeft: '1.25rem' }}>
               {task.description && (
-                <p className="text-xs leading-relaxed" style={{ color: 'var(--text-mid)' }}>{task.description}</p>
+                <p className="text-[10px] leading-relaxed" style={{ color: 'var(--text-mid)' }}>{task.description}</p>
               )}
               {subtasks.length > 0 && (
                 <div>
-                  <p className="text-[11px] font-medium mb-1.5 uppercase tracking-wide" style={{ color: 'var(--text-dim)' }}>子任务</p>
+                  <p className="text-[10px] font-medium mb-1.5 uppercase tracking-wide" style={{ color: 'var(--text-dim)' }}>子任务</p>
                   <div className="space-y-1">
                     {subtasks.map((st) => (
                       <div key={st.id} className="flex items-center gap-1.5">
                         <Check size={11} className="text-green-500 shrink-0" />
-                        <span className="text-xs line-through" style={{ color: 'var(--text-dim)' }}>{st.title}</span>
+                        <span className="text-[10px] line-through" style={{ color: 'var(--text-dim)' }}>{st.title}</span>
                       </div>
                     ))}
                   </div>
@@ -512,21 +512,21 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
               )}
               {(task.focusSession?.totalDuration ?? 0) > 0 && (
                 <div>
-                  <p className="text-[11px] font-medium mb-1.5 uppercase tracking-wide" style={{ color: 'var(--text-dim)' }}>专注记录</p>
-                  <div className="text-xs flex items-center gap-1.5" style={{ color: 'var(--text-dim)' }}>
+                  <p className="text-[10px] font-medium mb-1.5 uppercase tracking-wide" style={{ color: 'var(--text-dim)' }}>专注记录</p>
+                  <div className="text-[10px] flex items-center gap-1.5" style={{ color: 'var(--text-dim)' }}>
                     <Timer size={12} />
                     <span>累计 {formatDuration(task.focusSession!.totalDuration)} · {task.focusSession!.sessionCount} 次</span>
                   </div>
                 </div>
               )}
               <div className="flex items-center gap-2 pt-2 border-t" style={{ borderColor: 'var(--line)' }}>
-                <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(74,138,122,0.1)', color: 'var(--accent-teal)' }}>已完成</span>
-                {task.dueDate && <span className="text-[11px]" style={{ color: 'var(--text-dim)' }}>{format(new Date(task.dueDate), 'yyyy-MM-dd')}</span>}
-                <span className="text-[11px]" style={{ color: 'var(--text-dim)' }}>优先级：{task.priority === 'high' ? '高' : task.priority === 'medium' ? '中' : '低'}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(74,138,122,0.1)', color: 'var(--accent-teal)' }}>已完成</span>
+                {task.dueDate && <span className="text-[10px]" style={{ color: 'var(--text-dim)' }}>{format(new Date(task.dueDate), 'yyyy-MM-dd')}</span>}
+                <span className="text-[10px]" style={{ color: 'var(--text-dim)' }}>优先级：{task.priority === 'high' ? '高' : task.priority === 'medium' ? '中' : '低'}</span>
               </div>
               <div className="flex items-center gap-2 pt-1">
-                <button onClick={handleParentStatusToggle} className="text-xs px-2.5 py-1 rounded-lg transition-colors" style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}>重新开始</button>
-                <button onClick={onDelete} className="text-xs px-2.5 py-1 rounded-lg transition-colors" style={{ color: 'var(--accent-orange)' }}>删除</button>
+                <button onClick={handleParentStatusToggle} className="text-[10px] px-2.5 py-1 rounded-lg transition-colors" style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}>重新开始</button>
+                <button onClick={onDelete} className="text-[10px] px-2.5 py-1 rounded-lg transition-colors" style={{ color: 'var(--accent-orange)' }}>删除</button>
               </div>
             </div>
           )}
@@ -555,7 +555,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
               {task.status === 'in-progress' && (
                 <button
                   onClick={handleParentStatusToggle}
-                  className="flex items-center gap-1 px-2 py-1 rounded border text-[11px] transition-all hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]"
+                  className="flex items-center gap-1 px-2 py-1 rounded border text-[10px] transition-all hover:border-[var(--accent-teal)] hover:text-[var(--accent-teal)]"
                   style={{ borderColor: 'var(--line)', color: 'var(--text-dim)' }}
                   title="标记完成"
                 >
@@ -565,7 +565,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
               {task.status === 'todo' && (
                 <button
                   onClick={handleParentStatusToggle}
-                  className="flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium transition-all hover:opacity-90"
+                  className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium transition-all hover:opacity-90"
                   style={{ background: 'var(--accent-orange)', color: 'white' }}
                   title="开始任务"
                 >
@@ -579,7 +579,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
           </div>
 
           {task.description && (
-            <p className="text-xs mt-1.5 line-clamp-2 ml-3.5" style={{ color: 'var(--text-dim)' }}>{task.description}</p>
+            <p className="text-[10px] mt-1.5 line-clamp-2 ml-3.5" style={{ color: 'var(--text-dim)' }}>{task.description}</p>
           )}
 
 
@@ -608,13 +608,13 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                       onChange={(e) => setEditingSubtaskTitle(e.target.value)}
                       onBlur={handleSaveEditSubtask}
                       onKeyDown={(e) => { if (e.key === 'Enter') handleSaveEditSubtask(); if (e.key === 'Escape') { setEditingSubtaskId(null); setEditingSubtaskTitle(''); }}}
-                      className="flex-1 text-xs px-1.5 py-0.5 rounded border outline-none"
+                      className="flex-1 text-[10px] px-1.5 py-0.5 rounded border outline-none"
                       style={{ borderColor: 'var(--kon-main)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
                       autoFocus
                     />
                   ) : (
                     <span
-                      className="flex-1 text-xs cursor-text truncate"
+                      className="flex-1 text-[10px] cursor-text truncate"
                       style={{ color: 'var(--text-primary)', textDecoration: st.done ? 'line-through' : 'none', opacity: st.done ? 0.4 : 1 }}
                       onDoubleClick={() => handleStartEditSubtask(st)}
                     >
@@ -638,7 +638,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                   onChange={(e) => setNewSubtaskTitle(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleAddSubtask(); }}
                   disabled={subtasks.length >= MAX_SUBTASKS}
-                  className="flex-1 text-xs px-1.5 py-0.5 rounded border outline-none focus:ring-1 disabled:opacity-50"
+                  className="flex-1 text-[10px] px-1.5 py-0.5 rounded border outline-none focus:ring-1 disabled:opacity-50"
                   style={{ borderColor: 'var(--line)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
                   onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--kon-main)'; }}
                   onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line)'; }}
@@ -647,21 +647,21 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                   <button onClick={handleAddSubtask} className="p-0.5 rounded hover:bg-black/5 transition-colors"><Plus size={12} style={{ color: 'var(--kon-dark)' }} /></button>
                 )}
               </div>
-              {subtaskError && <p className="text-xs text-red-500 mt-1 ml-5.5">{subtaskError}</p>}
-              <p className="text-xs mt-0.5 ml-5.5" style={{ color: 'var(--text-dim)' }}>{subtasks.length}/{MAX_SUBTASKS}</p>
+              {subtaskError && <p className="text-[10px] text-red-500 mt-1 ml-5.5">{subtaskError}</p>}
+              <p className="text-[10px] mt-0.5 ml-5.5" style={{ color: 'var(--text-dim)' }}>{subtasks.length}/{MAX_SUBTASKS}</p>
             </div>
           )}
 
 
           <div className="flex items-center gap-2 mt-2 ml-3.5 flex-wrap">
-            <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: statusBgMap[task.status], color: statusLabels[task.status].color }}>
+            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: statusBgMap[task.status], color: statusLabels[task.status].color }}>
               {statusLabels[task.status].label}
             </span>
 
             {/* 子任务下拉 */}
             <button
               onClick={() => setShowSubtasks(!showSubtasks)}
-              className="text-xs flex items-center gap-1 transition-colors"
+              className="text-[10px] flex items-center gap-1 transition-colors"
               style={{ color: 'var(--text-dim)' }}
             >
               <ListChecks size={10} />
@@ -672,7 +672,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             {/* 专注计时 */}
             <button
               onClick={() => setShowTimer(!showTimer)}
-              className="text-xs flex items-center gap-1 transition-colors"
+              className="text-[10px] flex items-center gap-1 transition-colors"
               style={{ color: 'var(--text-dim)' }}
             >
               <Timer size={10} />
@@ -682,12 +682,12 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             </button>
 
             {childCount > 0 && (
-              <span className="text-xs flex items-center gap-1" style={{ color: 'var(--text-dim)' }} title={`${childCount} 个子任务`}>
+              <span className="text-[10px] flex items-center gap-1" style={{ color: 'var(--text-dim)' }} title={`${childCount} 个子任务`}>
                 <ListChecks size={10} /> {childCount}
               </span>
             )}
             {task.dueDate && (
-              <span className="text-xs flex items-center gap-1" style={{ color: 'var(--text-dim)' }}>
+              <span className="text-[10px] flex items-center gap-1" style={{ color: 'var(--text-dim)' }}>
                 <Calendar size={10} /> {format(new Date(task.dueDate), 'MM/dd')}
               </span>
             )}
@@ -718,17 +718,17 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-fg">启动专注计时？</h3>
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>任务「{task.title}」</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-dim)' }}>任务「{task.title}」</p>
                   </div>
                 </div>
                 {(task.focusSession?.totalDuration ?? 0) > 0 && (
-                  <p className="text-xs mb-4 px-3 py-2 rounded-lg" style={{ color: 'var(--text-dim)', background: 'var(--bg-deep)' }}>
+                  <p className="text-[10px] mb-4 px-3 py-2 rounded-lg" style={{ color: 'var(--text-dim)', background: 'var(--bg-deep)' }}>
                     已累计专注 {formatDuration(task.focusSession!.totalDuration)}
                   </p>
                 )}
                 <div className="flex gap-2">
-                  <button onClick={handleSkipTimer} className="flex-1 py-2.5 text-sm rounded-lg transition-colors" style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}>暂不启动</button>
-                  <button onClick={handleStartTimer} className="flex-1 py-2.5 text-sm rounded-lg text-white font-medium transition-all flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, var(--accent-orange), var(--accent-rust))' }}>
+                  <button onClick={handleSkipTimer} className="flex-1 py-2.5 text-xs rounded-lg transition-colors" style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}>暂不启动</button>
+                  <button onClick={handleStartTimer} className="flex-1 py-2.5 text-xs rounded-lg text-white font-medium transition-all flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, var(--accent-orange), var(--accent-rust))' }}>
                     <Play size={14} /> 开始专注
                   </button>
                 </div>

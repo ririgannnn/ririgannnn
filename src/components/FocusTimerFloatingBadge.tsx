@@ -41,12 +41,12 @@ export default function FocusTimerFloatingBadge() {
         style={{ background: 'var(--accent-teal)', animation: 'pulse 2s infinite' }} />
 
       {/* Time display */}
-      <span className="text-sm font-mono font-bold" style={{ color: 'var(--text-primary)' }}>
+      <span className="text-[10px] font-mono font-bold" style={{ color: 'var(--text-primary)' }}>
         {formatTime(elapsedMs)}
       </span>
 
       {/* Task title (truncated) */}
-      <span className="text-xs max-w-[80px] md:max-w-[120px] truncate" style={{ color: 'var(--text-dim)' }}>
+      <span className="text-[10px] max-w-[80px] md:max-w-[120px] truncate" style={{ color: 'var(--text-dim)' }}>
         {activeTimer.taskTitle}
       </span>
 
