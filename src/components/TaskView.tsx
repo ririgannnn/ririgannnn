@@ -442,8 +442,8 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
         <div className="space-y-2">
           <input
             value={editTitle} onChange={(e) => setEditTitle(e.target.value)}
-            className="w-full text-xs font-medium px-2 py-1 rounded border outline-none"
-            style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)' }}
+            className="w-full font-medium px-2 py-1 rounded border outline-none"
+            style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)', fontSize: '30px', fontFamily: '"Noto Serif SC", "Source Han Serif SC", "思源宋体", serif' }}
             autoFocus
           />
           <textarea
@@ -470,7 +470,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             <span className="w-2 h-2 rounded-full shrink-0 mt-1" style={{ backgroundColor: '#86efac' }} />
             <div className="flex-1 min-w-0">
               <div className="flex items-start gap-2">
-                <span className="text-[10px] font-medium leading-relaxed" style={{ opacity: 0.55, textDecoration: 'line-through', color: 'var(--text-primary)' }}>
+                <span className="font-medium leading-relaxed" style={{ opacity: 0.55, textDecoration: 'line-through', color: 'var(--text-primary)', fontSize: '30px', fontFamily: '"Noto Serif SC", "Source Han Serif SC", "思源宋体", serif' }}>
                   {task.title}
                 </span>
                 <button
@@ -542,8 +542,8 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                 </span>
               )}
               <span
-                className="text-xs font-medium cursor-pointer truncate transition-colors"
-                style={{ color: 'var(--text-primary)' }}
+                className="font-medium cursor-pointer truncate transition-colors"
+                style={{ color: 'var(--text-primary)', fontSize: '30px', fontFamily: '"Noto Serif SC", "Source Han Serif SC", "思源宋体", serif' }}
                 onClick={() => onEditingChange(true)}
                 onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--kon-dark)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-primary)'; }}
