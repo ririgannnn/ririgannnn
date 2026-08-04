@@ -8,7 +8,7 @@
     "build": "vite build && cd server && npx tsc",
     "lint": "oxlint",
     "preview": "vite preview",
-    "start": "node server/dist/index.js"
+    "start": "cd server && npx tsc && node dist/index.js"
   },
   "engines": {
     "node": "22.x"
