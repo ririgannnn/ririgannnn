@@ -25,10 +25,13 @@ const SCRIPT_TEMPLATES: Record<string, string> = {
 
 export default function ContentDept() {
   const { vtuberEntries, addVtuberEntry, updateVtuberEntry, deleteVtuberEntry } = useStore();
-  const [subTab, setSubTab] = useState<'topic' | 'schedule' | 'script'>('topic');
+  const [subTab, setSubTab] = useState<'topic' | 'schedule' | 'script' | 'chat'>('topic');
+  const [editingChatId, setEditingChatId] = useState<string | null>(null);
+  const [editingChatText, setEditingChatText] = useState('');
 
   const topics = vtuberEntries.filter((e) => e.type === 'topic');
   const schedules = vtuberEntries.filter((e) => e.type === 'stream_schedule');
+  const chatNotes = vtuberEntries.filter((e) => e.type === 'chat_note');
 
   const handleTopicStatus = (entry: VtuberEntry) => {
     const nxt = NEXT_STATUS[entry.status] || 'idea';
@@ -51,6 +54,7 @@ export default function ContentDept() {
           { id: 'topic' as const, label: '选题库' },
           { id: 'schedule' as const, label: '直播排期' },
           { id: 'script' as const, label: 'AI脚本' },
+          { id: 'chat' as const, label: '杂谈库' },
         ].map((t) => (
           <button key={t.id} onClick={() => setSubTab(t.id)}
             className="flex-1 text-xs py-1.5 rounded-md font-medium transition-colors"
@@ -189,6 +193,67 @@ export default function ContentDept() {
             {topics.filter((e) => e.data.scriptOutline).length === 0 && (
               <div className="text-center py-8 text-xs" style={{ color: 'var(--text-dim)' }}>
                 还没有生成脚本的选题，去「选题库」点击 AI大纲 试试
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {subTab === 'chat' && (
+        <div className="space-y-3">
+          <InlineAddForm placeholder="记录一个杂谈话题（如：今天路上遇到的猫）"
+            onAdd={(title) => addVtuberEntry({
+              type: 'chat_note', title,
+              status: 'active',
+              data: {}, tags: [],
+            })} />
+
+          <div className="space-y-1">
+            {chatNotes.map((entry) => (
+              <div key={entry.id} className="flex items-center gap-2 group py-1.5 px-2 rounded-lg transition-colors hover:bg-black/[0.02]">
+                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'var(--text-dim)' }} />
+                {editingChatId === entry.id ? (
+                  <input
+                    value={editingChatText}
+                    onChange={(e) => setEditingChatText(e.target.value)}
+                    onBlur={() => {
+                      if (editingChatText.trim()) updateVtuberEntry(entry.id, { title: editingChatText.trim() });
+                      setEditingChatId(null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        if (editingChatText.trim()) updateVtuberEntry(entry.id, { title: editingChatText.trim() });
+                        setEditingChatId(null);
+                      }
+                      if (e.key === 'Escape') setEditingChatId(null);
+                    }}
+                    className="flex-1 text-sm px-1.5 py-0.5 rounded outline-none"
+                    style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', border: '1px solid var(--line)' }}
+                    autoFocus
+                  />
+                ) : (
+                  <span
+                    className="flex-1 text-sm cursor-text truncate"
+                    style={{ color: 'var(--text-primary)' }}
+                    onClick={() => { setEditingChatId(entry.id); setEditingChatText(entry.title); }}
+                    title="点击编辑"
+                  >
+                    {entry.title}
+                  </span>
+                )}
+                <button
+                  onClick={() => deleteVtuberEntry(entry.id)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity px-1.5 py-0.5 rounded text-[11px]"
+                  style={{ color: 'var(--text-dim)' }}
+                  title="删除"
+                >
+                  删除
+                </button>
+              </div>
+            ))}
+            {chatNotes.length === 0 && (
+              <div className="text-center py-8 text-xs" style={{ color: 'var(--text-dim)' }}>
+                还没有杂谈话题，遇到有趣的点子就记下来吧
               </div>
             )}
           </div>

@@ -147,6 +147,7 @@ export interface HabitRecord {
 export type VtuberEntryType =
   | 'topic'
   | 'stream_schedule'
+  | 'chat_note'
   | 'checklist'
   | 'design_todo'
   | 'gift'
