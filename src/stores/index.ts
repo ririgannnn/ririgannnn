@@ -139,13 +139,26 @@ export const useStore = create<AppState>()(
           dueDate: task.dueDate ?? null,
           subtasks: parseSubtasks(task.subtasks),
           focusSession: parseFocusSession(task.focusSession),
+          projectId: (task as any).projectId ?? task.projectId ?? null,
+          parentId: (task as any).parentId ?? task.parentId ?? null,
           createdAt: task.createdAt || now,
           updatedAt: task.updatedAt || now,
         };
         set((s) => ({ tasks: [...s.tasks, newTask] }));
 
         if (syncInitialized) {
-          api.createTask(newTask as unknown as Record<string, unknown>).catch(() => {
+          // Map camelCase → snake_case for API compatibility
+          const apiPayload: Record<string, unknown> = {
+            ...newTask,
+            project_id: newTask.projectId,
+            parent_id: newTask.parentId,
+            due_date: newTask.dueDate,
+            focus_session: newTask.focusSession ? JSON.stringify(newTask.focusSession) : JSON.stringify({ totalDuration: 0, sessions: [] }),
+            subtasks: JSON.stringify(newTask.subtasks || []),
+            updated_at: newTask.updatedAt,
+            created_at: newTask.createdAt,
+          };
+          api.createTask(apiPayload).catch(() => {
             syncEngine.addToQueue({
               id: uid(), entity: 'tasks', action: 'create',
               entityId: newId, data: newTask, timestamp: now,
@@ -162,7 +175,14 @@ export const useStore = create<AppState>()(
         }));
 
         if (syncInitialized) {
-          api.updateTask(id, { ...partial, updated_at: now } as Record<string, unknown>).catch(() => {
+          // Map camelCase → snake_case for API compatibility
+          const apiPayload: Record<string, unknown> = { ...partial, updated_at: now };
+          if (partial.projectId !== undefined) apiPayload.project_id = partial.projectId;
+          if (partial.parentId !== undefined) apiPayload.parent_id = partial.parentId;
+          if (partial.dueDate !== undefined) apiPayload.due_date = partial.dueDate;
+          if (partial.focusSession !== undefined) apiPayload.focus_session = JSON.stringify(partial.focusSession);
+          if (partial.subtasks !== undefined) apiPayload.subtasks = JSON.stringify(partial.subtasks);
+          api.updateTask(id, apiPayload).catch(() => {
             syncEngine.addToQueue({
               id: uid(), entity: 'tasks', action: 'update',
               entityId: id, data: { ...partial, updated_at: now }, timestamp: now,
@@ -171,7 +191,21 @@ export const useStore = create<AppState>()(
         }
       },
       deleteTask: (id) => {
-        set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) }));
+        set((s) => {
+          // Cascade: collect all descendant task IDs
+          const toDelete = new Set<string>();
+          const collectDescendants = (parentId: string) => {
+            s.tasks.forEach((t) => {
+              if (t.parentId === parentId) {
+                toDelete.add(t.id);
+                collectDescendants(t.id);
+              }
+            });
+          };
+          toDelete.add(id);
+          collectDescendants(id);
+          return { tasks: s.tasks.filter((t) => !toDelete.has(t.id)) };
+        });
 
         if (syncInitialized) {
           api.deleteTask(id).catch(() => {

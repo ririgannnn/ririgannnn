@@ -41,6 +41,7 @@ export default function TaskView({ projectId }: { projectId?: string }) {
   const [desc, setDesc] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [taskProjectId, setTaskProjectId] = useState<string>(projectId || '');
+  const [taskParentId, setTaskParentId] = useState<string>('');
 
   // When projectId prop changes, update form default
   useEffect(() => {
@@ -64,8 +65,9 @@ export default function TaskView({ projectId }: { projectId?: string }) {
       title, description: desc, status: 'todo', priority,
       dueDate: null, tags: [], subtasks: [],
       projectId: taskProjectId || null,
+      parentId: taskParentId || null,
     });
-    setTitle(''); setDesc(''); setPriority('medium'); setShowForm(false);
+    setTitle(''); setDesc(''); setPriority('medium'); setTaskParentId(''); setShowForm(false);
   };
 
   return (
@@ -214,6 +216,23 @@ export default function TaskView({ projectId }: { projectId?: string }) {
                 ))}
               </select>
             </div>
+
+            {/* Parent task selector */}
+            <div className="mb-4">
+              <label className="block text-xs font-semibold text-muted-fg mb-1.5">父任务（可选）</label>
+              <select
+                value={taskParentId}
+                onChange={(e) => setTaskParentId(e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-lg border bg-white/80 text-fg outline-none focus:ring-2 focus:ring-primary/30"
+              >
+                <option value="">无（独立任务）</option>
+                {tasks
+                  .filter((t) => t.status !== 'done' && (!taskProjectId || t.projectId === taskProjectId))
+                  .map((t) => (
+                    <option key={t.id} value={t.id}>{t.title}</option>
+                  ))}
+              </select>
+            </div>
             <div className="flex gap-2 justify-end">
               <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm rounded-lg bg-muted text-muted-fg hover:bg-border transition-colors">取消</button>
               <button onClick={handleAdd} className="px-4 py-2 text-sm rounded-lg bg-primary text-primary-fg hover:opacity-90 transition-opacity">创建</button>
@@ -234,7 +253,10 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
   onEditingChange: (v: boolean) => void;
 }) {
   const projects = useStore((s) => s.projects);
+  const tasks = useStore((s) => s.tasks);
   const project = task.projectId ? projects.find((p) => p.id === task.projectId) : null;
+  const parentTask = task.parentId ? tasks.find((t) => t.id === task.parentId) : null;
+  const childCount = tasks.filter((t) => t.parentId === task.id).length;
   const [editTitle, setEditTitle] = useState(task.title);
   const [editDesc, setEditDesc] = useState(task.description);
   const [showSubtasks, setShowSubtasks] = useState(false);
@@ -410,6 +432,11 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
           <div className="flex items-start gap-2">
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
               <div className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ backgroundColor: priorityColors[task.priority] }} />
+              {parentTask && (
+                <span className="text-[10px] text-muted-fg/60 bg-black/3 px-1 rounded shrink-0 mt-0.5" title={`父任务: ${parentTask.title}`}>
+                  ↳{parentTask.title.slice(0, 4)}…
+                </span>
+              )}
               <span
                 className={`text-sm font-medium text-fg cursor-pointer hover:text-primary transition-colors truncate ${isDone ? 'line-through opacity-50' : ''}`}
                 onClick={() => onEditingChange(true)}
@@ -578,6 +605,11 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: statusLabels[task.status].color + '20', color: statusLabels[task.status].color }}>
               {statusLabels[task.status].label}
             </span>
+            {childCount > 0 && (
+              <span className="text-xs text-muted-fg flex items-center gap-1" title={`${childCount} 个子任务`}>
+                <ListChecks size={10} /> {childCount}
+              </span>
+            )}
             {task.dueDate && (
               <span className="text-xs text-muted-fg flex items-center gap-1">
                 <Calendar size={10} /> {format(new Date(task.dueDate), 'MM/dd')}

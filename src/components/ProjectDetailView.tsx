@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { ArrowLeft, Edit, Trash2, FolderKanban } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2 } from 'lucide-react';
 import { useStore } from '../stores';
 import ProjectForm from './ProjectForm';
 import TaskView from './TaskView';
+import TaskTreeView from './TaskTreeView';
 import type { Project } from '../types';
 
 export default function ProjectDetailView() {
@@ -216,52 +217,7 @@ export default function ProjectDetailView() {
         </div>
       ) : (
         <div className="animate-scale-in">
-          {/* Project-scoped task list */}
-          {projectTasks.length === 0 ? (
-            <div className="text-center py-16">
-              <FolderKanban size={40} className="mx-auto mb-3 text-muted-fg opacity-25" />
-              <p className="text-sm text-muted-fg mb-4">这个项目还没有任务</p>
-              <button
-                onClick={() => {
-                  // Navigate to kanban tab to create tasks
-                  setTab('kanban');
-                }}
-                className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90"
-                style={{ backgroundColor: project.coverColor }}
-              >
-                创建任务
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {projectTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg border border-black/5 transition-colors hover:bg-white/60"
-                  style={{ background: 'rgba(255,255,255,0.55)' }}
-                >
-                  {/* Status dot */}
-                  <div
-                    className={`w-2 h-2 rounded-full shrink-0 ${
-                      task.status === 'done' ? 'bg-green-500' :
-                      task.status === 'in-progress' ? 'bg-amber-500' :
-                      'bg-gray-300'
-                    }`}
-                  />
-                  <span className={`flex-1 text-sm ${task.status === 'done' ? 'line-through text-muted-fg' : ''}`}>
-                    {task.title}
-                  </span>
-                  <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${
-                    task.priority === 'high' ? 'text-red-600 bg-red-50' :
-                    task.priority === 'medium' ? 'text-amber-600 bg-amber-50' :
-                    'text-gray-500 bg-gray-50'
-                  }`}>
-                    {task.priority === 'high' ? '高' : task.priority === 'medium' ? '中' : '低'}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+          <TaskTreeView projectId={activeProjectId} />
         </div>
       )}
 
