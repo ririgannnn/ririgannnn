@@ -183,7 +183,7 @@ export default function TaskView({ projectId }: { projectId?: string }) {
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', padding: '0 4px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: statusLabels[col].color }} />
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: col === 'done' ? '#22c55e' : statusLabels[col].color }} />
                   <span className="font-serif-cn" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '0.02em' }}>
                     {statusLabels[col].label}
                   </span>
@@ -466,8 +466,8 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
         </div>
       ) : isDone ? (
         <div className="p-3">
-          <div className="flex items-start gap-2">
-            <span className="w-3 h-3 rounded-full shrink-0 mt-0.5" style={{ backgroundColor: '#22c55e' }} />
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: '#22c55e' }} />
             <div className="flex-1 min-w-0">
               <div className="flex items-start gap-2">
                 <span className="text-sm font-medium leading-relaxed" style={{ opacity: 0.55, textDecoration: 'line-through', color: 'var(--text-primary)' }}>

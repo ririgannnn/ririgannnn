@@ -244,16 +244,7 @@ export default function ContentDept() {
                   {/* expanded reading panel */}
                   {isExpanded && !isEditing && (
                     <div className="px-3 pb-3 animate-scale-in">
-                      <div
-                        className="text-xs leading-loose whitespace-pre-wrap"
-                        style={{
-                          color: 'var(--text-mid)',
-                          fontFamily: 'var(--font-serif, "Noto Serif SC", "Source Han Serif SC", serif)',
-                        }}
-                      >
-                        {entry.title}
-                      </div>
-                      <div className="flex items-center gap-2 mt-2.5 pt-2" style={{ borderTop: '1px solid var(--line)' }}>
+                      <div className="flex items-center gap-2 mt-2 pt-2" style={{ borderTop: '1px solid var(--line)' }}>
                         <button
                           onClick={(e) => { e.stopPropagation(); setEditingChatId(entry.id); setEditingChatText(entry.title); }}
                           className="text-[11px] px-2 py-1 rounded transition-colors"
