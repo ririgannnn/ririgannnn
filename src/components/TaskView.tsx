@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useStore } from '../stores';
-import type { Task, TaskStatus, TaskPriority, SubTask, FocusSession } from '../types';
+import type { Task, TaskStatus, TaskPriority, SubTask } from '../types';
 import { format } from 'date-fns';
 import { Plus, Trash2, Search, Calendar, ChevronUp, ChevronDown, ChevronRight, Check, Pencil, X, ListChecks, Timer, Play } from 'lucide-react';
 import FocusTimer, { stopTaskTimer } from './FocusTimer';
@@ -335,22 +335,12 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
   const [editingSubtaskTitle, setEditingSubtaskTitle] = useState('');
   const [subtaskError, setSubtaskError] = useState('');
   const [showTimerPrompt, setShowTimerPrompt] = useState(false);
-  const [timerStarted, setTimerStarted] = useState(false);
-  const [timerSessionKey, setTimerSessionKey] = useState(0);
   const hasAutoStartedRef = useRef(false);
   const [showDetails, setShowDetails] = useState(false);
 
   const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
   const completedSubtasks = subtasks.filter((st) => st.done).length;
   const isDone = task.status === 'done';
-
-  useEffect(() => {
-    if (task.status === 'in-progress' && !timerStarted && !hasAutoStartedRef.current) {
-      hasAutoStartedRef.current = true;
-      setTimerStarted(true);
-      setTimerSessionKey((k) => k + 1);
-    }
-  }, [task.status, timerStarted]);
 
   const nextStatus = (current: TaskStatus): TaskStatus => {
     if (current === 'todo') return 'in-progress';
@@ -407,7 +397,6 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
       setShowTimerPrompt(true);
     } else if (next === 'done') {
       stopTaskTimer(task.id);
-      setTimerStarted(false);
       if (subtasks.length > 0) {
         const updated = subtasks.map((st) => ({ ...st, done: true }));
         onUpdate({ status: 'done', subtasks: updated });
@@ -423,32 +412,13 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
 
   const handleStartTimer = () => {
     setShowTimerPrompt(false);
-    setTimerStarted(true);
-    setTimerSessionKey((k) => k + 1);
+    useStore.getState().startTimer(task.id, task.title);
     onUpdate({ status: 'in-progress' });
   };
 
   const handleSkipTimer = () => {
     setShowTimerPrompt(false);
-    setTimerStarted(false);
     onUpdate({ status: 'in-progress' });
-  };
-
-  const handleSaveFocusSession = (session: FocusSession) => {
-    onUpdate({ focusSession: session });
-  };
-
-  const handleTimerStop = () => {
-    setTimerStarted(false);
-  };
-
-  const handleTimerRestart = () => {
-    stopTaskTimer(task.id);
-    setTimerStarted(true);
-    setTimerSessionKey((k) => k + 1);
-    if (task.status !== 'in-progress') {
-      onUpdate({ status: 'in-progress' });
-    }
   };
 
   return (
@@ -691,11 +661,6 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
               taskId={task.id}
               taskTitle={task.title}
               focusSession={task.focusSession}
-              onSaveSession={handleSaveFocusSession}
-              started={timerStarted}
-              onStop={handleTimerStop}
-              onRestart={handleTimerRestart}
-              key={timerSessionKey}
             />
           </div>
 

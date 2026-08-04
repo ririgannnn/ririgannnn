@@ -14,6 +14,8 @@ import ProjectDetailView from './ProjectDetailView';
 import HabitTracker from './HabitTracker';
 import VTuberDashboard from './VTuberDashboard';
 import SettingsPanel from './SettingsPanel';
+import TimerEngine from './TimerEngine';
+import FocusTimerFloatingBadge from './FocusTimerFloatingBadge';
 import { useStore } from '../stores';
 import { useAuth } from '../contexts/AuthContext';
 import type { ModuleType } from '../types';
@@ -79,6 +81,12 @@ export default function Layout() {
 
   return (
     <div className="relative flex h-full overflow-hidden">
+      {/* ── Timer Engine (invisible, never unmounts) ── */}
+      <TimerEngine />
+
+      {/* ── Global Floating Timer Badge ── */}
+      <FocusTimerFloatingBadge />
+
       {/* ── Background ── */}
       <div
         className="fixed inset-0 -z-10"

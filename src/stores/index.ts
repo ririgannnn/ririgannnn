@@ -6,6 +6,16 @@ import api from '../services/api';
 
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
+// ── Timer runtime state (in-memory, NOT persisted) ──
+export interface TimerState {
+  taskId: string;
+  taskTitle: string;
+  startTime: number;
+  accumulatedMs: number;
+  isPaused: boolean;
+  tick: number;
+}
+
 // Parse tags from various formats (array, JSON string, undefined)
 function parseTags(tags: unknown): string[] {
   if (Array.isArray(tags)) return tags as string[];
@@ -99,6 +109,16 @@ interface AppState {
   // Sync initialization
   initSync: (token: string) => Promise<void>;
   stopSync: () => void;
+
+  // ── Focus Timer (runtime, not persisted) ──
+  activeTimer: TimerState | null;
+  startTimer: (taskId: string, taskTitle: string) => void;
+  pauseTimer: () => void;
+  resumeTimer: () => void;
+  stopTimer: () => void;
+  resetTimer: () => void;
+  tickTimer: () => void;
+  addManualFocusSession: (taskId: string, durationMs: number, date?: string) => void;
 
   // Projects
   projects: Project[];
@@ -1142,6 +1162,119 @@ export const useStore = create<AppState>()(
       stopSync: () => {
         syncEngine.stop();
         syncInitialized = false;
+      },
+
+      // ── Focus Timer ──
+      activeTimer: null,
+
+      startTimer: (taskId, taskTitle) => {
+        const current = get().activeTimer;
+        if (current && current.taskId !== taskId) {
+          get().stopTimer();
+        }
+        if (current && current.taskId === taskId && !current.isPaused) return;
+        if (current && current.taskId === taskId && current.isPaused) {
+          get().resumeTimer();
+          return;
+        }
+        set({
+          activeTimer: {
+            taskId,
+            taskTitle,
+            startTime: Date.now(),
+            accumulatedMs: 0,
+            isPaused: false,
+            tick: 0,
+          },
+        });
+      },
+
+      pauseTimer: () => {
+        const current = get().activeTimer;
+        if (!current || current.isPaused) return;
+        set({
+          activeTimer: {
+            ...current,
+            accumulatedMs: Date.now() - current.startTime + current.accumulatedMs,
+            isPaused: true,
+          },
+        });
+      },
+
+      resumeTimer: () => {
+        const current = get().activeTimer;
+        if (!current || !current.isPaused) return;
+        set({
+          activeTimer: {
+            ...current,
+            startTime: Date.now(),
+            isPaused: false,
+          },
+        });
+      },
+
+      stopTimer: () => {
+        const current = get().activeTimer;
+        if (!current) return;
+        const duration = current.isPaused
+          ? current.accumulatedMs
+          : Date.now() - current.startTime + current.accumulatedMs;
+        set({ activeTimer: null });
+        if (duration > 1000) {
+          const { tasks, updateTask } = get();
+          const task = tasks.find((t) => t.id === current.taskId);
+          if (task) {
+            const now = new Date().toISOString();
+            const newSession = {
+              start: new Date(Date.now() - duration).toISOString(),
+              end: now,
+              duration,
+            };
+            const currentTotal = task.focusSession?.totalDuration ?? 0;
+            const currentSessions = task.focusSession?.sessions ?? [];
+            const updated: FocusSession = {
+              totalDuration: currentTotal + duration,
+              sessions: [...currentSessions, newSession],
+            };
+            updateTask(current.taskId, { focusSession: updated });
+          }
+        }
+      },
+
+      resetTimer: () => {
+        const current = get().activeTimer;
+        if (!current) return;
+        set({
+          activeTimer: {
+            ...current,
+            startTime: Date.now(),
+            accumulatedMs: 0,
+            isPaused: false,
+          },
+        });
+      },
+
+      tickTimer: () => {
+        const current = get().activeTimer;
+        if (!current || current.isPaused) return;
+        set({ activeTimer: { ...current, tick: current.tick + 1 } });
+      },
+
+      addManualFocusSession: (taskId, durationMs, date) => {
+        const { tasks, updateTask } = get();
+        const task = tasks.find((t) => t.id === taskId);
+        if (!task || durationMs <= 0) return;
+        const sessionDate = date ? new Date(date) : new Date();
+        const end = sessionDate.toISOString();
+        const start = new Date(sessionDate.getTime() - durationMs).toISOString();
+        const newSession = { start, end, duration: durationMs };
+        const currentTotal = task.focusSession?.totalDuration ?? 0;
+        const currentSessions = task.focusSession?.sessions ?? [];
+        const updated: FocusSession = {
+          totalDuration: currentTotal + durationMs,
+          sessions: [...currentSessions, newSession],
+        };
+        updateTask(taskId, { focusSession: updated });
       },
     }),
     {
