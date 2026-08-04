@@ -39,10 +39,11 @@ const FIELD_MAP: Record<string, string> = {
   all_day: 'allDay',
   sort_order: 'sortOrder',
   password_hash: 'passwordHash',
+  focus_session: 'focusSession',
 };
 
 // ── JSON 字段：PostgreSQL 中存储为 TEXT，返回时需解析为数组 ──
-const JSON_FIELDS = new Set(['tags', 'images', 'subtasks']);
+const JSON_FIELDS = new Set(['tags', 'images', 'subtasks', 'focus_session']);
 
 function transformRow(row: QueryResultRow): QueryResultRow {
   const result: QueryResultRow = {};
@@ -123,6 +124,7 @@ export async function initDatabase(): Promise<void> {
         category TEXT DEFAULT '',
         sort_order INTEGER DEFAULT 0,
         subtasks TEXT DEFAULT '[]',
+        focus_session TEXT DEFAULT '{"totalDuration":0,"sessions":[]}',
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         deleted_at TIMESTAMPTZ
@@ -182,9 +184,9 @@ export async function initDatabase(): Promise<void> {
     `);
 
     // ── 为已有表添加 images 列（兼容升级）──
-    const addColumnIfNotExists = async (tableName: string, columnName: string) => {
+    const addColumnIfNotExists = async (tableName: string, columnName: string, defaultValue = "'[]'") => {
       try {
-        await client.query(`ALTER TABLE ${tableName} ADD COLUMN IF NOT EXISTS ${columnName} TEXT DEFAULT '[]'`);
+        await client.query(`ALTER TABLE ${tableName} ADD COLUMN IF NOT EXISTS ${columnName} TEXT DEFAULT ${defaultValue}`);
       } catch {
         // Column may already exist, ignore
       }
@@ -193,6 +195,7 @@ export async function initDatabase(): Promise<void> {
     await addColumnIfNotExists('knowledge', 'images');
     await addColumnIfNotExists('inspirations', 'images');
     await addColumnIfNotExists('tasks', 'subtasks');
+    await addColumnIfNotExists('tasks', 'focus_session', '\'{"totalDuration":0,"sessions":[]}\'');
 
     // 创建索引
     const tables = ['tasks', 'notes', 'events', 'knowledge', 'inspirations'];

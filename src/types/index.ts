@@ -7,6 +7,13 @@ export interface SubTask {
   done: boolean;
 }
 
+export interface FocusSession {
+  /** Accumulated focus duration from completed sessions (milliseconds) */
+  totalDuration: number;
+  /** History of completed focus sessions */
+  sessions: { start: string; end: string; duration: number }[];
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -18,6 +25,8 @@ export interface Task {
   tags?: string[];
   category?: string;
   subtasks?: SubTask[];
+  /** Focus session data accumulated over time */
+  focusSession?: FocusSession;
   createdAt: string;
   updatedAt?: string;
 }

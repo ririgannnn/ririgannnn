@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Task, Note, CalendarEvent, Inspiration, KnowledgeEntry, AppSettings, ModuleType, SubTask } from '../types';
+import type { Task, Note, CalendarEvent, Inspiration, KnowledgeEntry, AppSettings, ModuleType, SubTask, FocusSession } from '../types';
 import syncEngine from '../services/syncEngine';
 import api from '../services/api';
 
@@ -31,6 +31,18 @@ function parseSubtasks(subtasks: unknown): SubTask[] {
     try { return JSON.parse(subtasks) as SubTask[]; } catch { return []; }
   }
   return [];
+}
+
+// Parse focusSession from various formats
+function parseFocusSession(data: unknown): FocusSession | undefined {
+  if (!data) return undefined;
+  if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+    return data as FocusSession;
+  }
+  if (typeof data === 'string') {
+    try { return JSON.parse(data) as FocusSession; } catch { return undefined; }
+  }
+  return undefined;
 }
 
 // Track if sync engine is initialized
@@ -114,6 +126,7 @@ export const useStore = create<AppState>()(
           category: task.category || '',
           dueDate: task.dueDate ?? null,
           subtasks: parseSubtasks(task.subtasks),
+          focusSession: parseFocusSession(task.focusSession),
           createdAt: task.createdAt || now,
           updatedAt: task.updatedAt || now,
         };
@@ -172,6 +185,7 @@ export const useStore = create<AppState>()(
             category: (d.category as string) || '',
             tags: Array.isArray(d.tags) ? d.tags as string[] : [],
             subtasks: parseSubtasks(d.subtasks),
+            focusSession: parseFocusSession(d.focusSession ?? d.focus_session),
             createdAt: (d.created_at || d.createdAt || '') as string,
             updatedAt: (d.updated_at || d.updatedAt || '') as string,
           };
@@ -191,6 +205,7 @@ export const useStore = create<AppState>()(
               ...(d.due_date !== undefined ? { dueDate: d.due_date as string | null } : {}),
               ...(d.category !== undefined ? { category: d.category as string } : {}),
               ...(d.subtasks !== undefined ? { subtasks: parseSubtasks(d.subtasks) } : {}),
+              ...(d.focusSession !== undefined || d.focus_session !== undefined ? { focusSession: parseFocusSession(d.focusSession ?? d.focus_session) } : {}),
               ...(d.updatedAt || d.updated_at ? { updatedAt: (d.updatedAt || d.updated_at) as string } : {}),
             } : t),
           }));
@@ -553,6 +568,7 @@ export const useStore = create<AppState>()(
             category: (t.category as string) || '',
             tags: parseTags(t.tags),
             subtasks: parseSubtasks(t.subtasks),
+            focusSession: parseFocusSession(t.focusSession ?? t.focus_session),
             createdAt: (t.createdAt || t.created_at || '') as string,
             updatedAt: (t.updatedAt || t.updated_at || '') as string,
           }) as Task[]));
