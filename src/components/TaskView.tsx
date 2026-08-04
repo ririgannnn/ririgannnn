@@ -401,6 +401,15 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
     setTimerStarted(false);
   };
 
+  const handleTimerRestart = () => {
+    stopTaskTimer(task.id);
+    setTimerStarted(true);
+    setTimerSessionKey((k) => k + 1);
+    if (task.status !== 'in-progress') {
+      onUpdate({ status: 'in-progress' });
+    }
+  };
+
   return (
     <div
       className="rounded-lg border border-black/5 shadow-sm hover:shadow-md transition-shadow group overflow-hidden"
@@ -596,6 +605,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
               onSaveSession={handleSaveFocusSession}
               started={timerStarted}
               onStop={handleTimerStop}
+              onRestart={handleTimerRestart}
               key={timerSessionKey}
             />
           </div>
@@ -613,11 +623,6 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             {task.dueDate && (
               <span className="text-xs text-muted-fg flex items-center gap-1">
                 <Calendar size={10} /> {format(new Date(task.dueDate), 'MM/dd')}
-              </span>
-            )}
-            {task.focusSession && task.focusSession.totalDuration > 0 && (
-              <span className="text-xs text-muted-fg flex items-center gap-1" title={`累计专注 ${formatDuration(task.focusSession.totalDuration)}`}>
-                <Timer size={10} /> {formatDuration(task.focusSession.totalDuration)}
               </span>
             )}
           </div>
