@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useStore } from '../stores';
 import type { Task, TaskStatus, TaskPriority, SubTask, FocusSession } from '../types';
 import { format } from 'date-fns';
-import { Plus, Trash2, Search, Calendar, ChevronDown, ChevronRight, Check, Pencil, X, ListChecks, Timer, Play } from 'lucide-react';
+import { Plus, Trash2, Search, Calendar, ChevronUp, ChevronDown, ChevronRight, Check, Pencil, X, ListChecks, Timer, Play } from 'lucide-react';
 import FocusTimer, { stopTaskTimer } from './FocusTimer';
 
 const statusLabels: Record<TaskStatus, { label: string; color: string }> = {
@@ -269,6 +269,8 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
   // Increment this to force re-mount / re-start the timer
   const [timerSessionKey, setTimerSessionKey] = useState(0);
   const hasAutoStartedRef = useRef(false);
+  // Collapsible details panel for done tasks
+  const [showDetails, setShowDetails] = useState(false);
 
   const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
   const completedSubtasks = subtasks.filter((st) => st.done).length;
@@ -417,6 +419,91 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             <button onClick={() => { onEdit({ title: editTitle, description: editDesc }); onEditingChange(false); }} className="px-2 py-1 text-xs rounded bg-primary text-primary-fg">保存</button>
           </div>
         </div>
+      ) : isDone ? (
+        <div className="p-4">
+          {/* ── Title row — most prominent ── */}
+          <div className="flex items-start gap-2.5">
+            <div
+              className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+              style={{ backgroundColor: '#10b981' }}
+            >
+              <Check size={14} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start gap-2">
+                <span
+                  className="text-base font-semibold text-fg leading-snug"
+                  style={{ opacity: 0.55, textDecoration: 'line-through' }}
+                >
+                  {task.title}
+                </span>
+                <button
+                  onClick={() => setShowDetails(!showDetails)}
+                  className="ml-auto p-1 rounded hover:bg-black/5 transition-colors shrink-0 text-muted-fg mt-0.5"
+                  title={showDetails ? '收起详情' : '展开详情'}
+                >
+                  {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </button>
+              </div>
+              {/* One-line summary when collapsed */}
+              {!showDetails && (
+                <div className="text-xs text-muted-fg mt-1.5 flex items-center gap-2 flex-wrap">
+                  {subtasks.length > 0 && <span>{completedSubtasks}/{subtasks.length} 子任务</span>}
+                  {(task.focusSession?.totalDuration ?? 0) > 0 && <span>专注 {formatDuration(task.focusSession!.totalDuration)} · {task.focusSession!.sessionCount} 次</span>}
+                  {task.dueDate && <span>{format(new Date(task.dueDate), 'MM/dd')}</span>}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── Expandable details panel ── */}
+          {showDetails && (
+            <div className="mt-3 space-y-3 animate-scale-in" style={{ marginLeft: '2.125rem' }}>
+              {task.description && (
+                <p className="text-xs text-muted-fg leading-relaxed">{task.description}</p>
+              )}
+
+              {/* Subtasks — read-only */}
+              {subtasks.length > 0 && (
+                <div>
+                  <p className="text-[11px] font-medium text-muted-fg mb-1.5 uppercase tracking-wide">子任务</p>
+                  <div className="space-y-1">
+                    {subtasks.map((st) => (
+                      <div key={st.id} className="flex items-center gap-1.5">
+                        <Check size={11} className="text-green-500 shrink-0" />
+                        <span className="text-xs text-muted-fg line-through">{st.title}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Focus summary */}
+              {(task.focusSession?.totalDuration ?? 0) > 0 && (
+                <div>
+                  <p className="text-[11px] font-medium text-muted-fg mb-1.5 uppercase tracking-wide">专注记录</p>
+                  <div className="text-xs text-muted-fg flex items-center gap-1.5">
+                    <Timer size={12} />
+                    <span>累计 {formatDuration(task.focusSession!.totalDuration)} · {task.focusSession!.sessionCount} 次</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Meta row */}
+              <div className="flex items-center gap-2 pt-2 border-t border-black/5">
+                <span className="text-[11px] px-1.5 py-0.5 rounded bg-green-50 text-green-600">已完成</span>
+                {task.dueDate && <span className="text-[11px] text-muted-fg">{format(new Date(task.dueDate), 'yyyy-MM-dd')}</span>}
+                <span className="text-[11px] text-muted-fg">优先级：{task.priority === 'high' ? '高' : task.priority === 'medium' ? '中' : '低'}</span>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-2 pt-1">
+                <button onClick={handleParentStatusToggle} className="text-xs px-2.5 py-1 rounded-lg bg-muted text-muted-fg hover:bg-border transition-colors">重新开始</button>
+                <button onClick={onDelete} className="text-xs px-2.5 py-1 rounded-lg text-red-500 hover:bg-red-50 transition-colors">删除</button>
+              </div>
+            </div>
+          )}
+        </div>
       ) : (
         <>
           <div className="flex items-start gap-2">
@@ -428,7 +515,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                 </span>
               )}
               <span
-                className={`text-sm font-medium text-fg cursor-pointer hover:text-primary transition-colors truncate ${isDone ? 'line-through opacity-50' : ''}`}
+                className="text-sm font-medium text-fg cursor-pointer hover:text-primary transition-colors truncate"
                 onClick={() => onEditingChange(true)}
               >
                 {task.title}
@@ -445,7 +532,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
           </div>
 
           {task.description && (
-            <p className={`text-xs text-muted-fg mt-1.5 line-clamp-2 ml-3.5 ${isDone ? 'line-through opacity-40' : ''}`}>{task.description}</p>
+            <p className="text-xs text-muted-fg mt-1.5 line-clamp-2 ml-3.5">{task.description}</p>
           )}
 
           {/* Subtask progress bar */}
@@ -459,15 +546,8 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                 <ListChecks size={12} />
                 <span>{completedSubtasks}/{subtasks.length} 子任务</span>
               </button>
-              {/* Progress bar */}
               <div className="h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
-                <div
-                  className="h-full rounded-full transition-all duration-300"
-                  style={{
-                    width: `${subtasks.length > 0 ? (completedSubtasks / subtasks.length) * 100 : 0}%`,
-                    backgroundColor: isDone ? '#10b981' : '#3b82f6',
-                  }}
-                />
+                <div className="h-full rounded-full transition-all duration-300" style={{ width: `${subtasks.length > 0 ? (completedSubtasks / subtasks.length) * 100 : 0}%`, backgroundColor: '#3b82f6' }} />
               </div>
             </div>
           )}
@@ -477,63 +557,32 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             <div className="mt-2 ml-3.5 space-y-1 animate-scale-in">
               {subtasks.map((st) => (
                 <div key={st.id} className="flex items-center gap-1.5 group/sub">
-                  {/* Checkbox */}
                   <button
                     onClick={() => handleToggleSubtask(st.id)}
-                    className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${
-                      st.done
-                        ? 'bg-green-500 border-green-500'
-                        : 'border-muted-fg/40 hover:border-primary'
-                    }`}
+                    className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${st.done ? 'bg-green-500 border-green-500' : 'border-muted-fg/40 hover:border-primary'}`}
                   >
                     {st.done && <Check size={10} className="text-white" />}
                   </button>
-
-                  {/* Title / Edit input */}
                   {editingSubtaskId === st.id ? (
                     <input
                       value={editingSubtaskTitle}
                       onChange={(e) => setEditingSubtaskTitle(e.target.value)}
                       onBlur={handleSaveEditSubtask}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleSaveEditSubtask();
-                        if (e.key === 'Escape') { setEditingSubtaskId(null); setEditingSubtaskTitle(''); }
-                      }}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleSaveEditSubtask(); if (e.key === 'Escape') { setEditingSubtaskId(null); setEditingSubtaskTitle(''); }}}
                       className="flex-1 text-xs px-1.5 py-0.5 rounded border border-primary/30 bg-white/80 text-fg outline-none"
                       autoFocus
                     />
                   ) : (
-                    <span
-                      className={`flex-1 text-xs text-fg cursor-text truncate ${st.done ? 'line-through opacity-40' : ''}`}
-                      onDoubleClick={() => handleStartEditSubtask(st)}
-                    >
-                      {st.title}
-                    </span>
+                    <span className={`flex-1 text-xs text-fg cursor-text truncate ${st.done ? 'line-through opacity-40' : ''}`} onDoubleClick={() => handleStartEditSubtask(st)}>{st.title}</span>
                   )}
-
-                  {/* Actions */}
                   {editingSubtaskId !== st.id && (
                     <div className="flex gap-0.5 opacity-0 group-hover/sub:opacity-100 transition-opacity shrink-0">
-                      <button
-                        onClick={() => handleStartEditSubtask(st)}
-                        className="p-0.5 rounded hover:bg-muted transition-colors"
-                        title="编辑"
-                      >
-                        <Pencil size={10} className="text-muted-fg" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteSubtask(st.id)}
-                        className="p-0.5 rounded hover:bg-red-50 transition-colors"
-                        title="删除"
-                      >
-                        <Trash2 size={10} className="text-muted-fg hover:text-red-500" />
-                      </button>
+                      <button onClick={() => handleStartEditSubtask(st)} className="p-0.5 rounded hover:bg-muted transition-colors" title="编辑"><Pencil size={10} className="text-muted-fg" /></button>
+                      <button onClick={() => handleDeleteSubtask(st.id)} className="p-0.5 rounded hover:bg-red-50 transition-colors" title="删除"><Trash2 size={10} className="text-muted-fg hover:text-red-500" /></button>
                     </div>
                   )}
                 </div>
               ))}
-
-              {/* Add subtask input */}
               <div className="flex items-center gap-1.5 pt-1">
                 <div className="w-4 h-4 shrink-0" />
                 <input
@@ -546,33 +595,17 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                   className="flex-1 text-xs px-1.5 py-0.5 rounded border border-black/5 bg-white/50 text-fg outline-none focus:ring-1 focus:ring-primary/30 disabled:opacity-50"
                 />
                 {newSubtaskTitle.trim() && subtasks.length < MAX_SUBTASKS && (
-                  <button
-                    onClick={handleAddSubtask}
-                    className="p-0.5 rounded hover:bg-muted transition-colors"
-                  >
-                    <Plus size={12} className="text-primary" />
-                  </button>
+                  <button onClick={handleAddSubtask} className="p-0.5 rounded hover:bg-muted transition-colors"><Plus size={12} className="text-primary" /></button>
                 )}
               </div>
-
-              {/* Error message */}
-              {subtaskError && (
-                <p className="text-xs text-red-500 mt-1 ml-5.5">{subtaskError}</p>
-              )}
-
-              {/* Count */}
-              <p className="text-xs text-muted-fg/60 mt-0.5 ml-5.5">
-                {subtasks.length}/{MAX_SUBTASKS}
-              </p>
+              {subtaskError && <p className="text-xs text-red-500 mt-1 ml-5.5">{subtaskError}</p>}
+              <p className="text-xs text-muted-fg/60 mt-0.5 ml-5.5">{subtasks.length}/{MAX_SUBTASKS}</p>
             </div>
           )}
 
           {/* Add subtask button (when collapsed) */}
           {!showSubtasks && subtasks.length < MAX_SUBTASKS && (
-            <button
-              onClick={() => setShowSubtasks(true)}
-              className="mt-2 ml-3.5 flex items-center gap-1 text-xs text-muted-fg/60 hover:text-primary transition-colors"
-            >
+            <button onClick={() => setShowSubtasks(true)} className="mt-2 ml-3.5 flex items-center gap-1 text-xs text-muted-fg/60 hover:text-primary transition-colors">
               <Plus size={11} /> 添加子任务
             </button>
           )}
@@ -631,17 +664,8 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                   </p>
                 )}
                 <div className="flex gap-2">
-                  <button
-                    onClick={handleSkipTimer}
-                    className="flex-1 py-2.5 text-sm rounded-lg bg-muted text-muted-fg hover:bg-border transition-colors"
-                  >
-                    暂不启动
-                  </button>
-                  <button
-                    onClick={handleStartTimer}
-                    className="flex-1 py-2.5 text-sm rounded-lg text-white font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
-                    style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
-                  >
+                  <button onClick={handleSkipTimer} className="flex-1 py-2.5 text-sm rounded-lg bg-muted text-muted-fg hover:bg-border transition-colors">暂不启动</button>
+                  <button onClick={handleStartTimer} className="flex-1 py-2.5 text-sm rounded-lg text-white font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}>
                     <Play size={14} /> 开始专注
                   </button>
                 </div>
