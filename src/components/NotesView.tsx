@@ -283,7 +283,7 @@ export default function NotesView() {
             ) : (
               <div className="space-y-4">
                 <div className="flex items-start justify-between gap-4">
-                  <h1 className="text-2xl font-bold text-fg leading-tight font-serif-cn">{selected.title || '无标题'}</h1>
+                  <h1 className="font-bold text-fg leading-tight font-serif-cn" style={{ fontSize: '18px' }}>{selected.title || '无标题'}</h1>
                   <div className="flex items-center gap-1 shrink-0">
                     <button onClick={handleStartEdit}
                       className="p-2 rounded-lg hover:bg-black/5 transition-colors flex items-center gap-1.5 text-sm"
@@ -315,7 +315,7 @@ export default function NotesView() {
 
                 <div className="prose prose-sm max-w-none">
                   {selected.content ? (
-                    <div className="font-serif-cn text-[17px] md:text-[18px] leading-[2] whitespace-pre-wrap" style={{ color: 'var(--text-primary)' }}>
+                    <div className="font-serif-cn leading-[2] whitespace-pre-wrap" style={{ fontSize: '16px', color: 'var(--text-primary)' }}>
                       {selected.content}
                     </div>
                   ) : (

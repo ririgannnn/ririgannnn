@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { UserCircle } from 'lucide-react';
+import { MonitorPlay } from 'lucide-react';
 import ContentDept from './vtuber/ContentDept';
 import TechDept from './vtuber/TechDept';
 import DesignDept from './vtuber/DesignDept';
@@ -34,23 +34,85 @@ export default function VTuberDashboard() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Hero Banner */}
+      {/* Hero Banner — Magazine Editorial Style */}
       <div
-        className="rounded-xl p-5 md:p-6"
+        className="rounded-xl p-6 md:p-8 relative overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, #5b4cf0 0%, #8b5cf6 100%)',
-          color: '#fff',
+          background: 'linear-gradient(165deg, #f7f3ed 0%, #efe8dc 40%, #e9e0d2 100%)',
+          border: '1px solid rgba(0,0,0,0.05)',
         }}
       >
-        <div className="flex items-center gap-3 mb-1">
-          <UserCircle size={24} />
-          <h2 className="font-serif text-lg md:text-xl font-semibold tracking-wide">
-            虚拟主播「一人公司」工作台
-          </h2>
+        {/* Dot grid pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.9) 1px, transparent 0)',
+            backgroundSize: '28px 28px',
+          }}
+        />
+        {/* Accent shape */}
+        <div
+          className="absolute -right-8 -top-10 w-40 h-40 rounded-full opacity-10"
+          style={{ background: 'linear-gradient(135deg, #c4a882, #a89070)' }}
+        />
+        <div
+          className="absolute -right-4 -bottom-12 w-28 h-28 rounded-full opacity-8"
+          style={{ background: 'linear-gradient(135deg, #a89070, #c4a882)' }}
+        />
+
+        <div className="relative z-10">
+          {/* Editorial label row */}
+          <div className="flex items-center gap-3 mb-4">
+            <span
+              className="text-[10px] font-semibold tracking-[0.25em] uppercase"
+              style={{ color: '#a89070' }}
+            >
+              PERFORM
+            </span>
+            <span className="w-10 h-px" style={{ background: '#d4c4b0' }} />
+            <span className="text-[10px]" style={{ color: 'var(--text-dim)' }}>
+              虚拟主播运营中枢
+            </span>
+          </div>
+
+          {/* Main title */}
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+              style={{ background: 'rgba(168,144,112,0.12)', border: '1px solid rgba(168,144,112,0.2)' }}
+            >
+              <MonitorPlay size={18} style={{ color: '#a89070' }} />
+            </div>
+            <h2
+              className="font-serif-cn text-xl md:text-2xl font-semibold tracking-wide"
+              style={{ color: '#2d2a26' }}
+            >
+              Vup工作台
+            </h2>
+          </div>
+
+          {/* Subtitle */}
+          <p
+            className="text-xs mt-3 max-w-xl leading-relaxed"
+            style={{ color: 'var(--text-mid)' }}
+          >
+            8 大部门协同 · 轻量实操工具 · 数据云端同步
+          </p>
+
+          {/* Stats row */}
+          <div className="flex items-center gap-6 mt-4 pt-4" style={{ borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+            {[
+              { label: '部门', value: '8' },
+              { label: '模块', value: '40+' },
+              { label: '状态', value: '在线' },
+            ].map((stat) => (
+              <div key={stat.label} className="flex items-baseline gap-1.5">
+                <span className="text-sm font-semibold" style={{ color: '#2d2a26' }}>{stat.value}</span>
+                <span className="text-[10px]" style={{ color: 'var(--text-dim)' }}>{stat.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <p className="text-xs opacity-85 mt-1 max-w-2xl">
-          8 大部门 · 轻量实操工具 · 数据云端同步
-        </p>
       </div>
 
       {/* Tab Bar */}

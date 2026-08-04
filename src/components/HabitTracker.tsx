@@ -51,16 +51,16 @@ function getStreak(records: HabitRecord[], habitId: string, date: string): numbe
 function getHeatColor(streak: number, habitColor: string): string {
   if (streak === 0) return 'transparent';
   if (streak <= 3) {
-    return `${habitColor}20`;
+    return `${habitColor}40`;
   }
   if (streak <= 7) {
-    return `${habitColor}45`;
-  }
-  if (streak <= 14) {
     return `${habitColor}70`;
   }
+  if (streak <= 14) {
+    return `${habitColor}A0`;
+  }
   if (streak <= 30) {
-    return `${habitColor}99`;
+    return `${habitColor}D0`;
   }
   return `${habitColor}`;
 }
@@ -280,7 +280,7 @@ export default function HabitTracker() {
                   <span className="text-xs font-medium" style={{ color: 'var(--text-dim)' }}>习惯</span>
                 </div>
                 {/* Habit rows */}
-                {habits.map((habit) => {
+                {habits.filter((h) => h.name?.trim()).map((habit) => {
                   const streak = currentStreaks.find((s) => s.habitId === habit.id)?.streak || 0;
                   const isEditing = editingHabit === habit.id;
                   return (
@@ -385,7 +385,7 @@ export default function HabitTracker() {
                 </div>
 
                 {/* Heatmap cells */}
-                {habits.map((habit) => (
+                {habits.filter((h) => h.name?.trim()).map((habit) => (
                   <div
                     key={habit.id}
                     className="flex"
@@ -428,7 +428,7 @@ export default function HabitTracker() {
                                 ? 'transparent'
                                 : isChecked
                                   ? getHeatColor(streak, habit.color)
-                                  : 'rgba(0,0,0,0.04)',
+                                  : 'rgba(0,0,0,0.06)',
                               border: isToday ? `1.5px solid ${habit.color}` : '1px solid transparent',
                               boxShadow: isHovered && !isFuture ? `0 0 6px ${habit.color}40` : 'none',
                             }}

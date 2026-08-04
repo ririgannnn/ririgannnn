@@ -29,7 +29,7 @@ const moduleMeta: Record<Exclude<ModuleType, 'dashboard'>, { label: string; engl
   data:       { label: '数据分析', english: 'ANALYZE',     accentClass: 'module-accent-teal' },
   inspiration:{ label: '灵感数据库', english: 'SPARK',     accentClass: 'module-accent-orange' },
   habits:     { label: '习惯打卡', english: 'TRACK',      accentClass: 'module-accent-orange' },
-  vtuber:     { label: 'VTuber工作台', english: 'PERFORM',  accentClass: 'module-accent-purple' },
+  vtuber:     { label: 'Vup工作台', english: 'PERFORM',  accentClass: 'module-accent-purple' },
 };
 
 export default function Layout() {

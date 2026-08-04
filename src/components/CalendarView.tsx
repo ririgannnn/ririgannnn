@@ -11,7 +11,7 @@ import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
 const eventColors = ['#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899'];
 
 export default function CalendarView() {
-  const { events, addEvent, deleteEvent } = useStore();
+  const { events, tasks, addEvent, deleteEvent } = useStore();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showForm, setShowForm] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
@@ -34,6 +34,9 @@ export default function CalendarView() {
 
   const getEventsForDay = (date: Date) =>
     events.filter((e) => isSameDay(new Date(e.startDate), date));
+
+  const getTasksForDay = (date: Date) =>
+    tasks.filter((t) => t.dueDate && isSameDay(new Date(t.dueDate), date) && t.status !== 'done');
 
   const todayEvents = events.filter((e) => isSameDay(new Date(e.startDate), new Date()));
 
@@ -94,6 +97,7 @@ export default function CalendarView() {
                 const isToday = isSameDay(day, new Date());
                 const isCurrentMonth = isSameMonth(day, currentMonth);
                 const dayEvents = getEventsForDay(day);
+                const dayTasks = getTasksForDay(day);
                 return (
                   <button
                     key={i}
@@ -117,7 +121,7 @@ export default function CalendarView() {
                       {format(day, 'd')}
                     </span>
                     <div className="space-y-0.5 mt-1">
-                      {dayEvents.slice(0, 3).map((ev) => (
+                      {dayEvents.slice(0, 2).map((ev) => (
                         <div
                           key={ev.id}
                           className="text-xs px-1 py-0.5 rounded truncate text-white"
@@ -127,8 +131,16 @@ export default function CalendarView() {
                           {ev.title}
                         </div>
                       ))}
-                      {dayEvents.length > 3 && (
-                        <div className="text-xs pl-1" style={{ color: 'var(--text-dim)' }}>+{dayEvents.length - 3} 更多</div>
+                      {dayTasks.length > 0 && (
+                        <div className="flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'var(--accent-orange)' }} />
+                          <span className="text-[10px] truncate" style={{ color: 'var(--accent-orange)' }}>
+                            {dayTasks.length}待办
+                          </span>
+                        </div>
+                      )}
+                      {dayEvents.length > 2 && (
+                        <div className="text-xs pl-1" style={{ color: 'var(--text-dim)' }}>+{dayEvents.length - 2} 日程</div>
                       )}
                     </div>
                   </button>
@@ -190,9 +202,16 @@ export default function CalendarView() {
               <button onClick={() => setShowForm(false)} className="p-1 rounded hover:bg-black/5"><X size={18} style={{ color: 'var(--text-dim)' }} /></button>
             </div>
 
-            <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-lg border outline-none mb-3"
-              style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)' }} />
+            <div className="flex gap-2 mb-3">
+              <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)}
+                className="flex-1 px-3 py-2 text-sm rounded-lg border outline-none"
+                style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)' }} />
+              <button
+                onClick={() => setSelectedDate(format(new Date(), 'yyyy-MM-dd'))}
+                className="px-3 py-2 text-xs rounded-lg transition-colors shrink-0"
+                style={{ background: 'var(--bg-deep)', color: 'var(--kon-dark)', border: '1px solid var(--line)' }}
+              >今日</button>
+            </div>
 
             <input type="text" placeholder="日程标题" value={title} onChange={(e) => setTitle(e.target.value)}
               className="w-full px-3 py-2 text-sm rounded-lg border outline-none mb-3"

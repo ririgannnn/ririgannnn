@@ -15,6 +15,12 @@ export default function InspirationView() {
   const [tags, setTags] = useState<string[]>([]);
   const [color, setColor] = useState(cardColors[Math.floor(Math.random() * cardColors.length)]);
   const [formImages, setFormImages] = useState<string[]>([]);
+  const [filterTag, setFilterTag] = useState<string | null>(null);
+
+  const allTags = Array.from(new Set(inspirations.flatMap((i) => Array.isArray(i.tags) ? i.tags : []))).sort();
+  const filteredInspirations = filterTag
+    ? inspirations.filter((i) => Array.isArray(i.tags) && i.tags.includes(filterTag))
+    : inspirations;
 
   const handleAdd = () => {
     if (!content.trim()) return;
@@ -54,7 +60,35 @@ export default function InspirationView() {
 
       <p className="text-sm" style={{ color: 'var(--text-dim)' }}>快速捕捉转瞬即逝的想法，按标签归类，构建你的创意素材库。</p>
 
-      {inspirations.length === 0 ? (
+      {allTags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          <button
+            onClick={() => setFilterTag(null)}
+            className="text-xs px-2.5 py-1 rounded-full transition-colors"
+            style={{
+              background: filterTag === null ? 'var(--kon-dark)' : 'var(--bg-deep)',
+              color: filterTag === null ? '#fff' : 'var(--text-dim)',
+            }}
+          >
+            全部
+          </button>
+          {allTags.map((t) => (
+            <button
+              key={t}
+              onClick={() => setFilterTag(t)}
+              className="text-xs px-2.5 py-1 rounded-full transition-colors"
+              style={{
+                background: filterTag === t ? 'var(--accent-dust)' : 'var(--bg-deep)',
+                color: filterTag === t ? '#fff' : 'var(--text-dim)',
+              }}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {filteredInspirations.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
           <Lightbulb size={48} className="mb-4 opacity-20" style={{ color: 'var(--text-dim)' }} />
           <p className="text-sm" style={{ color: 'var(--text-dim)' }}>还没有灵感记录</p>
@@ -62,7 +96,7 @@ export default function InspirationView() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {inspirations.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((insp) => (
+          {filteredInspirations.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((insp) => (
             <div
               key={insp.id}
               className="card-surface border p-4 group relative"

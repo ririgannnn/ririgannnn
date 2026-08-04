@@ -50,7 +50,7 @@ export default function ProjectForm({ initial, onSave, onCancel }: Props) {
         style={{ boxShadow: 'var(--shadow-xl)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-bold font-serif-cn text-fg mb-5">
+        <h2 className="text-base font-bold font-serif-cn text-fg mb-5">
           {isEdit ? '编辑项目' : '新建项目'}
         </h2>
 
@@ -91,13 +91,23 @@ export default function ProjectForm({ initial, onSave, onCancel }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-dim)' }}>开始日期</label>
-              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
-                className={inputClass} style={inputBg} />
+              <div className="flex gap-1.5">
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+                  className="flex-1 px-3 py-2 rounded-lg text-sm outline-none" style={inputBg} />
+                <button type="button" onClick={() => setStartDate(new Date().toISOString().slice(0, 10))}
+                  className="px-2 py-2 text-[10px] rounded-lg transition-colors shrink-0"
+                  style={{ background: 'var(--bg-deep)', color: 'var(--kon-dark)', border: '1px solid var(--line)' }}>今日</button>
+              </div>
             </div>
             <div>
               <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-dim)' }}>截止日期</label>
-              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
-                className={inputClass} style={inputBg} />
+              <div className="flex gap-1.5">
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+                  className="flex-1 px-3 py-2 rounded-lg text-sm outline-none" style={inputBg} />
+                <button type="button" onClick={() => setEndDate(new Date().toISOString().slice(0, 10))}
+                  className="px-2 py-2 text-[10px] rounded-lg transition-colors shrink-0"
+                  style={{ background: 'var(--bg-deep)', color: 'var(--kon-dark)', border: '1px solid var(--line)' }}>今日</button>
+              </div>
             </div>
           </div>
 

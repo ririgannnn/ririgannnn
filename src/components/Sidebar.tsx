@@ -16,7 +16,7 @@ const menuItems: { id: ModuleType; label: string; icon: React.ElementType }[] = 
   { id: 'data', label: '数据分析', icon: BarChart3 },
   { id: 'inspiration', label: '灵感', icon: Lightbulb },
   { id: 'habits', label: '习惯打卡', icon: Flame },
-  { id: 'vtuber', label: 'VTuber工作台', icon: MonitorPlay },
+  { id: 'vtuber', label: 'Vup工作台', icon: MonitorPlay },
 ];
 
 interface Props {

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useStore } from '../../stores';
 import { InlineAddForm } from './shared';
-import { ClipboardCheck, CalendarDays, RotateCcw, Trash2, Plus } from 'lucide-react';
+import { ClipboardCheck, CalendarDays, RotateCcw, Trash2, Plus, GripVertical } from 'lucide-react';
 
 const DEFAULT_ITEMS = [
   { text: 'OBS 场景切换测试（主场景/待机/转场）', date: '' },
@@ -29,6 +29,10 @@ export default function TechDept() {
   const [editText, setEditText] = useState('');
   const [editDate, setEditDate] = useState('');
   const editInputRef = useRef<HTMLInputElement>(null);
+
+  // Drag & drop state
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   // Auto-create on first mount if missing
   useEffect(() => {
@@ -125,6 +129,47 @@ export default function TechDept() {
 
   const todayStr = new Date().toISOString().slice(0, 10);
 
+  const handleDragStart = (e: React.DragEvent, itemId: string) => {
+    setDraggingId(itemId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', itemId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, itemId: string) => {
+    e.preventDefault();
+    if (itemId !== draggingId) {
+      setDragOverId(itemId);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    const sourceId = e.dataTransfer.getData('text/plain');
+    if (!sourceId || sourceId === targetId) {
+      setDraggingId(null);
+      setDragOverId(null);
+      return;
+    }
+    const sourceIdx = items.findIndex((i) => i.id === sourceId);
+    const targetIdx = items.findIndex((i) => i.id === targetId);
+    if (sourceIdx === -1 || targetIdx === -1) {
+      setDraggingId(null);
+      setDragOverId(null);
+      return;
+    }
+    const newItems = [...items];
+    const [moved] = newItems.splice(sourceIdx, 1);
+    newItems.splice(targetIdx, 0, moved);
+    saveItems(newItems);
+    setDraggingId(null);
+    setDragOverId(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingId(null);
+    setDragOverId(null);
+  };
+
   return (
     <div className="space-y-4">
       {/* Header Card */}
@@ -180,12 +225,13 @@ export default function TechDept() {
         <div
           className="grid px-4 py-2 text-[10px] font-medium uppercase tracking-wider"
           style={{
-            gridTemplateColumns: '32px 1fr 130px 36px',
+            gridTemplateColumns: '24px 32px 1fr 130px 36px',
             color: 'var(--text-dim)',
             borderBottom: '1px solid var(--line)',
             background: 'rgba(0,0,0,0.015)',
           }}
         >
+          <span></span>
           <span>状态</span>
           <span>检查内容</span>
           <span className="flex items-center gap-1">
@@ -205,14 +251,33 @@ export default function TechDept() {
         {items.map((item, idx) => (
           <div
             key={item.id}
-            className="group grid items-center px-4 py-2.5 transition-colors"
+            draggable={editingId !== item.id}
+            onDragStart={(e) => handleDragStart(e, item.id)}
+            onDragOver={(e) => handleDragOver(e, item.id)}
+            onDrop={(e) => handleDrop(e, item.id)}
+            onDragEnd={handleDragEnd}
+            className="group grid items-center px-4 py-2.5 transition-all"
             style={{
-              gridTemplateColumns: '32px 1fr 130px 36px',
+              gridTemplateColumns: '24px 32px 1fr 130px 36px',
               borderBottom:
                 idx < items.length - 1 ? '1px solid rgba(0,0,0,0.04)' : 'none',
-              background: item.checked ? 'rgba(31,157,85,0.03)' : 'transparent',
+              background: dragOverId === item.id
+                ? 'rgba(139,92,246,0.08)'
+                : item.checked
+                  ? 'rgba(31,157,85,0.03)'
+                  : 'transparent',
+              boxShadow: dragOverId === item.id ? 'inset 0 0 0 1.5px rgba(139,92,246,0.25)' : 'none',
+              opacity: draggingId === item.id ? 0.5 : 1,
+              cursor: editingId !== item.id ? 'grab' : 'default',
             }}
           >
+            {/* Drag handle */}
+            <div className="flex items-center justify-center">
+              {editingId !== item.id && (
+                <GripVertical size={14} style={{ color: 'var(--text-dim)' }} className="opacity-0 group-hover:opacity-40 transition-opacity" />
+              )}
+            </div>
+
             {/* Checkbox */}
             <button
               onClick={() => toggleItem(item.id)}
@@ -270,6 +335,13 @@ export default function TechDept() {
                   }}
                 />
                 <button
+                  onClick={() => setEditDate(new Date().toISOString().slice(0, 10))}
+                  className="text-[10px] px-2 py-1 rounded-md shrink-0 transition-colors"
+                  style={{ background: 'var(--bg-deep)', color: 'var(--kon-dark)', border: '1px solid var(--line)' }}
+                >
+                  今日
+                </button>
+                <button
                   onClick={commitEdit}
                   className="text-[10px] px-2 py-1 rounded-md text-white shrink-0"
                   style={{ background: 'var(--ok)' }}
@@ -288,8 +360,9 @@ export default function TechDept() {
               <div className="flex items-center gap-2 min-w-0">
                 <span
                   onClick={() => startEdit(item)}
-                  className="text-sm cursor-pointer select-none min-w-0 truncate"
+                  className="font-serif-cn cursor-pointer select-none min-w-0 truncate"
                   style={{
+                    fontSize: '15px',
                     color: item.checked ? 'var(--text-dim)' : 'var(--text-primary)',
                     textDecoration: item.checked ? 'line-through' : 'none',
                     textDecorationColor: 'var(--text-dim)',

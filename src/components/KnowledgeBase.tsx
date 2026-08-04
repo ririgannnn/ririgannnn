@@ -145,7 +145,7 @@ export default function KnowledgeBase() {
                   <Trash2 size={15} style={{ color: 'var(--text-dim)' }} />
                 </button>
               </div>
-              <h2 className="text-xl font-bold font-serif-cn text-fg mb-2">{selected.title}</h2>
+              <h2 className="font-bold font-serif-cn text-fg mb-2" style={{ fontSize: '18px' }}>{selected.title}</h2>
               <div className="flex gap-3 text-xs mb-4" style={{ color: 'var(--text-dim)' }}>
                 <span className="flex items-center gap-1"><BookOpen size={12} /> {selected.category}</span>
                 <span>{format(new Date(selected.createdAt), 'yyyy-MM-dd HH:mm')}</span>
@@ -153,7 +153,7 @@ export default function KnowledgeBase() {
                   <span key={t} className="flex items-center gap-1 px-1.5 py-0.5 rounded-full" style={{ background: 'var(--bg-deep)' }}><Tag size={10} /> {t}</span>
                 ))}
               </div>
-              <div className="prose prose-sm max-w-none leading-relaxed whitespace-pre-wrap" style={{ color: 'var(--text-primary)' }}>{selected.content}</div>
+              <div className="font-serif-cn max-w-none leading-relaxed whitespace-pre-wrap" style={{ fontSize: '16px', color: 'var(--text-primary)' }}>{selected.content}</div>
 
               {Array.isArray(selected.images) && selected.images.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
