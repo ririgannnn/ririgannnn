@@ -9,6 +9,8 @@ interface FocusTimerProps {
   onSaveSession: (session: FocusSession) => void;
   /** Only render when timer should be active (started by parent) */
   started: boolean;
+  /** Called when user clicks "stop" — parent should set started=false */
+  onStop?: () => void;
 }
 
 function formatTime(ms: number): string {
@@ -37,6 +39,7 @@ export default function FocusTimer({
   focusSession,
   onSaveSession,
   started,
+  onStop,
 }: FocusTimerProps) {
   const [mode, setMode] = useState<'running' | 'paused'>('running');
   const [elapsedMs, setElapsedMs] = useState(0);
@@ -108,7 +111,8 @@ export default function FocusTimer({
     }
     setMode('running'); // reset for next start
     setElapsedMs(0);
-  }, [saveSession]);
+    onStop?.();
+  }, [saveSession, onStop]);
 
   const handleReset = useCallback(() => {
     startTimeRef.current = Date.now();
@@ -136,28 +140,33 @@ export default function FocusTimer({
     <>
       {/* Full Timer Panel */}
       {!minimized && (
-        <div className="animate-scale-in rounded-lg p-3 border border-blue-200/60"
-          style={{ background: 'linear-gradient(135deg, rgba(239,246,255,0.9), rgba(224,231,255,0.85))', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
-          <div className="flex items-center justify-between mb-2">
+        <div className="animate-scale-in rounded-xl p-3.5 border shadow-md"
+          style={{
+            background: 'linear-gradient(135deg, #e8f0fe, #dbe4ff)',
+            borderColor: 'rgba(66,133,244,0.25)',
+            boxShadow: '0 4px 16px rgba(59,130,246,0.08), 0 1px 4px rgba(0,0,0,0.04)',
+          }}>
+          <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-1.5">
-              <div className={`w-2 h-2 rounded-full ${mode === 'running' ? 'bg-green-500 animate-pulse' : 'bg-amber-500'}`} />
-              <span className="text-xs font-medium text-blue-700">专注中</span>
+              <div className={`w-2.5 h-2.5 rounded-full ${mode === 'running' ? 'bg-green-500 animate-pulse' : 'bg-amber-500'}`} />
+              <span className="text-xs font-semibold" style={{ color: '#1e40af' }}>专注中</span>
             </div>
             <button
               onClick={() => setMinimized(true)}
-              className="p-0.5 rounded hover:bg-white/50 transition-colors"
+              className="p-0.5 rounded hover:bg-white/60 transition-colors"
               title="最小化"
             >
-              <Minimize2 size={13} className="text-blue-500" />
+              <Minimize2 size={13} style={{ color: '#4b6cb7' }} />
             </button>
           </div>
 
           <div className="text-center mb-3">
-            <span className="text-3xl font-mono font-bold tracking-wider text-blue-800 select-none">
+            <span className="font-mono font-bold tracking-widest select-none"
+              style={{ fontSize: '2rem', color: '#1e3a5f', textShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
               {formatTime(elapsedMs)}
             </span>
             {totalAccumulated > 0 && (
-              <div className="text-xs text-blue-500/60 mt-0.5">
+              <div className="text-xs mt-0.5" style={{ color: 'rgba(30,58,95,0.55)' }}>
                 累计 {formatTotal(totalAccumulated)}
               </div>
             )}
@@ -166,24 +175,24 @@ export default function FocusTimer({
           <div className="flex items-center justify-center gap-2">
             {mode === 'running' ? (
               <button onClick={handlePause}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all hover:scale-105"
-                style={{ background: 'rgba(245,158,11,0.15)', color: '#d97706' }}>
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all hover:scale-105 active:scale-95"
+                style={{ background: 'rgba(245,158,11,0.18)', color: '#b45309' }}>
                 <Pause size={14} /> 暂停
               </button>
             ) : (
               <button onClick={handleResume}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all hover:scale-105"
-                style={{ background: 'rgba(59,130,246,0.15)', color: '#2563eb' }}>
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all hover:scale-105 active:scale-95"
+                style={{ background: 'rgba(59,130,246,0.18)', color: '#1d4ed8' }}>
                 <Play size={14} /> 继续
               </button>
             )}
-            <button onClick={handleReset} className="p-1.5 rounded-lg hover:bg-white/60 transition-colors" title="重置"
+            <button onClick={handleReset} className="p-1.5 rounded-lg hover:bg-white/70 transition-colors" title="重置"
               style={{ color: '#6b7280' }}>
               <RotateCcw size={14} />
             </button>
             <button onClick={handleStop}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all hover:scale-105"
-              style={{ background: 'rgba(239,68,68,0.12)', color: '#dc2626' }}>
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all hover:scale-105 active:scale-95"
+              style={{ background: 'rgba(239,68,68,0.15)', color: '#b91c1c' }}>
               <Square size={13} /> 停止
             </button>
           </div>
@@ -193,12 +202,16 @@ export default function FocusTimer({
       {/* Minimized Floating Badge */}
       {minimized && (
         <div
-          className="fixed bottom-6 right-6 z-[70] animate-scale-in rounded-full px-4 py-2.5 shadow-lg border border-blue-200/60 flex items-center gap-2 cursor-pointer hover:shadow-xl transition-shadow select-none"
-          style={{ background: 'linear-gradient(135deg, rgba(239,246,255,0.95), rgba(224,231,255,0.92))', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
+          className="fixed bottom-6 right-6 z-[70] animate-scale-in rounded-full px-4 py-2.5 shadow-xl border flex items-center gap-2 cursor-pointer hover:shadow-2xl transition-shadow select-none"
+          style={{
+            background: 'linear-gradient(135deg, #e8f0fe, #dbe4ff)',
+            borderColor: 'rgba(66,133,244,0.3)',
+            boxShadow: '0 6px 24px rgba(59,130,246,0.15)',
+          }}
           onClick={() => setMinimized(false)}>
           <div className={`w-2 h-2 rounded-full ${mode === 'running' ? 'bg-green-500 animate-pulse' : 'bg-amber-500'}`} />
-          <span className="text-sm font-mono font-bold text-blue-800">{formatTime(elapsedMs)}</span>
-          <span className="text-xs text-blue-500/70 max-w-[80px] truncate">{taskTitle}</span>
+          <span className="text-sm font-mono font-bold" style={{ color: '#1e3a5f' }}>{formatTime(elapsedMs)}</span>
+          <span className="text-xs max-w-[80px] truncate" style={{ color: 'rgba(30,58,95,0.6)' }}>{taskTitle}</span>
           <button onClick={(e) => { e.stopPropagation(); handleStop(); }} className="ml-1 p-0.5 rounded-full hover:bg-red-100 transition-colors" title="停止计时">
             <X size={12} className="text-red-400" />
           </button>

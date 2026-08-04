@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useStore } from '../stores';
 import type { Task, TaskStatus, TaskPriority, SubTask, FocusSession } from '../types';
 import { format } from 'date-fns';
@@ -194,10 +194,20 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
   const [timerStarted, setTimerStarted] = useState(false);
   // Increment this to force re-mount / re-start the timer
   const [timerSessionKey, setTimerSessionKey] = useState(0);
+  const hasAutoStartedRef = useRef(false);
 
   const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
   const completedSubtasks = subtasks.filter((st) => st.done).length;
   const isDone = task.status === 'done';
+
+  // Auto-resume timer on mount if task is in-progress (survives navigation)
+  useEffect(() => {
+    if (task.status === 'in-progress' && !timerStarted && !hasAutoStartedRef.current) {
+      hasAutoStartedRef.current = true;
+      setTimerStarted(true);
+      setTimerSessionKey((k) => k + 1);
+    }
+  }, [task.status, timerStarted]);
 
   const nextStatus = (current: TaskStatus): TaskStatus => {
     if (current === 'todo') return 'in-progress';
@@ -501,6 +511,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
               focusSession={task.focusSession}
               onSaveSession={handleSaveFocusSession}
               started={timerStarted}
+              onStop={handleTimerStop}
               key={timerSessionKey}
             />
           </div>
@@ -524,10 +535,10 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
 
           {/* ── Timer Start Prompt Modal ── */}
           {showTimerPrompt && (
-            <div className="fixed inset-0 bg-black/30 z-[60] flex items-center justify-center p-4" onClick={handleSkipTimer}>
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.45)' }} onClick={handleSkipTimer}>
               <div
-                className="rounded-2xl shadow-xl p-6 w-full max-w-sm animate-scale-in border border-black/5"
-                style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(24px) saturate(150%)', WebkitBackdropFilter: 'blur(24px) saturate(150%)' }}
+                className="rounded-2xl shadow-2xl p-6 w-full max-w-xs animate-scale-in border border-black/10"
+                style={{ background: '#ffffff', boxShadow: '0 25px 60px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.1)' }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-center gap-3 mb-4">
