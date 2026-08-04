@@ -28,6 +28,7 @@ export default function ContentDept() {
   const [subTab, setSubTab] = useState<'topic' | 'schedule' | 'script' | 'chat'>('topic');
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editingChatText, setEditingChatText] = useState('');
+  const [expandedChatId, setExpandedChatId] = useState<string | null>(null);
 
   const topics = vtuberEntries.filter((e) => e.type === 'topic');
   const schedules = vtuberEntries.filter((e) => e.type === 'stream_schedule');
@@ -209,48 +210,116 @@ export default function ContentDept() {
             })} />
 
           <div className="space-y-1">
-            {chatNotes.map((entry) => (
-              <div key={entry.id} className="flex items-center gap-2 group py-1.5 px-2 rounded-lg transition-colors hover:bg-black/[0.02]">
-                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'var(--text-dim)' }} />
-                {editingChatId === entry.id ? (
-                  <input
-                    value={editingChatText}
-                    onChange={(e) => setEditingChatText(e.target.value)}
-                    onBlur={() => {
-                      if (editingChatText.trim()) updateVtuberEntry(entry.id, { title: editingChatText.trim() });
-                      setEditingChatId(null);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        if (editingChatText.trim()) updateVtuberEntry(entry.id, { title: editingChatText.trim() });
-                        setEditingChatId(null);
-                      }
-                      if (e.key === 'Escape') setEditingChatId(null);
-                    }}
-                    className="flex-1 text-sm px-1.5 py-0.5 rounded outline-none"
-                    style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', border: '1px solid var(--line)' }}
-                    autoFocus
-                  />
-                ) : (
-                  <span
-                    className="flex-1 text-sm cursor-text truncate"
-                    style={{ color: 'var(--text-primary)' }}
-                    onClick={() => { setEditingChatId(entry.id); setEditingChatText(entry.title); }}
-                    title="点击编辑"
-                  >
-                    {entry.title}
-                  </span>
-                )}
-                <button
-                  onClick={() => deleteVtuberEntry(entry.id)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity px-1.5 py-0.5 rounded text-[11px]"
-                  style={{ color: 'var(--text-dim)' }}
-                  title="删除"
-                >
-                  删除
-                </button>
-              </div>
-            ))}
+            {chatNotes.map((entry) => {
+              const isExpanded = expandedChatId === entry.id;
+              const isEditing = editingChatId === entry.id;
+              return (
+                <div key={entry.id} className="rounded-lg transition-colors" style={{ background: isExpanded ? 'var(--bg-surface)' : 'transparent', border: isExpanded ? '1px solid var(--line)' : '1px solid transparent' }}>
+                  {/* collapsed / header row */}
+                  {!isEditing && (
+                    <div
+                      className="flex items-start gap-3 group py-2 px-3 cursor-pointer"
+                      onClick={() => setExpandedChatId(isExpanded ? null : entry.id)}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: 'var(--text-dim)' }} />
+                      <span
+                        className="flex-1 text-xs leading-relaxed"
+                        style={{
+                          color: 'var(--text-primary)',
+                          fontFamily: 'var(--font-serif, "Noto Serif SC", "Source Han Serif SC", serif)',
+                          display: '-webkit-box',
+                          WebkitLineClamp: isExpanded ? 'unset' : 1,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {entry.title}
+                      </span>
+                      {!isExpanded && (
+                        <span className="text-[10px] shrink-0 mt-0.5" style={{ color: 'var(--text-dim)' }}>展开</span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* expanded reading panel */}
+                  {isExpanded && !isEditing && (
+                    <div className="px-3 pb-3 animate-scale-in">
+                      <div
+                        className="text-xs leading-loose whitespace-pre-wrap"
+                        style={{
+                          color: 'var(--text-mid)',
+                          fontFamily: 'var(--font-serif, "Noto Serif SC", "Source Han Serif SC", serif)',
+                        }}
+                      >
+                        {entry.title}
+                      </div>
+                      <div className="flex items-center gap-2 mt-2.5 pt-2" style={{ borderTop: '1px solid var(--line)' }}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setEditingChatId(entry.id); setEditingChatText(entry.title); }}
+                          className="text-[11px] px-2 py-1 rounded transition-colors"
+                          style={{ background: 'var(--bg-deep)', color: 'var(--text-mid)' }}
+                        >
+                          编辑
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deleteVtuberEntry(entry.id); }}
+                          className="text-[11px] px-2 py-1 rounded transition-colors"
+                          style={{ color: 'var(--accent-orange)' }}
+                        >
+                          删除
+                        </button>
+                        <span className="flex-1" />
+                        <button
+                          onClick={() => setExpandedChatId(null)}
+                          className="text-[11px] px-2 py-1 rounded transition-colors"
+                          style={{ color: 'var(--text-dim)' }}
+                        >
+                          收起
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* editing panel */}
+                  {isEditing && (
+                    <div className="p-3 animate-scale-in">
+                      <textarea
+                        value={editingChatText}
+                        onChange={(e) => setEditingChatText(e.target.value)}
+                        className="w-full text-xs px-2 py-1.5 rounded outline-none resize-none leading-relaxed"
+                        style={{
+                          background: 'var(--bg-deep)',
+                          color: 'var(--text-primary)',
+                          border: '1px solid var(--line)',
+                          fontFamily: 'var(--font-serif, "Noto Serif SC", "Source Han Serif SC", serif)',
+                          minHeight: '80px',
+                        }}
+                        autoFocus
+                      />
+                      <div className="flex items-center gap-2 mt-2">
+                        <button
+                          onClick={() => {
+                            if (editingChatText.trim()) updateVtuberEntry(entry.id, { title: editingChatText.trim() });
+                            setEditingChatId(null);
+                          }}
+                          className="text-[11px] px-2.5 py-1 rounded text-white"
+                          style={{ background: 'var(--kon-dark)' }}
+                        >
+                          保存
+                        </button>
+                        <button
+                          onClick={() => setEditingChatId(null)}
+                          className="text-[11px] px-2.5 py-1 rounded"
+                          style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}
+                        >
+                          取消
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             {chatNotes.length === 0 && (
               <div className="text-center py-8 text-xs" style={{ color: 'var(--text-dim)' }}>
                 还没有杂谈话题，遇到有趣的点子就记下来吧
