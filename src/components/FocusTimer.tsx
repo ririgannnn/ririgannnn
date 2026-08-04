@@ -1,17 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { FocusSession } from '../types';
-import { Play, Pause, Square, RotateCcw, Timer, Minimize2, X, ChevronDown, ChevronRight, CheckCircle, Clock } from 'lucide-react';
+import { Play, Pause, Square, RotateCcw, Timer, Minimize2, X, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface FocusTimerProps {
   taskId: string;
   taskTitle: string;
   focusSession: FocusSession | undefined;
   onSaveSession: (session: FocusSession) => void;
-  /** Only render when timer should be active (started by parent) */
   started: boolean;
-  /** Called when user clicks "stop" — parent should set started=false */
   onStop?: () => void;
-  /** Called when user clicks "restart" from stopped state */
   onRestart?: () => void;
 }
 
@@ -64,88 +61,130 @@ export default function FocusTimer({
   onRestart,
 }: FocusTimerProps) {
   const [mode, setMode] = useState<'running' | 'paused'>('running');
-  const [elapsedMs, setElapsedMs] = useState(0);
   const [minimized, setMinimized] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  // displayTick forces re-renders for the display; actual time lives in refs
+  const [displayTick, setDisplayTick] = useState(0);
 
-  const startTimeRef = useRef<number>(Date.now());
+  // ── Timer state in refs — immune to React re-render resets ──
+  const startTimeRef = useRef<number>(0);
   const pausedAtRef = useRef<number>(0);
+  const accumulatedBeforePauseRef = useRef<number>(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const stoppedRef = useRef(false);
+  const modeRef = useRef<'running' | 'paused'>('running');
 
+  // Persisted session data from props
   const totalAccumulated = focusSession?.totalDuration ?? 0;
   const sessions = focusSession?.sessions ?? [];
 
-  // Reset when started becomes true (new session)
+  // Compute current elapsed strictly from refs — no useState involved
+  const getElapsed = useCallback((): number => {
+    if (modeRef.current === 'paused') {
+      return accumulatedBeforePauseRef.current;
+    }
+    return Date.now() - startTimeRef.current + accumulatedBeforePauseRef.current;
+  }, []);
+
+  // ── Initialize / Reset on started=true ──
+  const didInitRef = useRef(false);
   useEffect(() => {
-    if (started) {
-      startTimeRef.current = Date.now();
+    if (started && !didInitRef.current) {
+      const now = Date.now();
+      startTimeRef.current = now;
+      accumulatedBeforePauseRef.current = 0;
       pausedAtRef.current = 0;
-      setElapsedMs(0);
+      stoppedRef.current = false;
+      modeRef.current = 'running';
       setMode('running');
       setMinimized(false);
       setShowDetails(false);
-      stoppedRef.current = false;
+      setDisplayTick(0);
+      didInitRef.current = true;
+    }
+    if (!started) {
+      didInitRef.current = false;
     }
   }, [started]);
 
-  // Manage interval
+  // ── Manage interval (driven by mode state, not refs alone) ──
   useEffect(() => {
     if (started && mode === 'running' && !stoppedRef.current) {
       intervalRef.current = setInterval(() => {
-        setElapsedMs(Date.now() - startTimeRef.current + pausedAtRef.current);
+        setDisplayTick((t) => t + 1);
       }, 200);
     } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     }
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, [started, mode]);
 
+  const elapsedMs = getElapsed();
+
+  // ── Handlers ──
   const handlePause = useCallback(() => {
-    pausedAtRef.current = Date.now() - startTimeRef.current + pausedAtRef.current;
+    accumulatedBeforePauseRef.current = getElapsed();
+    modeRef.current = 'paused';
     setMode('paused');
-  }, []);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, [getElapsed]);
 
   const handleResume = useCallback(() => {
     startTimeRef.current = Date.now();
+    modeRef.current = 'running';
     setMode('running');
   }, []);
 
   const saveSession = useCallback((duration: number) => {
+    if (duration <= 1000) return;
     const now = new Date().toISOString();
     const newSession = {
       start: new Date(Date.now() - duration).toISOString(),
       end: now,
       duration,
     };
+    const currentTotal = focusSession?.totalDuration ?? 0;
+    const currentSessions = focusSession?.sessions ?? [];
     const updated: FocusSession = {
-      totalDuration: totalAccumulated + duration,
-      sessions: [...(focusSession?.sessions ?? []), newSession],
+      totalDuration: currentTotal + duration,
+      sessions: [...currentSessions, newSession],
     };
     onSaveSession(updated);
-  }, [totalAccumulated, focusSession, onSaveSession]);
+  }, [focusSession, onSaveSession]);
 
   const handleStop = useCallback(() => {
     stoppedRef.current = true;
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    const duration = Date.now() - startTimeRef.current + pausedAtRef.current;
-    if (duration > 1000) {
-      saveSession(duration);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
-    setMode('running'); // reset for next start
-    setElapsedMs(0);
+    const duration = getElapsed();
+    saveSession(duration);
+    modeRef.current = 'running';
+    setMode('running');
+    setDisplayTick(0);
     onStop?.();
-  }, [saveSession, onStop]);
+  }, [getElapsed, saveSession, onStop]);
 
   const handleReset = useCallback(() => {
-    startTimeRef.current = Date.now();
-    pausedAtRef.current = 0;
-    setElapsedMs(0);
+    const now = Date.now();
+    startTimeRef.current = now;
+    accumulatedBeforePauseRef.current = 0;
+    setDisplayTick(0);
   }, []);
 
-  // External stop via global map
+  // ── External stop via global map ──
   const stopFn = useCallback(() => {
     if (!stoppedRef.current) {
       handleStop();
@@ -156,7 +195,9 @@ export default function FocusTimer({
     const map = (window as unknown as Record<string, Record<string, () => void>>).__focusTimers ?? {};
     (window as unknown as Record<string, Record<string, () => void>>).__focusTimers = map;
     map[_taskId] = { stop: stopFn };
-    return () => { delete map[_taskId]; };
+    return () => {
+      delete map[_taskId];
+    };
   }, [_taskId, stopFn]);
 
   // ── Running / Paused Timer Card ──
@@ -245,116 +286,114 @@ export default function FocusTimer({
     );
   }
 
-  // ── Stopped / Completed State ──
+  // ── Stopped / Completed → Compact summary card ──
   if (sessions.length === 0 && totalAccumulated === 0) {
-    return null; // No history at all → don't show anything
+    return null;
   }
 
   const lastSession = sessions[sessions.length - 1];
   const reversedSessions = [...sessions].reverse();
 
   return (
-    <div
-      className="rounded-xl p-3.5 border cursor-pointer hover:shadow-sm transition-all select-none animate-scale-in"
-      style={{
-        background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
-        borderColor: 'rgba(34,197,94,0.2)',
-        boxShadow: '0 2px 8px rgba(34,197,94,0.06), 0 1px 3px rgba(0,0,0,0.03)',
-      }}
-      onClick={() => setShowDetails(!showDetails)}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-2.5">
-        <div className="flex items-center gap-1.5">
-          <CheckCircle size={14} className="text-green-500" />
-          <span className="text-xs font-semibold" style={{ color: '#166534' }}>专注记录</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-muted-fg mr-1">{sessions.length} 次</span>
-          {showDetails ? <ChevronDown size={14} style={{ color: '#166534' }} /> : <ChevronRight size={14} style={{ color: '#166534' }} />}
-        </div>
-      </div>
-
-      {/* Clock Display — same size as running timer */}
-      <div className="text-center mb-3">
-        <span className="font-mono font-bold tracking-widest select-none"
-          style={{ fontSize: '2rem', color: '#14532d', textShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
-          {formatTime(totalAccumulated)}
+    <div>
+      {/* Compact summary bar — always visible when stopped */}
+      <div
+        className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer hover:shadow-sm transition-all select-none group"
+        style={{
+          background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
+          borderColor: 'rgba(34,197,94,0.15)',
+        }}
+        onClick={() => setShowDetails(!showDetails)}
+      >
+        <Timer size={13} className="text-green-500 shrink-0" />
+        <span className="text-xs font-medium" style={{ color: '#166534' }}>
+          上次专注 {formatTotal(totalAccumulated)}
         </span>
-        <div className="text-xs mt-0.5" style={{ color: 'rgba(20,83,45,0.5)' }}>
-          累计 {formatTotal(totalAccumulated)}
-        </div>
-      </div>
-
-      {/* Action buttons — same layout as running timer */}
-      <div className="flex items-center justify-center gap-2">
+        <span className="text-[10px] text-muted-fg/60">· {sessions.length} 次</span>
+        <span className="flex-1" />
         <button
           onClick={(e) => { e.stopPropagation(); onRestart?.(); }}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold transition-all hover:scale-105 active:scale-95"
-          style={{ background: 'rgba(34,197,94,0.18)', color: '#166534' }}
+          className="flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium transition-colors opacity-0 group-hover:opacity-100"
+          style={{ background: 'rgba(34,197,94,0.15)', color: '#166534' }}
         >
-          <Play size={14} /> 继续专注
+          <Play size={10} /> 继续
         </button>
+        {showDetails ? (
+          <ChevronDown size={13} className="text-green-600 shrink-0" />
+        ) : (
+          <ChevronRight size={13} className="text-green-600 shrink-0" />
+        )}
       </div>
 
-      {/* ── Expanded Details Panel ── */}
+      {/* Expanded details panel */}
       {showDetails && (
         <div
-          className="mt-3 pt-3 border-t animate-scale-in"
-          style={{ borderColor: 'rgba(34,197,94,0.15)' }}
-          onClick={(e) => e.stopPropagation()}
+          className="mt-1.5 rounded-lg border p-3 animate-scale-in"
+          style={{
+            background: 'rgba(255,255,255,0.65)',
+            borderColor: 'rgba(34,197,94,0.12)',
+          }}
         >
-          {/* Summary cards */}
-          <div className="flex gap-2 mb-3">
-            <div className="flex-1 rounded-lg px-2.5 py-2" style={{ background: 'rgba(255,255,255,0.7)' }}>
-              <div className="text-[10px] text-muted-fg mb-0.5">总专注次数</div>
-              <div className="text-sm font-bold" style={{ color: '#166534' }}>{sessions.length}</div>
+          {/* Summary row */}
+          <div className="flex gap-3 mb-3">
+            <div className="flex-1 rounded-lg px-2.5 py-1.5" style={{ background: 'rgba(240,253,244,0.8)' }}>
+              <div className="text-[10px] text-muted-fg">专注次数</div>
+              <div className="text-sm font-bold" style={{ color: '#166534' }}>{sessions.length} 次</div>
             </div>
-            <div className="flex-1 rounded-lg px-2.5 py-2" style={{ background: 'rgba(255,255,255,0.7)' }}>
-              <div className="text-[10px] text-muted-fg mb-0.5">总时长</div>
+            <div className="flex-1 rounded-lg px-2.5 py-1.5" style={{ background: 'rgba(240,253,244,0.8)' }}>
+              <div className="text-[10px] text-muted-fg">累计时长</div>
               <div className="text-sm font-bold" style={{ color: '#166534' }}>{formatTotal(totalAccumulated)}</div>
             </div>
             {lastSession && (
-              <div className="flex-1 rounded-lg px-2.5 py-2" style={{ background: 'rgba(255,255,255,0.7)' }}>
-                <div className="text-[10px] text-muted-fg mb-0.5">最后记录</div>
+              <div className="flex-1 rounded-lg px-2.5 py-1.5" style={{ background: 'rgba(240,253,244,0.8)' }}>
+                <div className="text-[10px] text-muted-fg">最后记录</div>
                 <div className="text-sm font-bold" style={{ color: '#166534' }}>{formatTotal(lastSession.duration)}</div>
               </div>
             )}
           </div>
 
-          {/* Session list */}
-          <div className="space-y-1.5 max-h-48 overflow-y-auto pr-0.5 custom-scrollbar">
-            {reversedSessions.map((s, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors hover:bg-white/60"
-                style={{ background: 'rgba(255,255,255,0.45)' }}
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <Clock size={11} className="text-muted-fg shrink-0" />
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-[11px] truncate" style={{ color: '#14532d' }}>
-                      {formatDateTime(s.start)} → {formatDateTime(s.end)}
-                    </span>
-                    <span className="text-[10px] text-muted-fg mt-0.5">
-                      {sessionSummary(s.duration)}
+          {/* "Continue" button */}
+          <button
+            onClick={(e) => { e.stopPropagation(); onRestart?.(); }}
+            className="w-full mb-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5"
+            style={{ background: 'rgba(34,197,94,0.12)', color: '#166534' }}
+          >
+            <Play size={12} /> 开始新的专注
+          </button>
+
+          {/* Session history */}
+          {reversedSessions.length > 0 && (
+            <div className="border-t pt-2.5" style={{ borderColor: 'rgba(34,197,94,0.1)' }}>
+              <div className="text-[10px] font-semibold text-muted-fg mb-2">专注历史</div>
+              <div className="space-y-1 max-h-40 overflow-y-auto custom-focus-scroll">
+                {reversedSessions.map((s, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between px-2 py-1 rounded text-xs"
+                    style={{ background: 'rgba(240,253,244,0.5)' }}
+                  >
+                    <div className="min-w-0">
+                      <span className="text-[11px]" style={{ color: '#14532d' }}>
+                        {formatDateTime(s.start)} → {formatDateTime(s.end)}
+                      </span>
+                      <span className="text-[10px] text-muted-fg ml-2">{sessionSummary(s.duration)}</span>
+                    </div>
+                    <span className="font-mono font-semibold text-[11px] shrink-0 ml-2" style={{ color: '#166534' }}>
+                      {formatTotal(s.duration)}
                     </span>
                   </div>
-                </div>
-                <span className="font-mono font-semibold text-[11px] shrink-0 ml-2" style={{ color: '#166534' }}>
-                  {formatTotal(s.duration)}
-                </span>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Custom scrollbar styles */}
+      {/* Scrollbar styles */}
       <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(34,197,94,0.2); border-radius: 2px; }
+        .custom-focus-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-focus-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-focus-scroll::-webkit-scrollbar-thumb { background: rgba(34,197,94,0.18); border-radius: 2px; }
       `}</style>
     </div>
   );

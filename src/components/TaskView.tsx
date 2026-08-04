@@ -311,33 +311,14 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
     const updated = subtasks.map((st) =>
       st.id === subtaskId ? { ...st, done: !st.done } : st
     );
-    // Check if all subtasks are now done → auto-complete parent
-    const allDone = updated.length > 0 && updated.every((st) => st.done);
-    if (allDone && task.status !== 'done') {
-      stopTaskTimer(task.id);
-      setTimerStarted(false);
-      onUpdate({ subtasks: updated, status: 'done' });
-    } else if (!allDone && task.status === 'done') {
-      // A subtask was un-completed while parent is done → set parent to in-progress
-      onUpdate({ subtasks: updated, status: 'in-progress' });
-    } else {
-      onUpdate({ subtasks: updated });
-    }
+    // Pure subtask operation — no timer interaction, no parent status change
+    onUpdate({ subtasks: updated });
   };
 
   const handleDeleteSubtask = (subtaskId: string) => {
     const updated = subtasks.filter((st) => st.id !== subtaskId);
-    // If remaining subtasks are all done, keep parent done
-    const allDone = updated.length > 0 && updated.every((st) => st.done);
-    if (updated.length === 0) {
-      onUpdate({ subtasks: updated });
-    } else if (allDone && task.status !== 'done') {
-      stopTaskTimer(task.id);
-      setTimerStarted(false);
-      onUpdate({ subtasks: updated, status: 'done' });
-    } else {
-      onUpdate({ subtasks: updated });
-    }
+    // Pure subtask operation — no timer interaction, no parent status change
+    onUpdate({ subtasks: updated });
   };
 
   const handleStartEditSubtask = (st: SubTask) => {
