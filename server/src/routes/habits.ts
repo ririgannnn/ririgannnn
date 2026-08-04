@@ -97,7 +97,7 @@ router.post('/records', async (req: Request, res: Response) => {
   if (existing) {
     // Toggle off — delete record
     await db.prepare('DELETE FROM habit_records WHERE id = ?').run(existing.id);
-    broadcastChange(req.user!.id, 'habits', 'deleteRecord', { id: existing.id, habitId: habit_id, date });
+    broadcastChange(req.user!.id, 'habits', 'delete', { id: existing.id, habitId: habit_id, date });
     res.json({ habitRecord: null, toggled: false });
   } else {
     // Toggle on — create record
@@ -109,7 +109,7 @@ router.post('/records', async (req: Request, res: Response) => {
     `).run(id, userId, habit_id, date, now);
 
     const record = await db.prepare('SELECT * FROM habit_records WHERE id = ?').get(id);
-    broadcastChange(req.user!.id, 'habits', 'createRecord', record);
+    broadcastChange(req.user!.id, 'habits', 'create', record);
     res.status(201).json({ habitRecord: record, toggled: true });
   }
 });

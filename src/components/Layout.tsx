@@ -11,6 +11,8 @@ import DataDashboard from './DataDashboard';
 import InspirationView from './InspirationView';
 import ProjectView from './ProjectView';
 import ProjectDetailView from './ProjectDetailView';
+import HabitTracker from './HabitTracker';
+import VTuberDashboard from './VTuberDashboard';
 import SettingsPanel from './SettingsPanel';
 import { useStore } from '../stores';
 import { useAuth } from '../contexts/AuthContext';
@@ -24,6 +26,8 @@ const moduleMeta: Record<Exclude<ModuleType, 'dashboard'>, { label: string; engl
   calendar:   { label: '日历日程', english: 'PLAN',        accentClass: 'module-accent-dust' },
   data:       { label: '数据分析', english: 'ANALYZE',     accentClass: 'module-accent-teal' },
   inspiration:{ label: '灵感数据库', english: 'SPARK',     accentClass: 'module-accent-orange' },
+  habits:     { label: '习惯打卡', english: 'TRACK',      accentClass: 'module-accent-orange' },
+  vtuber:     { label: 'VTuber工作台', english: 'PERFORM',  accentClass: 'module-accent-purple' },
 };
 
 export default function Layout() {
@@ -67,6 +71,8 @@ export default function Layout() {
       case 'calendar': return <CalendarView />;
       case 'data': return <DataDashboard />;
       case 'inspiration': return <InspirationView />;
+      case 'habits': return <HabitTracker />;
+      case 'vtuber': return <VTuberDashboard />;
       default: return <DashboardView />;
     }
   };
