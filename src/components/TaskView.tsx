@@ -184,7 +184,7 @@ export default function TaskView({ projectId }: { projectId?: string }) {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', padding: '0 4px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: col === 'done' ? '#86efac' : statusLabels[col].color }} />
-                  <span className="font-serif-cn" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '0.02em' }}>
+                  <span className="font-serif-cn" style={{ fontSize: '30px', fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '0.02em' }}>
                     {statusLabels[col].label}
                   </span>
                 </div>
@@ -443,7 +443,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
           <input
             value={editTitle} onChange={(e) => setEditTitle(e.target.value)}
             className="w-full font-medium px-2 py-1 rounded border outline-none"
-            style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)', fontSize: '30px', fontFamily: '"Noto Serif SC", "Source Han Serif SC", "思源宋体", serif' }}
+            style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)', fontSize: '9px', fontFamily: '"Noto Serif SC", "Source Han Serif SC", "思源宋体", serif' }}
             autoFocus
           />
           <textarea
@@ -470,7 +470,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             <span className="w-2 h-2 rounded-full shrink-0 mt-1" style={{ backgroundColor: '#86efac' }} />
             <div className="flex-1 min-w-0">
               <div className="flex items-start gap-2">
-                <span className="font-medium leading-relaxed" style={{ opacity: 0.55, textDecoration: 'line-through', color: 'var(--text-primary)', fontSize: '30px', fontFamily: '"Noto Serif SC", "Source Han Serif SC", "思源宋体", serif' }}>
+                <span className="font-medium leading-relaxed" style={{ opacity: 0.55, textDecoration: 'line-through', color: 'var(--text-primary)', fontSize: '9px', fontFamily: '"Noto Serif SC", "Source Han Serif SC", "思源宋体", serif' }}>
                   {task.title}
                 </span>
                 <button
@@ -542,8 +542,8 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                 </span>
               )}
               <span
-                className="font-medium cursor-pointer truncate transition-colors"
-                style={{ color: 'var(--text-primary)', fontSize: '30px', fontFamily: '"Noto Serif SC", "Source Han Serif SC", "思源宋体", serif' }}
+                className="font-serif-cn font-medium cursor-pointer truncate transition-colors"
+                style={{ color: 'var(--text-primary)', fontSize: '9px' }}
                 onClick={() => onEditingChange(true)}
                 onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--kon-dark)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-primary)'; }}
