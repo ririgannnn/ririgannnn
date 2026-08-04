@@ -49,6 +49,7 @@ const FIELD_MAP: Record<string, string> = {
   entity_id: 'entityId',
   entity_title: 'entityTitle',
   user_name: 'userName',
+  habit_id: 'habitId',
 };
 
 // ── JSON 字段：PostgreSQL 中存储为 TEXT，返回时需解析为数组 ──
@@ -129,6 +130,7 @@ export async function initDatabase(): Promise<void> {
         description TEXT DEFAULT '',
         status TEXT NOT NULL DEFAULT 'todo',
         priority TEXT NOT NULL DEFAULT 'medium',
+        start_date TEXT,
         due_date TEXT,
         category TEXT DEFAULT '',
         sort_order INTEGER DEFAULT 0,
@@ -222,6 +224,25 @@ export async function initDatabase(): Promise<void> {
         metadata TEXT DEFAULT '{}',
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS habits (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id),
+        name TEXT NOT NULL,
+        color TEXT DEFAULT '#99a7bc',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        deleted_at TIMESTAMPTZ
+      );
+
+      CREATE TABLE IF NOT EXISTS habit_records (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id),
+        habit_id TEXT NOT NULL REFERENCES habits(id),
+        date DATE NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE(habit_id, date)
+      );
     `);
 
     // ── 为已有表添加 images 列（兼容升级）──
@@ -239,9 +260,10 @@ export async function initDatabase(): Promise<void> {
     await addColumnIfNotExists('tasks', 'focus_session', '\'{"totalDuration":0,"sessions":[]}\'');
     await addColumnIfNotExists('tasks', 'project_id');
     await addColumnIfNotExists('tasks', 'parent_id');
+    await addColumnIfNotExists('tasks', 'start_date', 'NULL');
 
     // 创建索引（activity_logs 没有 updated_at，单独处理）
-    const tables = ['tasks', 'notes', 'events', 'knowledge', 'inspirations', 'projects'];
+    const tables = ['tasks', 'notes', 'events', 'knowledge', 'inspirations', 'projects', 'habits'];
     for (const table of tables) {
       await client.query(`CREATE INDEX IF NOT EXISTS idx_${table}_user_id ON ${table}(user_id)`);
       await client.query(`CREATE INDEX IF NOT EXISTS idx_${table}_updated_at ON ${table}(updated_at)`);
@@ -254,6 +276,10 @@ export async function initDatabase(): Promise<void> {
     // activity_logs 按项目查询索引
     await client.query(`CREATE INDEX IF NOT EXISTS idx_activity_logs_project_id ON activity_logs(project_id)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON activity_logs(created_at)`);
+    // habit_records 索引
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_habit_records_user_id ON habit_records(user_id)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_habit_records_habit_id ON habit_records(habit_id)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_habit_records_date ON habit_records(date)`);
 
     console.log('[DB] PostgreSQL database initialized successfully');
   } finally {

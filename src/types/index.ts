@@ -22,6 +22,9 @@ export interface Task {
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
+  /** Planned start date for Gantt chart */
+  startDate?: string | null;
+  start_date?: string | null;
   dueDate: string | null;
   due_date?: string | null;
   tags?: string[];
@@ -117,10 +120,25 @@ export interface KnowledgeEntry {
   updatedAt?: string;
 }
 
-export type ModuleType = 'dashboard' | 'tasks' | 'projects' | 'notes' | 'knowledge' | 'calendar' | 'data' | 'inspiration';
+export type ModuleType = 'dashboard' | 'tasks' | 'projects' | 'notes' | 'knowledge' | 'calendar' | 'data' | 'inspiration' | 'habits' | 'vtuber';
 
 export interface AppSettings {
   primaryHue: number;
   primarySaturation: number;
   sidebarCollapsed: boolean;
+}
+
+export interface Habit {
+  id: string;
+  name: string;
+  color: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface HabitRecord {
+  id: string;
+  habitId: string;
+  date: string;
+  createdAt: string;
 }

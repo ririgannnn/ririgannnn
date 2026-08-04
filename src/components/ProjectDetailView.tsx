@@ -4,6 +4,7 @@ import { useStore } from '../stores';
 import ProjectForm from './ProjectForm';
 import TaskView from './TaskView';
 import TaskTreeView from './TaskTreeView';
+import GanttChart from './GanttChart';
 import type { Project } from '../types';
 
 export default function ProjectDetailView() {
@@ -12,7 +13,7 @@ export default function ProjectDetailView() {
     updateProject, deleteProject,
   } = useStore();
   const [showEditForm, setShowEditForm] = useState(false);
-  const [tab, setTab] = useState<'overview' | 'kanban'>('overview');
+  const [tab, setTab] = useState<'overview' | 'kanban' | 'gantt'>('overview');
 
   const project = projects.find((p) => p.id === activeProjectId);
 
@@ -184,10 +185,22 @@ export default function ProjectDetailView() {
         >
           看板
         </button>
+        <button
+          onClick={() => setTab('gantt')}
+          className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+          style={{
+            background: tab === 'gantt' ? 'var(--bg-deep)' : 'transparent',
+            color: tab === 'gantt' ? 'var(--text-primary)' : 'var(--text-dim)',
+          }}
+        >
+          甘特图
+        </button>
       </div>
 
       {tab === 'kanban' ? (
         <div className="animate-scale-in"><TaskView projectId={activeProjectId} /></div>
+      ) : tab === 'gantt' ? (
+        <div className="animate-scale-in"><GanttChart projectId={activeProjectId} /></div>
       ) : (
         <div className="animate-scale-in"><TaskTreeView projectId={activeProjectId} /></div>
       )}

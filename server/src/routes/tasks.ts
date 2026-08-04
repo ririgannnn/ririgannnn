@@ -17,16 +17,16 @@ router.get('/', async (req: Request, res: Response) => {
 
 // Create task
 router.post('/', async (req: Request, res: Response) => {
-  const { title, description, status, priority, due_date, category, subtasks, focus_session, project_id, parent_id, id: clientId } = req.body;
+  const { title, description, status, priority, start_date, due_date, category, subtasks, focus_session, project_id, parent_id, id: clientId } = req.body;
   const id = clientId || uuidv4();
   const now = new Date().toISOString();
   const subtasksJson = JSON.stringify(subtasks || []);
   const focusSessionJson = JSON.stringify(focus_session || { totalDuration: 0, sessions: [] });
 
   await db.prepare(`
-    INSERT INTO tasks (id, user_id, project_id, parent_id, title, description, status, priority, due_date, category, subtasks, focus_session, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, req.user!.id, project_id || null, parent_id || null, title, description || '', status || 'todo', priority || 'medium', due_date || null, category || '', subtasksJson, focusSessionJson, now, now);
+    INSERT INTO tasks (id, user_id, project_id, parent_id, title, description, status, priority, start_date, due_date, category, subtasks, focus_session, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(id, req.user!.id, project_id || null, parent_id || null, title, description || '', status || 'todo', priority || 'medium', start_date || null, due_date || null, category || '', subtasksJson, focusSessionJson, now, now);
 
   const task = await db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   broadcastChange(req.user!.id, 'tasks', 'create', task);
@@ -45,7 +45,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 
   const now = new Date().toISOString();
-  const { title, description, status, priority, due_date, category, sort_order, subtasks, focus_session, project_id, parent_id } = req.body;
+  const { title, description, status, priority, start_date, due_date, category, sort_order, subtasks, focus_session, project_id, parent_id } = req.body;
   const subtasksJson = subtasks !== undefined ? JSON.stringify(subtasks) : null;
   const focusSessionJson = focus_session !== undefined ? JSON.stringify(focus_session) : null;
 
@@ -59,6 +59,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       description = COALESCE(?, description),
       status = COALESCE(?, status),
       priority = COALESCE(?, priority),
+      start_date = ?,
       due_date = ?,
       category = COALESCE(?, category),
       sort_order = COALESCE(?, sort_order),
@@ -70,6 +71,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     WHERE id = ? AND user_id = ?
   `).run(
     title ?? null, description ?? null, status ?? null, priority ?? null,
+    start_date !== undefined ? start_date : (existing as any).startDate,
     due_date !== undefined ? due_date : (existing as any).dueDate,
     category ?? null, sort_order ?? null,
     project_id !== undefined ? (project_id || null) : (existing as any).projectId,

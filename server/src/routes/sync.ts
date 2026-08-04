@@ -35,6 +35,14 @@ router.get('/', async (req: Request, res: Response) => {
     'SELECT * FROM projects WHERE user_id = ? AND deleted_at IS NULL AND updated_at > ?'
   ).all(userId, since);
 
+  const habits = await db.prepare(
+    'SELECT * FROM habits WHERE user_id = ? AND deleted_at IS NULL AND updated_at > ?'
+  ).all(userId, since);
+
+  const habitRecords = await db.prepare(
+    'SELECT * FROM habit_records WHERE user_id = ? AND created_at > ?'
+  ).all(userId, since);
+
   res.json({
     timestamp: new Date().toISOString(),
     tasks,
@@ -43,6 +51,8 @@ router.get('/', async (req: Request, res: Response) => {
     knowledge,
     inspirations,
     projects,
+    habits,
+    habitRecords,
   });
 });
 

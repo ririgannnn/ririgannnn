@@ -148,6 +148,14 @@ class ApiClient {
     return this.request<{ success: boolean }>('/tasks/batch-move', { method: 'POST', body: { taskIds, targetProjectId } });
   }
 
+  // Habits
+  getHabits() { return this.request<{ habits: unknown[] }>('/habits'); }
+  getHabitRecords(from: string, to: string) { return this.request<{ habitRecords: unknown[] }>(`/habits/records?from=${from}&to=${to}`); }
+  createHabit(data: Record<string, unknown>) { return this.request<{ habit: unknown }>('/habits', { method: 'POST', body: data }); }
+  updateHabit(id: string, data: Record<string, unknown>) { return this.request<{ habit: unknown }>(`/habits/${id}`, { method: 'PUT', body: data }); }
+  deleteHabit(id: string) { return this.request<{ success: boolean }>(`/habits/${id}`, { method: 'DELETE' }); }
+  toggleHabitRecord(data: Record<string, unknown>) { return this.request<{ habitRecord: unknown | null; toggled: boolean }>('/habits/records', { method: 'POST', body: data }); }
+
   // Sync
   sync(since: string) {
     return this.request<{
@@ -158,6 +166,8 @@ class ApiClient {
       knowledge: unknown[];
       inspirations: unknown[];
       projects: unknown[];
+      habits: unknown[];
+      habitRecords: unknown[];
     }>(`/sync?since=${encodeURIComponent(since)}`);
   }
 }

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Task, Note, CalendarEvent, Inspiration, KnowledgeEntry, AppSettings, ModuleType, SubTask, FocusSession, Project, TaskPriority } from '../types';
+import type { Task, Note, CalendarEvent, Inspiration, KnowledgeEntry, AppSettings, ModuleType, SubTask, FocusSession, Project, TaskPriority, Habit, HabitRecord } from '../types';
 import syncEngine from '../services/syncEngine';
 import api from '../services/api';
 
@@ -111,6 +111,17 @@ interface AppState {
   // Project navigation
   activeProjectId: string | null;
   setActiveProjectId: (id: string | null) => void;
+
+  // Habits
+  habits: Habit[];
+  habitRecords: HabitRecord[];
+  setHabits: (habits: Habit[]) => void;
+  setHabitRecords: (records: HabitRecord[]) => void;
+  addHabit: (habit: Partial<Habit>) => Habit;
+  updateHabit: (id: string, partial: Partial<Habit>) => void;
+  deleteHabit: (id: string) => void;
+  toggleHabitRecord: (habitId: string, date: string) => void;
+  batchApplyHabit: (id: string, action: string, data: unknown) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -136,6 +147,7 @@ export const useStore = create<AppState>()(
           status: task.status || 'todo',
           priority: task.priority || 'medium',
           category: task.category || '',
+          startDate: task.startDate ?? null,
           dueDate: task.dueDate ?? null,
           subtasks: parseSubtasks(task.subtasks),
           focusSession: parseFocusSession(task.focusSession),
@@ -152,6 +164,7 @@ export const useStore = create<AppState>()(
             ...newTask,
             project_id: newTask.projectId,
             parent_id: newTask.parentId,
+            start_date: newTask.startDate,
             due_date: newTask.dueDate,
             focus_session: newTask.focusSession ? JSON.stringify(newTask.focusSession) : JSON.stringify({ totalDuration: 0, sessions: [] }),
             subtasks: JSON.stringify(newTask.subtasks || []),
@@ -180,6 +193,7 @@ export const useStore = create<AppState>()(
           if (partial.projectId !== undefined) apiPayload.project_id = partial.projectId;
           if (partial.parentId !== undefined) apiPayload.parent_id = partial.parentId;
           if (partial.dueDate !== undefined) apiPayload.due_date = partial.dueDate;
+          if (partial.startDate !== undefined) apiPayload.start_date = partial.startDate;
           if (partial.focusSession !== undefined) apiPayload.focus_session = JSON.stringify(partial.focusSession);
           if (partial.subtasks !== undefined) apiPayload.subtasks = JSON.stringify(partial.subtasks);
           api.updateTask(id, apiPayload).catch(() => {
@@ -227,6 +241,7 @@ export const useStore = create<AppState>()(
             description: (d.description as string) || '',
             status: (d.status as Task['status']) || 'todo',
             priority: (d.priority as Task['priority']) || 'medium',
+            startDate: (d.start_date || d.startDate || null) as string | null,
             dueDate: (d.due_date || d.dueDate || null) as string | null,
             category: (d.category as string) || '',
             tags: Array.isArray(d.tags) ? d.tags as string[] : [],
@@ -250,6 +265,7 @@ export const useStore = create<AppState>()(
               ...(d.description !== undefined ? { description: d.description as string } : {}),
               ...(d.status !== undefined ? { status: d.status as Task['status'] } : {}),
               ...(d.priority !== undefined ? { priority: d.priority as Task['priority'] } : {}),
+              ...(d.start_date !== undefined || d.startDate !== undefined ? { startDate: (d.start_date || d.startDate) as string | null } : {}),
               ...(d.due_date !== undefined ? { dueDate: d.due_date as string | null } : {}),
               ...(d.category !== undefined ? { category: d.category as string } : {}),
               ...(d.subtasks !== undefined ? { subtasks: parseSubtasks(d.subtasks) } : {}),
@@ -726,6 +742,141 @@ export const useStore = create<AppState>()(
           }));
         }
       },
+
+      // === Habits ===
+      habits: [],
+      habitRecords: [],
+      setHabits: (habits) => set({ habits }),
+      setHabitRecords: (habitRecords) => set({ habitRecords }),
+      addHabit: (habit) => {
+        const newId = uid();
+        const now = new Date().toISOString();
+        const newHabit: Habit = {
+          ...habit,
+          id: habit.id || newId,
+          name: habit.name || '',
+          color: habit.color || '#99a7bc',
+          createdAt: habit.createdAt || now,
+          updatedAt: habit.updatedAt || now,
+        };
+        set((s) => ({ habits: [...s.habits, newHabit] }));
+
+        if (syncInitialized) {
+          api.createHabit(newHabit as unknown as Record<string, unknown>).catch(() => {
+            syncEngine.addToQueue({
+              id: uid(), entity: 'habits', action: 'create',
+              entityId: newId, data: newHabit, timestamp: now,
+            });
+          });
+        }
+
+        return newHabit;
+      },
+      updateHabit: (id, partial) => {
+        const now = new Date().toISOString();
+        set((s) => ({
+          habits: s.habits.map((h) => h.id === id ? { ...h, ...partial, updatedAt: now } : h),
+        }));
+
+        if (syncInitialized) {
+          api.updateHabit(id, { ...partial, updated_at: now } as Record<string, unknown>).catch(() => {
+            syncEngine.addToQueue({
+              id: uid(), entity: 'habits', action: 'update',
+              entityId: id, data: { ...partial, updated_at: now }, timestamp: now,
+            });
+          });
+        }
+      },
+      deleteHabit: (id) => {
+        set((s) => ({
+          habits: s.habits.filter((h) => h.id !== id),
+          habitRecords: s.habitRecords.filter((r) => r.habitId !== id),
+        }));
+
+        if (syncInitialized) {
+          api.deleteHabit(id).catch(() => {
+            syncEngine.addToQueue({
+              id: uid(), entity: 'habits', action: 'delete',
+              entityId: id, data: null, timestamp: new Date().toISOString(),
+            });
+          });
+        }
+      },
+      toggleHabitRecord: (habitId, date) => {
+        const existing = get().habitRecords.find((r) => r.habitId === habitId && r.date === date);
+        const now = new Date().toISOString();
+
+        if (existing) {
+          set((s) => ({
+            habitRecords: s.habitRecords.filter((r) => r.id !== existing.id),
+          }));
+        } else {
+          const newRecord: HabitRecord = {
+            id: uid(),
+            habitId,
+            date,
+            createdAt: now,
+          };
+          set((s) => ({ habitRecords: [...s.habitRecords, newRecord] }));
+        }
+
+        if (syncInitialized) {
+          const payload = { habit_id: habitId, date, id: uid() };
+          api.toggleHabitRecord(payload).catch(() => {
+            if (existing) {
+              set((s) => ({ habitRecords: [...s.habitRecords, existing] }));
+            } else {
+              set((s) => ({ habitRecords: s.habitRecords.filter((r) => r.habitId !== habitId || r.date !== date) }));
+            }
+          });
+        }
+      },
+      batchApplyHabit: (id, action, data) => {
+        if (action === 'delete') {
+          set((s) => ({
+            habits: s.habits.filter((h) => h.id !== id),
+            habitRecords: s.habitRecords.filter((r) => r.habitId !== id),
+          }));
+        } else if (action === 'create') {
+          const d = data as Record<string, unknown>;
+          const habit: Habit = {
+            id: (d.id as string) || id,
+            name: (d.name as string) || '',
+            color: (d.color as string) || '#99a7bc',
+            createdAt: (d.createdAt || d.created_at || '') as string,
+            updatedAt: (d.updatedAt || d.updated_at || '') as string,
+          };
+          set((s) => {
+            if (s.habits.find((h) => h.id === habit.id)) return s;
+            return { habits: [...s.habits, habit] };
+          });
+        } else if (action === 'update') {
+          const d = data as Record<string, unknown>;
+          set((s) => ({
+            habits: s.habits.map((h) => h.id === id ? {
+              ...h,
+              ...(d.name !== undefined ? { name: d.name as string } : {}),
+              ...(d.color !== undefined ? { color: d.color as string } : {}),
+              ...(d.updatedAt || d.updated_at ? { updatedAt: (d.updatedAt || d.updated_at) as string } : {}),
+            } : h),
+          }));
+        } else if (action === 'createRecord') {
+          const d = data as Record<string, unknown>;
+          const record: HabitRecord = {
+            id: (d.id as string) || uid(),
+            habitId: (d.habit_id || d.habitId || '') as string,
+            date: (d.date as string) || '',
+            createdAt: (d.createdAt || d.created_at || '') as string,
+          };
+          set((s) => {
+            if (s.habitRecords.find((r) => r.id === record.id)) return s;
+            return { habitRecords: [...s.habitRecords, record] };
+          });
+        } else if (action === 'deleteRecord') {
+          set((s) => ({ habitRecords: s.habitRecords.filter((r) => r.id !== id) }));
+        }
+      },
+
       initSync: async (token: string) => {
         await syncEngine.start(token);
 
@@ -740,10 +891,13 @@ export const useStore = create<AppState>()(
             description: (t.description as string) || '',
             status: (t.status as Task['status']) || 'todo',
             priority: (t.priority as Task['priority']) || 'medium',
+            startDate: (t.startDate ?? t.start_date ?? null) as string | null,
             dueDate: (t.dueDate ?? t.due_date ?? null) as string | null,
             category: (t.category as string) || '',
             tags: parseTags(t.tags),
             subtasks: parseSubtasks(t.subtasks),
+            projectId: (t.projectId ?? t.project_id ?? null) as string | null,
+            parentId: (t.parentId ?? t.parent_id ?? null) as string | null,
             focusSession: parseFocusSession(t.focusSession ?? t.focus_session),
             createdAt: (t.createdAt || t.created_at || '') as string,
             updatedAt: (t.updatedAt || t.updated_at || '') as string,
@@ -812,6 +966,23 @@ export const useStore = create<AppState>()(
             updatedAt: (p.updatedAt || p.updated_at || '') as string,
           }) as Project[]));
         }
+        if (cache.habits?.length) {
+          batchApply.setHabits(cache.habits.map((h: Record<string, unknown>) => ({
+            id: h.id as string,
+            name: (h.name as string) || '',
+            color: (h.color as string) || '#99a7bc',
+            createdAt: (h.createdAt || h.created_at || '') as string,
+            updatedAt: (h.updatedAt || h.updated_at || '') as string,
+          }) as Habit[]));
+        }
+        if (cache.habitRecords?.length) {
+          batchApply.setHabitRecords(cache.habitRecords.map((r: Record<string, unknown>) => ({
+            id: r.id as string,
+            habitId: (r.habitId || r.habit_id || '') as string,
+            date: (r.date as string) || '',
+            createdAt: (r.createdAt || r.created_at || '') as string,
+          }) as HabitRecord[]));
+        }
 
         // Listen for WebSocket updates
         syncEngine.onDataChange((entity, action, data) => {
@@ -826,6 +997,7 @@ export const useStore = create<AppState>()(
             inspirations: apply.batchApplyInspiration,
             knowledge: apply.batchApplyKnowledge,
             projects: apply.batchApplyProject,
+            habits: apply.batchApplyHabit,
           };
 
           batchMethods[entity]?.(id, action, data);

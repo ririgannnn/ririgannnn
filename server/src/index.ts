@@ -11,6 +11,7 @@ import eventsRoutes from './routes/events.js';
 import knowledgeRoutes from './routes/knowledge.js';
 import inspirationsRoutes from './routes/inspirations.js';
 import projectsRoutes from './routes/projects.js';
+import habitsRoutes from './routes/habits.js';
 import syncRoutes from './routes/sync.js';
 import { createSyncServer } from './sync.js';
 
@@ -40,6 +41,7 @@ app.use('/api/events', eventsRoutes);
 app.use('/api/knowledge', knowledgeRoutes);
 app.use('/api/inspirations', inspirationsRoutes);
 app.use('/api/projects', projectsRoutes);
+app.use('/api/habits', habitsRoutes);
 app.use('/api/sync', syncRoutes);
 
 // Production: serve the built frontend
