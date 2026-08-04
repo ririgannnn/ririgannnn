@@ -351,7 +351,7 @@ function TreeItem({
               onChange={(e) => onEditTitleChange(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') onSaveEdit(task.id); if (e.key === 'Escape') onCancelEdit(); }}
               className="flex-1 font-serif-cn font-medium px-2 py-0.5 rounded border outline-none"
-              style={{ borderColor: 'var(--kon-main)', background: 'var(--bg-surface)', color: 'var(--text-primary)', fontSize: '9px' }}
+              style={{ borderColor: 'var(--kon-main)', background: 'var(--bg-surface)', color: 'var(--text-primary)', fontSize: '16px' }}
               autoFocus
             />
             <button onClick={() => onSaveEdit(task.id)} className="p-1 rounded hover:bg-green-50"><Check size={14} className="text-green-500" /></button>
@@ -360,7 +360,7 @@ function TreeItem({
         ) : (
           <span
             className="flex-1 font-serif-cn cursor-pointer truncate min-w-0"
-            style={{ color: isDone ? 'var(--text-dim)' : 'var(--text-primary)', textDecoration: isDone ? 'line-through' : 'none', opacity: isDone ? 0.5 : 1, fontSize: '9px' }}
+            style={{ color: isDone ? 'var(--text-dim)' : 'var(--text-primary)', textDecoration: isDone ? 'line-through' : 'none', opacity: isDone ? 0.5 : 1, fontSize: '16px' }}
             onClick={() => onStartEdit(task.id, task.title)}
             title={task.title}
           >
