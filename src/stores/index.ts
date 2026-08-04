@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Task, Note, CalendarEvent, Inspiration, KnowledgeEntry, AppSettings, ModuleType, SubTask, FocusSession } from '../types';
+import type { Task, Note, CalendarEvent, Inspiration, KnowledgeEntry, AppSettings, ModuleType, SubTask, FocusSession, Project, TaskPriority } from '../types';
 import syncEngine from '../services/syncEngine';
 import api from '../services/api';
 
@@ -99,6 +99,18 @@ interface AppState {
   // Sync initialization
   initSync: (token: string) => Promise<void>;
   stopSync: () => void;
+
+  // Projects
+  projects: Project[];
+  setProjects: (projects: Project[]) => void;
+  addProject: (project: Partial<Project>) => Project;
+  updateProject: (id: string, partial: Partial<Project>) => void;
+  deleteProject: (id: string) => void;
+  batchApplyProject: (id: string, action: string, data: unknown) => void;
+
+  // Project navigation
+  activeProjectId: string | null;
+  setActiveProjectId: (id: string | null) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -185,6 +197,8 @@ export const useStore = create<AppState>()(
             category: (d.category as string) || '',
             tags: Array.isArray(d.tags) ? d.tags as string[] : [],
             subtasks: parseSubtasks(d.subtasks),
+            projectId: (d.project_id || d.projectId || null) as string | null,
+            parentId: (d.parent_id || d.parentId || null) as string | null,
             focusSession: parseFocusSession(d.focusSession ?? d.focus_session),
             createdAt: (d.created_at || d.createdAt || '') as string,
             updatedAt: (d.updated_at || d.updatedAt || '') as string,
@@ -205,6 +219,8 @@ export const useStore = create<AppState>()(
               ...(d.due_date !== undefined ? { dueDate: d.due_date as string | null } : {}),
               ...(d.category !== undefined ? { category: d.category as string } : {}),
               ...(d.subtasks !== undefined ? { subtasks: parseSubtasks(d.subtasks) } : {}),
+              ...(d.project_id !== undefined || d.projectId !== undefined ? { projectId: (d.project_id || d.projectId) as string | null } : {}),
+              ...(d.parent_id !== undefined || d.parentId !== undefined ? { parentId: (d.parent_id || d.parentId) as string | null } : {}),
               ...(d.focusSession !== undefined || d.focus_session !== undefined ? { focusSession: parseFocusSession(d.focusSession ?? d.focus_session) } : {}),
               ...(d.updatedAt || d.updated_at ? { updatedAt: (d.updatedAt || d.updated_at) as string } : {}),
             } : t),
@@ -549,7 +565,113 @@ export const useStore = create<AppState>()(
         }
       },
 
-      // === Sync ===
+      // === Projects ===
+      projects: [],
+      setProjects: (projects) => set({ projects }),
+      activeProjectId: null,
+      setActiveProjectId: (id) => set({ activeProjectId: id }),
+      addProject: (project) => {
+        const newId = uid();
+        const now = new Date().toISOString();
+        const newProject: Project = {
+          id: project.id || newId,
+          name: project.name || '',
+          description: project.description || '',
+          type: project.type || 'short-term',
+          status: project.status || 'active',
+          startDate: project.startDate ?? null,
+          endDate: project.endDate ?? null,
+          coverColor: project.coverColor || '#3b82f6',
+          icon: project.icon || '',
+          tags: parseTags(project.tags),
+          priority: project.priority || 'medium',
+          createdAt: project.createdAt || now,
+          updatedAt: project.updatedAt || now,
+        };
+        set((s) => ({ projects: [...s.projects, newProject] }));
+
+        if (syncInitialized) {
+          api.createProject(newProject as unknown as Record<string, unknown>).catch(() => {
+            syncEngine.addToQueue({
+              id: uid(), entity: 'projects', action: 'create',
+              entityId: newId, data: newProject, timestamp: now,
+            });
+          });
+        }
+
+        return newProject;
+      },
+      updateProject: (id, partial) => {
+        const now = new Date().toISOString();
+        set((s) => ({
+          projects: s.projects.map((p) => p.id === id ? { ...p, ...partial, updatedAt: now } : p),
+        }));
+
+        if (syncInitialized) {
+          api.updateProject(id, { ...partial, updated_at: now } as Record<string, unknown>).catch(() => {
+            syncEngine.addToQueue({
+              id: uid(), entity: 'projects', action: 'update',
+              entityId: id, data: { ...partial, updated_at: now }, timestamp: now,
+            });
+          });
+        }
+      },
+      deleteProject: (id) => {
+        set((s) => ({ projects: s.projects.filter((p) => p.id !== id) }));
+
+        if (syncInitialized) {
+          api.deleteProject(id).catch(() => {
+            syncEngine.addToQueue({
+              id: uid(), entity: 'projects', action: 'delete',
+              entityId: id, data: null, timestamp: new Date().toISOString(),
+            });
+          });
+        }
+      },
+      batchApplyProject: (id, action, data) => {
+        if (action === 'delete') {
+          set((s) => ({ projects: s.projects.filter((p) => p.id !== id) }));
+        } else if (action === 'create') {
+          const d = data as Record<string, unknown>;
+          const project: Project = {
+            id: (d.id as string) || id,
+            name: (d.name as string) || '',
+            description: (d.description as string) || '',
+            type: ((d.type as string) || 'short-term') as Project['type'],
+            status: ((d.status as string) || 'active') as Project['status'],
+            startDate: (d.start_date || d.startDate || null) as string | null,
+            endDate: (d.end_date || d.endDate || null) as string | null,
+            coverColor: (d.cover_color || d.coverColor || '#3b82f6') as string,
+            icon: (d.icon as string) || '',
+            tags: parseTags(d.tags),
+            priority: ((d.priority as string) || 'medium') as TaskPriority,
+            createdAt: (d.created_at || d.createdAt || '') as string,
+            updatedAt: (d.updated_at || d.updatedAt || '') as string,
+          };
+          set((s) => {
+            if (s.projects.find((p) => p.id === project.id)) return s;
+            return { projects: [...s.projects, project] };
+          });
+        } else {
+          const d = data as Record<string, unknown>;
+          set((s) => ({
+            projects: s.projects.map((p) => p.id === id ? {
+              ...p,
+              ...(d.name !== undefined ? { name: d.name as string } : {}),
+              ...(d.description !== undefined ? { description: d.description as string } : {}),
+              ...(d.type !== undefined ? { type: d.type as Project['type'] } : {}),
+              ...(d.status !== undefined ? { status: d.status as Project['status'] } : {}),
+              ...(d.start_date !== undefined || d.startDate !== undefined ? { startDate: (d.start_date || d.startDate) as string | null } : {}),
+              ...(d.end_date !== undefined || d.endDate !== undefined ? { endDate: (d.end_date || d.endDate) as string | null } : {}),
+              ...(d.cover_color !== undefined || d.coverColor !== undefined ? { coverColor: (d.cover_color || d.coverColor) as string } : {}),
+              ...(d.icon !== undefined ? { icon: d.icon as string } : {}),
+              ...(d.tags !== undefined ? { tags: parseTags(d.tags) } : {}),
+              ...(d.priority !== undefined ? { priority: d.priority as TaskPriority } : {}),
+              ...(d.updatedAt || d.updated_at ? { updatedAt: (d.updatedAt || d.updated_at) as string } : {}),
+            } : p),
+          }));
+        }
+      },
       initSync: async (token: string) => {
         await syncEngine.start(token);
 
@@ -619,6 +741,23 @@ export const useStore = create<AppState>()(
             updatedAt: (k.updatedAt || k.updated_at || '') as string,
           }) as KnowledgeEntry[]));
         }
+        if (cache.projects?.length) {
+          batchApply.setProjects(cache.projects.map((p: Record<string, unknown>) => ({
+            id: p.id as string,
+            name: (p.name as string) || '',
+            description: (p.description as string) || '',
+            type: ((p.type as string) || 'short-term') as Project['type'],
+            status: ((p.status as string) || 'active') as Project['status'],
+            startDate: (p.startDate || p.start_date || null) as string | null,
+            endDate: (p.endDate || p.end_date || null) as string | null,
+            coverColor: (p.coverColor || p.cover_color || '#3b82f6') as string,
+            icon: (p.icon as string) || '',
+            tags: parseTags(p.tags),
+            priority: ((p.priority as string) || 'medium') as TaskPriority,
+            createdAt: (p.createdAt || p.created_at || '') as string,
+            updatedAt: (p.updatedAt || p.updated_at || '') as string,
+          }) as Project[]));
+        }
 
         // Listen for WebSocket updates
         syncEngine.onDataChange((entity, action, data) => {
@@ -632,6 +771,7 @@ export const useStore = create<AppState>()(
             events: apply.batchApplyEvent,
             inspirations: apply.batchApplyInspiration,
             knowledge: apply.batchApplyKnowledge,
+            projects: apply.batchApplyProject,
           };
 
           batchMethods[entity]?.(id, action, data);

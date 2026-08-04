@@ -132,6 +132,22 @@ class ApiClient {
   updateInspiration(id: string, data: Record<string, unknown>) { return this.request<{ inspiration: unknown }>(`/inspirations/${id}`, { method: 'PUT', body: data }); }
   deleteInspiration(id: string) { return this.request<{ success: boolean }>(`/inspirations/${id}`, { method: 'DELETE' }); }
 
+  // Projects
+  getProjects() { return this.request<{ projects: unknown[] }>('/projects'); }
+  createProject(data: Record<string, unknown>) { return this.request<{ project: unknown }>('/projects', { method: 'POST', body: data }); }
+  getProject(id: string) { return this.request<{ project: unknown }>(`/projects/${id}`); }
+  updateProject(id: string, data: Record<string, unknown>) { return this.request<{ project: unknown }>(`/projects/${id}`, { method: 'PUT', body: data }); }
+  deleteProject(id: string) { return this.request<{ success: boolean }>(`/projects/${id}`, { method: 'DELETE' }); }
+
+  // Project tasks
+  getProjectTasks(projectId: string) { return this.request<{ tasks: unknown[] }>(`/projects/${projectId}/tasks`); }
+  createProjectTask(projectId: string, data: Record<string, unknown>) { return this.request<{ task: unknown }>(`/projects/${projectId}/tasks`, { method: 'POST', body: data }); }
+
+  // Batch move tasks
+  batchMoveTasks(taskIds: string[], targetProjectId: string | null) {
+    return this.request<{ success: boolean }>('/tasks/batch-move', { method: 'POST', body: { taskIds, targetProjectId } });
+  }
+
   // Sync
   sync(since: string) {
     return this.request<{
@@ -141,6 +157,7 @@ class ApiClient {
       events: unknown[];
       knowledge: unknown[];
       inspirations: unknown[];
+      projects: unknown[];
     }>(`/sync?since=${encodeURIComponent(since)}`);
   }
 }

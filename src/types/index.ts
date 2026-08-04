@@ -1,5 +1,7 @@
 export type TaskStatus = 'todo' | 'in-progress' | 'done';
 export type TaskPriority = 'low' | 'medium' | 'high';
+export type ProjectType = 'short-term' | 'long-term';
+export type ProjectStatus = 'active' | 'archived' | 'completed';
 
 export interface SubTask {
   id: string;
@@ -25,10 +27,45 @@ export interface Task {
   tags?: string[];
   category?: string;
   subtasks?: SubTask[];
+  /** Project this task belongs to */
+  projectId?: string | null;
+  project_id?: string | null;
+  /** Parent task for tree hierarchy */
+  parentId?: string | null;
+  parent_id?: string | null;
   /** Focus session data accumulated over time */
   focusSession?: FocusSession;
   createdAt: string;
   updatedAt?: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  type: ProjectType;
+  status: ProjectStatus;
+  startDate: string | null;
+  endDate: string | null;
+  coverColor: string;
+  icon?: string;
+  tags: string[];
+  priority: TaskPriority;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ActivityLog {
+  id: string;
+  projectId: string;
+  userId: string;
+  userName: string;
+  action: 'create' | 'update' | 'delete' | 'status_change' | 'assign' | 'move';
+  entityType: 'project' | 'task';
+  entityId: string;
+  entityTitle: string;
+  description: string;
+  createdAt: string;
 }
 
 export interface Note {
@@ -80,7 +117,7 @@ export interface KnowledgeEntry {
   updatedAt?: string;
 }
 
-export type ModuleType = 'dashboard' | 'tasks' | 'notes' | 'knowledge' | 'calendar' | 'data' | 'inspiration';
+export type ModuleType = 'dashboard' | 'tasks' | 'projects' | 'notes' | 'knowledge' | 'calendar' | 'data' | 'inspiration';
 
 export interface AppSettings {
   primaryHue: number;

@@ -40,10 +40,19 @@ const FIELD_MAP: Record<string, string> = {
   sort_order: 'sortOrder',
   password_hash: 'passwordHash',
   focus_session: 'focusSession',
+  project_id: 'projectId',
+  parent_id: 'parentId',
+  start_date: 'startDate',
+  end_date: 'endDate',
+  cover_color: 'coverColor',
+  entity_type: 'entityType',
+  entity_id: 'entityId',
+  entity_title: 'entityTitle',
+  user_name: 'userName',
 };
 
 // ── JSON 字段：PostgreSQL 中存储为 TEXT，返回时需解析为数组 ──
-const JSON_FIELDS = new Set(['tags', 'images', 'subtasks', 'focus_session']);
+const JSON_FIELDS = new Set(['tags', 'images', 'subtasks', 'focus_session', 'metadata']);
 
 function transformRow(row: QueryResultRow): QueryResultRow {
   const result: QueryResultRow = {};
@@ -181,6 +190,38 @@ export async function initDatabase(): Promise<void> {
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         deleted_at TIMESTAMPTZ
       );
+
+      CREATE TABLE IF NOT EXISTS projects (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id),
+        name TEXT NOT NULL,
+        description TEXT DEFAULT '',
+        type TEXT NOT NULL DEFAULT 'short-term',
+        status TEXT NOT NULL DEFAULT 'active',
+        start_date TEXT,
+        end_date TEXT,
+        cover_color TEXT DEFAULT '#3b82f6',
+        icon TEXT DEFAULT '',
+        tags TEXT DEFAULT '[]',
+        priority TEXT DEFAULT 'medium',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        deleted_at TIMESTAMPTZ
+      );
+
+      CREATE TABLE IF NOT EXISTS activity_logs (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL,
+        user_id TEXT NOT NULL REFERENCES users(id),
+        user_name TEXT NOT NULL,
+        action TEXT NOT NULL,
+        entity_type TEXT NOT NULL,
+        entity_id TEXT NOT NULL,
+        entity_title TEXT DEFAULT '',
+        description TEXT DEFAULT '',
+        metadata TEXT DEFAULT '{}',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
     `);
 
     // ── 为已有表添加 images 列（兼容升级）──
@@ -196,13 +237,21 @@ export async function initDatabase(): Promise<void> {
     await addColumnIfNotExists('inspirations', 'images');
     await addColumnIfNotExists('tasks', 'subtasks');
     await addColumnIfNotExists('tasks', 'focus_session', '\'{"totalDuration":0,"sessions":[]}\'');
+    await addColumnIfNotExists('tasks', 'project_id');
+    await addColumnIfNotExists('tasks', 'parent_id');
 
     // 创建索引
-    const tables = ['tasks', 'notes', 'events', 'knowledge', 'inspirations'];
+    const tables = ['tasks', 'notes', 'events', 'knowledge', 'inspirations', 'projects', 'activity_logs'];
     for (const table of tables) {
       await client.query(`CREATE INDEX IF NOT EXISTS idx_${table}_user_id ON ${table}(user_id)`);
       await client.query(`CREATE INDEX IF NOT EXISTS idx_${table}_updated_at ON ${table}(updated_at)`);
     }
+    // tasks 表额外索引
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_tasks_project_id ON tasks(project_id)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_tasks_parent_id ON tasks(parent_id)`);
+    // activity_logs 按项目查询索引
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_activity_logs_project_id ON activity_logs(project_id)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON activity_logs(created_at)`);
 
     console.log('[DB] PostgreSQL database initialized successfully');
   } finally {

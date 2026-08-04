@@ -2,12 +2,13 @@ import { useStore } from '../stores';
 import type { ModuleType } from '../types';
 import {
   LayoutDashboard, CheckSquare, FileText, BookOpen,
-  Calendar, BarChart3, Lightbulb, ChevronLeft, Settings, X
+  Calendar, BarChart3, Lightbulb, ChevronLeft, Settings, X, FolderKanban
 } from 'lucide-react';
 
 const menuItems: { id: ModuleType; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard', label: '工作台', icon: LayoutDashboard },
   { id: 'tasks', label: '任务', icon: CheckSquare },
+  { id: 'projects', label: '项目', icon: FolderKanban },
   { id: 'notes', label: '笔记', icon: FileText },
   { id: 'knowledge', label: '知识库', icon: BookOpen },
   { id: 'calendar', label: '日历', icon: Calendar },

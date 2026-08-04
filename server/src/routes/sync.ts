@@ -31,6 +31,10 @@ router.get('/', async (req: Request, res: Response) => {
     'SELECT * FROM inspirations WHERE user_id = ? AND updated_at > ?'
   ).all(userId, since);
 
+  const projects = await db.prepare(
+    'SELECT * FROM projects WHERE user_id = ? AND updated_at > ?'
+  ).all(userId, since);
+
   res.json({
     timestamp: new Date().toISOString(),
     tasks,
@@ -38,6 +42,7 @@ router.get('/', async (req: Request, res: Response) => {
     events,
     knowledge,
     inspirations,
+    projects,
   });
 });
 

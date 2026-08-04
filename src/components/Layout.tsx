@@ -9,6 +9,8 @@ import KnowledgeBase from './KnowledgeBase';
 import CalendarView from './CalendarView';
 import DataDashboard from './DataDashboard';
 import InspirationView from './InspirationView';
+import ProjectView from './ProjectView';
+import ProjectDetailView from './ProjectDetailView';
 import SettingsPanel from './SettingsPanel';
 import { useStore } from '../stores';
 import { useAuth } from '../contexts/AuthContext';
@@ -16,6 +18,7 @@ import type { ModuleType } from '../types';
 
 const moduleMeta: Record<Exclude<ModuleType, 'dashboard'>, { label: string; english: string; accentClass: string }> = {
   tasks:      { label: '任务管理', english: 'EXECUTE',     accentClass: 'module-accent-amber' },
+  projects:   { label: '项目管理', english: 'ORGANIZE',    accentClass: 'module-accent-teal' },
   notes:      { label: '笔记文档', english: 'CAPTURE',     accentClass: 'module-accent-purple' },
   knowledge:  { label: '个人知识库', english: 'ORGANIZE',   accentClass: 'module-accent-teal' },
   calendar:   { label: '日历日程', english: 'PLAN',        accentClass: 'module-accent-pink' },
@@ -54,9 +57,12 @@ export default function Layout() {
     };
   }, [token, isOfflineMode]);
 
+  const activeProjectId = useStore((s) => s.activeProjectId);
+
   const renderModule = () => {
     switch (activeModule) {
       case 'tasks': return <TaskView />;
+      case 'projects': return activeProjectId ? <ProjectDetailView /> : <ProjectView />;
       case 'notes': return <NotesView />;
       case 'knowledge': return <KnowledgeBase />;
       case 'calendar': return <CalendarView />;

@@ -28,19 +28,31 @@ function formatDuration(ms: number): string {
   return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 
-export default function TaskView() {
-  const { tasks, addTask, updateTask, deleteTask } = useStore();
+export default function TaskView({ projectId }: { projectId?: string }) {
+  const { tasks, projects, addTask, updateTask, deleteTask } = useStore();
   const [showForm, setShowForm] = useState(false);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<TaskStatus | 'all'>('all');
   const [editing, setEditing] = useState<string | null>(null);
+  const [projectFilter, setProjectFilter] = useState<string>('all');
 
   // New task form state
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
+  const [taskProjectId, setTaskProjectId] = useState<string>(projectId || '');
 
-  const filtered = tasks
+  // When projectId prop changes, update form default
+  useEffect(() => {
+    if (projectId) setTaskProjectId(projectId);
+  }, [projectId]);
+
+  // Filter tasks
+  const displayedTasks = projectId
+    ? tasks.filter((t) => t.projectId === projectId)
+    : tasks.filter((t) => projectFilter === 'all' || t.projectId === projectFilter || (projectFilter === 'none' && !t.projectId));
+
+  const filtered = displayedTasks
     .filter((t) => filter === 'all' || t.status === filter)
     .filter((t) => t.title.toLowerCase().includes(search.toLowerCase()));
 
@@ -51,21 +63,24 @@ export default function TaskView() {
     addTask({
       title, description: desc, status: 'todo', priority,
       dueDate: null, tags: [], subtasks: [],
+      projectId: taskProjectId || null,
     });
     setTitle(''); setDesc(''); setPriority('medium'); setShowForm(false);
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-fg">任务管理</h1>
-        <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-fg text-sm font-medium hover:opacity-90 transition-opacity">
-          <Plus size={16} /> 新建任务
-        </button>
-      </div>
+      {!projectId && (
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-fg">任务管理</h1>
+          <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-fg text-sm font-medium hover:opacity-90 transition-opacity">
+            <Plus size={16} /> 新建任务
+          </button>
+        </div>
+      )}
 
       {/* Search & Filter */}
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex gap-3 flex-wrap items-center">
         <div className="relative flex-1 min-w-[200px] max-w-xs">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-fg" />
           <input
@@ -75,6 +90,22 @@ export default function TaskView() {
             style={{ background: 'rgba(255,255,255,0.65)' }}
           />
         </div>
+
+        {/* Project filter (only in global task view) */}
+        {!projectId && (
+          <select
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+            className="px-3 py-2 text-sm rounded-lg border border-black/5 bg-white/80 outline-none"
+          >
+            <option value="all">全部项目</option>
+            <option value="none">无项目</option>
+            {projects.filter((p) => p.status === 'active').map((p) => (
+              <option key={p.id} value={p.id}>{p.icon}{p.name}</option>
+            ))}
+          </select>
+        )}
+
         {(['all', 'todo', 'in-progress', 'done'] as const).map((s) => (
           <button
             key={s}
@@ -86,6 +117,11 @@ export default function TaskView() {
             {s === 'all' ? '全部' : statusLabels[s].label}
           </button>
         ))}
+        {projectId && (
+          <button onClick={() => setShowForm(true)} className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-fg text-sm font-medium hover:opacity-90 transition-opacity">
+            <Plus size={16} /> 新建任务
+          </button>
+        )}
       </div>
 
       {/* Kanban Board */}
@@ -138,7 +174,7 @@ export default function TaskView() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-lg font-bold text-fg mb-4">新建任务</h2>
+            <h2 className="text-lg font-bold text-fg mb-4">{projectId ? '新增任务' : '新建任务'}</h2>
             <input
               type="text" placeholder="任务标题" value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -164,6 +200,20 @@ export default function TaskView() {
                 </button>
               ))}
             </div>
+            {/* Project selector */}
+            <div className="mb-4">
+              <label className="block text-xs font-semibold text-muted-fg mb-1.5">所属项目</label>
+              <select
+                value={taskProjectId}
+                onChange={(e) => setTaskProjectId(e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-lg border bg-white/80 text-fg outline-none focus:ring-2 focus:ring-primary/30"
+              >
+                <option value="">无项目</option>
+                {projects.filter((p) => p.status === 'active').map((p) => (
+                  <option key={p.id} value={p.id}>{p.icon}{p.name}</option>
+                ))}
+              </select>
+            </div>
             <div className="flex gap-2 justify-end">
               <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm rounded-lg bg-muted text-muted-fg hover:bg-border transition-colors">取消</button>
               <button onClick={handleAdd} className="px-4 py-2 text-sm rounded-lg bg-primary text-primary-fg hover:opacity-90 transition-opacity">创建</button>
@@ -183,6 +233,8 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
   isEditing: boolean;
   onEditingChange: (v: boolean) => void;
 }) {
+  const projects = useStore((s) => s.projects);
+  const project = task.projectId ? projects.find((p) => p.id === task.projectId) : null;
   const [editTitle, setEditTitle] = useState(task.title);
   const [editDesc, setEditDesc] = useState(task.description);
   const [showSubtasks, setShowSubtasks] = useState(false);
@@ -329,9 +381,14 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
 
   return (
     <div
-      className="rounded-lg p-3 border border-black/5 shadow-sm hover:shadow-md transition-shadow group"
+      className="rounded-lg border border-black/5 shadow-sm hover:shadow-md transition-shadow group overflow-hidden"
       style={{ background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
     >
+      {/* Project color bar */}
+      {project && (
+        <div className="h-0.5 w-full" style={{ backgroundColor: project.coverColor }} />
+      )}
+      <div className="p-3">
       {isEditing ? (
         <div className="space-y-2">
           <input
@@ -575,6 +632,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
           )}
         </>
       )}
+      </div>
     </div>
   );
 }
