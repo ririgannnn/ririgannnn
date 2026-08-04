@@ -145,7 +145,7 @@ export default function NotesView() {
             <button
               key={n.id}
               onClick={() => handleSelectNote(n.id)}
-              className={`w-full text-left p-3 rounded-lg transition-colors ${
+              className={`w-full text-left p-3 rounded-lg border border-black/5 transition-colors ${
                 selectedNote === n.id ? 'bg-primary/10 border-l-2 border-l-primary' : 'hover:bg-muted border-l-2 border-l-transparent'
               }`}
             >
@@ -161,7 +161,8 @@ export default function NotesView() {
       <div className="flex-1 min-w-0 overflow-y-auto">
         {isNew ? (
           /* New Note Form */
-          <div className="max-w-3xl mx-auto space-y-3 animate-scale-in">
+          <div className="max-w-3xl mx-auto animate-scale-in">
+            <div className="rounded-xl border border-black/5 shadow-md p-6 space-y-3" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
             <div className="flex items-center gap-2 mb-4">
               <button onClick={() => setIsNew(false)} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
                 <ChevronLeft size={18} className="text-muted-fg" />
@@ -215,9 +216,11 @@ export default function NotesView() {
               <button onClick={() => setIsNew(false)} className="px-4 py-2 text-sm rounded-lg bg-muted text-muted-fg hover:bg-border transition-colors">取消</button>
               <button onClick={handleCreate} className="px-4 py-2 text-sm rounded-lg bg-primary text-primary-fg hover:opacity-90 transition-opacity">保存</button>
             </div>
+            </div>
           </div>
         ) : selected ? (
           <div className="max-w-3xl mx-auto animate-scale-in">
+            <div className="rounded-xl border border-black/5 shadow-md p-6" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
             {isEditing ? (
               /* Edit Mode */
               <div className="space-y-3">
@@ -314,6 +317,7 @@ export default function NotesView() {
                 )}
               </div>
             )}
+            </div>
           </div>
         ) : (
           /* Empty State */

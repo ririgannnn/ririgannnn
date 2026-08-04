@@ -12,27 +12,27 @@ router.get('/', async (req: Request, res: Response) => {
   const userId = req.user!.id;
 
   const tasks = await db.prepare(
-    'SELECT * FROM tasks WHERE user_id = ? AND updated_at > ?'
+    'SELECT * FROM tasks WHERE user_id = ? AND deleted_at IS NULL AND updated_at > ?'
   ).all(userId, since);
 
   const notes = await db.prepare(
-    'SELECT * FROM notes WHERE user_id = ? AND updated_at > ?'
+    'SELECT * FROM notes WHERE user_id = ? AND deleted_at IS NULL AND updated_at > ?'
   ).all(userId, since);
 
   const events = await db.prepare(
-    'SELECT * FROM events WHERE user_id = ? AND updated_at > ?'
+    'SELECT * FROM events WHERE user_id = ? AND deleted_at IS NULL AND updated_at > ?'
   ).all(userId, since);
 
   const knowledge = await db.prepare(
-    'SELECT * FROM knowledge WHERE user_id = ? AND updated_at > ?'
+    'SELECT * FROM knowledge WHERE user_id = ? AND deleted_at IS NULL AND updated_at > ?'
   ).all(userId, since);
 
   const inspirations = await db.prepare(
-    'SELECT * FROM inspirations WHERE user_id = ? AND updated_at > ?'
+    'SELECT * FROM inspirations WHERE user_id = ? AND deleted_at IS NULL AND updated_at > ?'
   ).all(userId, since);
 
   const projects = await db.prepare(
-    'SELECT * FROM projects WHERE user_id = ? AND updated_at > ?'
+    'SELECT * FROM projects WHERE user_id = ? AND deleted_at IS NULL AND updated_at > ?'
   ).all(userId, since);
 
   res.json({

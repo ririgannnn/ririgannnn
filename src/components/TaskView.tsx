@@ -395,7 +395,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
 
   return (
     <div
-      className="rounded-lg border border-black/5 shadow-sm hover:shadow-md transition-shadow group overflow-hidden"
+      className="rounded-xl border border-black/5 shadow-sm hover:shadow-md transition-shadow group overflow-hidden"
       style={{ background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
     >
       {/* Project color bar */}
@@ -603,9 +603,12 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             </div>
           )}
 
-          {/* Add subtask button (when collapsed) */}
+          {/* Add subtask button — hidden until hover (when collapsed) */}
           {!showSubtasks && subtasks.length < MAX_SUBTASKS && (
-            <button onClick={() => setShowSubtasks(true)} className="mt-2 ml-3.5 flex items-center gap-1 text-xs text-muted-fg/60 hover:text-primary transition-colors">
+            <button
+              onClick={() => setShowSubtasks(true)}
+              className="mt-2 ml-3.5 flex items-center gap-1 text-xs text-muted-fg/60 hover:text-primary transition-all opacity-0 group-hover:opacity-100"
+            >
               <Plus size={11} /> 添加子任务
             </button>
           )}

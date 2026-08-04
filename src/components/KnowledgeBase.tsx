@@ -119,6 +119,7 @@ export default function KnowledgeBase() {
           </div>
         ) : selected ? (
           <div className="animate-scale-in max-w-3xl">
+            <div className="rounded-xl border border-black/5 shadow-md p-6" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
             <div className="flex items-center justify-between mb-4">
               <button onClick={() => setSelectedId(null)} className="text-sm text-muted-fg hover:text-fg transition-colors flex items-center gap-1">
                 ← 返回列表
@@ -154,6 +155,7 @@ export default function KnowledgeBase() {
                 onChange={(imgs) => updateKnowledge(selected.id, { images: imgs })}
               />
             </div>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -162,7 +164,7 @@ export default function KnowledgeBase() {
             ) : (
               filtered.map((k) => (
                 <button key={k.id} onClick={() => setSelectedId(k.id)}
-                  className="text-left p-4 rounded-xl border border-black/5 hover:shadow-md transition-all text-left overflow-hidden"
+                  className="text-left p-4 rounded-xl border border-black/5 shadow-sm hover:shadow-md transition-all overflow-hidden"
                   style={{ background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(12px) saturate(150%)', WebkitBackdropFilter: 'blur(12px) saturate(150%)' }}>
                   {Array.isArray(k.images) && k.images.length > 0 && (
                     <div className="mb-2 -mx-4 -mt-4 h-32 overflow-hidden">

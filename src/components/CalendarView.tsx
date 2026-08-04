@@ -128,7 +128,7 @@ export default function CalendarView() {
             <div className="space-y-2">
               {todayEvents.map((ev) => (
                 <div key={ev.id}
-                  className="p-3 rounded-lg border-l-3 border border-black/5 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                  className="p-3 rounded-xl border-l-3 border border-black/5 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                   style={{ borderLeftColor: ev.color, borderLeftWidth: 4, background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }}
                   onClick={() => setSelectedEvent(ev)}>
                   <div className="text-sm font-medium text-fg">{ev.title}</div>
