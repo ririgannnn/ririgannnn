@@ -43,6 +43,10 @@ router.get('/', async (req: Request, res: Response) => {
     'SELECT * FROM habit_records WHERE user_id = ? AND created_at > ?'
   ).all(userId, since);
 
+  const vtuberEntries = await db.prepare(
+    'SELECT * FROM vtuber_entries WHERE user_id = ? AND deleted_at IS NULL AND updated_at > ?'
+  ).all(userId, since);
+
   res.json({
     timestamp: new Date().toISOString(),
     tasks,
@@ -53,6 +57,7 @@ router.get('/', async (req: Request, res: Response) => {
     projects,
     habits,
     habitRecords,
+    vtuberEntries,
   });
 });
 

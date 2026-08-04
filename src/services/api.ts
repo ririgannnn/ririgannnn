@@ -156,6 +156,12 @@ class ApiClient {
   deleteHabit(id: string) { return this.request<{ success: boolean }>(`/habits/${id}`, { method: 'DELETE' }); }
   toggleHabitRecord(data: Record<string, unknown>) { return this.request<{ habitRecord: unknown | null; toggled: boolean }>('/habits/records', { method: 'POST', body: data }); }
 
+  // VTuber entries
+  getVtuberEntries() { return this.request<{ vtuberEntries: unknown[] }>('/vtuber'); }
+  createVtuberEntry(data: Record<string, unknown>) { return this.request<{ entry: unknown }>('/vtuber', { method: 'POST', body: data }); }
+  updateVtuberEntry(id: string, data: Record<string, unknown>) { return this.request<{ entry: unknown }>(`/vtuber/${id}`, { method: 'PUT', body: data }); }
+  deleteVtuberEntry(id: string) { return this.request<{ success: boolean }>(`/vtuber/${id}`, { method: 'DELETE' }); }
+
   // Sync
   sync(since: string) {
     return this.request<{
@@ -168,6 +174,7 @@ class ApiClient {
       projects: unknown[];
       habits: unknown[];
       habitRecords: unknown[];
+      vtuberEntries: unknown[];
     }>(`/sync?since=${encodeURIComponent(since)}`);
   }
 }

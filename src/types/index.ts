@@ -142,3 +142,28 @@ export interface HabitRecord {
   date: string;
   createdAt: string;
 }
+
+// ── VTuber 工作台数据类型 ──
+export type VtuberEntryType =
+  | 'topic'
+  | 'stream_schedule'
+  | 'checklist'
+  | 'design_todo'
+  | 'gift'
+  | 'distribution'
+  | 'commerce'
+  | 'finance'
+  | 'analytics'
+  | 'okr';
+
+export interface VtuberEntry {
+  id: string;
+  type: VtuberEntryType;
+  title: string;
+  status: string;
+  data: Record<string, unknown>;
+  tags: string[];
+  sortOrder: number;
+  createdAt: string;
+  updatedAt?: string;
+}

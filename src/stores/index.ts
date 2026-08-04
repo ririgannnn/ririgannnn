@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Task, Note, CalendarEvent, Inspiration, KnowledgeEntry, AppSettings, ModuleType, SubTask, FocusSession, Project, TaskPriority, Habit, HabitRecord } from '../types';
+import type { Task, Note, CalendarEvent, Inspiration, KnowledgeEntry, AppSettings, ModuleType, SubTask, FocusSession, Project, TaskPriority, Habit, HabitRecord, VtuberEntry } from '../types';
 import syncEngine from '../services/syncEngine';
 import api from '../services/api';
 
@@ -122,6 +122,14 @@ interface AppState {
   deleteHabit: (id: string) => void;
   toggleHabitRecord: (habitId: string, date: string) => void;
   batchApplyHabit: (id: string, action: string, data: unknown) => void;
+
+  // VTuber entries
+  vtuberEntries: VtuberEntry[];
+  setVtuberEntries: (entries: VtuberEntry[]) => void;
+  addVtuberEntry: (entry: Partial<VtuberEntry>) => VtuberEntry;
+  updateVtuberEntry: (id: string, partial: Partial<VtuberEntry>) => void;
+  deleteVtuberEntry: (id: string) => void;
+  batchApplyVtuberEntry: (id: string, action: string, data: unknown) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -877,6 +885,117 @@ export const useStore = create<AppState>()(
         }
       },
 
+      // === VTuber entries ===
+      vtuberEntries: [],
+      setVtuberEntries: (vtuberEntries) => set({ vtuberEntries }),
+
+      addVtuberEntry: (entry) => {
+        const newId = uid();
+        const now = new Date().toISOString();
+        const newEntry: VtuberEntry = {
+          id: entry.id || newId,
+          type: entry.type || 'topic',
+          title: entry.title || '',
+          status: entry.status || '',
+          data: entry.data || {},
+          tags: entry.tags || [],
+          sortOrder: entry.sortOrder || 0,
+          createdAt: entry.createdAt || now,
+          updatedAt: entry.updatedAt || now,
+        };
+        set((s) => ({ vtuberEntries: [...s.vtuberEntries, newEntry] }));
+        const apiPayload: Record<string, unknown> = {
+          ...newEntry,
+          data: JSON.stringify(newEntry.data),
+          tags: JSON.stringify(newEntry.tags),
+        };
+        api.createVtuberEntry(apiPayload).catch(() => {
+          syncEngine.addToQueue({
+            id: uid(), entity: 'vtuberEntries', action: 'create',
+            entityId: newEntry.id, data: apiPayload, timestamp: now,
+          });
+        });
+        return newEntry;
+      },
+
+      updateVtuberEntry: (id, partial) => {
+        const now = new Date().toISOString();
+        set((s) => ({
+          vtuberEntries: s.vtuberEntries.map((e) => e.id === id ? { ...e, ...partial, updatedAt: now } : e),
+        }));
+        const apiPayload: Record<string, unknown> = { ...partial };
+        if (partial.data) apiPayload.data = JSON.stringify(partial.data);
+        if (partial.tags) apiPayload.tags = JSON.stringify(partial.tags);
+        api.updateVtuberEntry(id, apiPayload).catch(() => {
+          syncEngine.addToQueue({
+            id: uid(), entity: 'vtuberEntries', action: 'update',
+            entityId: id, data: apiPayload, timestamp: now,
+          });
+        });
+      },
+
+      deleteVtuberEntry: (id) => {
+        set((s) => ({ vtuberEntries: s.vtuberEntries.filter((e) => e.id !== id) }));
+        api.deleteVtuberEntry(id).catch(() => {
+          syncEngine.addToQueue({
+            id: uid(), entity: 'vtuberEntries', action: 'delete',
+            entityId: id, data: { id }, timestamp: new Date().toISOString(),
+          });
+        });
+      },
+
+      batchApplyVtuberEntry: (id, action, data) => {
+        if (action === 'delete') {
+          set((s) => ({ vtuberEntries: s.vtuberEntries.filter((e) => e.id !== id) }));
+        } else if (action === 'create') {
+          const d = data as Record<string, unknown>;
+          const parseData = (raw: unknown) => {
+            if (typeof raw === 'object' && raw !== null) return raw as Record<string, unknown>;
+            if (typeof raw === 'string') { try { return JSON.parse(raw) as Record<string, unknown>; } catch { return {}; } }
+            return {};
+          };
+          const parseTags = (raw: unknown) => {
+            if (Array.isArray(raw)) return raw as string[];
+            if (typeof raw === 'string') { try { return JSON.parse(raw) as string[]; } catch { return []; } }
+            return [];
+          };
+          const entry: VtuberEntry = {
+            id: (d.id as string) || uid(),
+            type: (d.type as VtuberEntry['type']) || 'topic',
+            title: (d.title as string) || '',
+            status: (d.status as string) || '',
+            data: (d.data as Record<string, unknown>) || parseData(d.data),
+            tags: parseTags(d.tags),
+            sortOrder: (d.sort_order ?? d.sortOrder ?? 0) as number,
+            createdAt: (d.createdAt || d.created_at || '') as string,
+            updatedAt: (d.updatedAt || d.updated_at || '') as string,
+          };
+          set((s) => {
+            if (s.vtuberEntries.find((e) => e.id === entry.id)) return s;
+            return { vtuberEntries: [...s.vtuberEntries, entry] };
+          });
+        } else if (action === 'update') {
+          const d = data as Record<string, unknown>;
+          const parseData = (raw: unknown) => {
+            if (typeof raw === 'object' && raw !== null) return raw as Record<string, unknown>;
+            if (typeof raw === 'string') { try { return JSON.parse(raw) as Record<string, unknown>; } catch { return {}; } }
+            return undefined;
+          };
+          set((s) => ({
+            vtuberEntries: s.vtuberEntries.map((e) => e.id === id ? {
+              ...e,
+              ...(d.title !== undefined ? { title: d.title as string } : {}),
+              ...(d.status !== undefined ? { status: d.status as string } : {}),
+              ...(d.type !== undefined ? { type: d.type as VtuberEntry['type'] } : {}),
+              ...(d.data !== undefined ? { data: parseData(d.data) || e.data } : {}),
+              ...(d.tags !== undefined ? { tags: (Array.isArray(d.tags) ? d.tags : (typeof d.tags === 'string' ? JSON.parse(d.tags) : e.tags)) as string[] } : {}),
+              ...(d.sort_order ?? d.sortOrder !== undefined ? { sortOrder: (d.sort_order ?? d.sortOrder) as number } : {}),
+              ...(d.updatedAt || d.updated_at ? { updatedAt: (d.updatedAt || d.updated_at) as string } : {}),
+            } : e),
+          }));
+        }
+      },
+
       initSync: async (token: string) => {
         await syncEngine.start(token);
 
@@ -983,6 +1102,19 @@ export const useStore = create<AppState>()(
             createdAt: (r.createdAt || r.created_at || '') as string,
           }) as HabitRecord[]));
         }
+        if (cache.vtuberEntries?.length) {
+          batchApply.setVtuberEntries(cache.vtuberEntries.map((e: Record<string, unknown>) => ({
+            id: e.id as string,
+            type: (e.type as VtuberEntry['type']) || 'topic',
+            title: (e.title as string) || '',
+            status: (e.status as string) || '',
+            data: typeof e.data === 'object' && e.data !== null ? e.data as Record<string, unknown> : {},
+            tags: parseTags(e.tags),
+            sortOrder: (e.sortOrder ?? e.sort_order ?? 0) as number,
+            createdAt: (e.createdAt || e.created_at || '') as string,
+            updatedAt: (e.updatedAt || e.updated_at || '') as string,
+          }) as VtuberEntry[]));
+        }
 
         // Listen for WebSocket updates
         syncEngine.onDataChange((entity, action, data) => {
@@ -998,6 +1130,7 @@ export const useStore = create<AppState>()(
             knowledge: apply.batchApplyKnowledge,
             projects: apply.batchApplyProject,
             habits: apply.batchApplyHabit,
+            vtuberEntries: apply.batchApplyVtuberEntry,
           };
 
           batchMethods[entity]?.(id, action, data);

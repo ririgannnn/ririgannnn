@@ -53,7 +53,7 @@ const FIELD_MAP: Record<string, string> = {
 };
 
 // ── JSON 字段：PostgreSQL 中存储为 TEXT，返回时需解析为数组 ──
-const JSON_FIELDS = new Set(['tags', 'images', 'subtasks', 'focus_session', 'metadata']);
+const JSON_FIELDS = new Set(['tags', 'images', 'subtasks', 'focus_session', 'metadata', 'data']);
 
 function transformRow(row: QueryResultRow): QueryResultRow {
   const result: QueryResultRow = {};
@@ -243,6 +243,20 @@ export async function initDatabase(): Promise<void> {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         UNIQUE(habit_id, date)
       );
+
+      CREATE TABLE IF NOT EXISTS vtuber_entries (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id),
+        type TEXT NOT NULL,
+        title TEXT DEFAULT '',
+        status TEXT DEFAULT '',
+        data TEXT DEFAULT '{}',
+        tags TEXT DEFAULT '[]',
+        sort_order INTEGER DEFAULT 0,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        deleted_at TIMESTAMPTZ
+      );
     `);
 
     // ── 为已有表添加 images 列（兼容升级）──
@@ -280,6 +294,11 @@ export async function initDatabase(): Promise<void> {
     await client.query(`CREATE INDEX IF NOT EXISTS idx_habit_records_user_id ON habit_records(user_id)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_habit_records_habit_id ON habit_records(habit_id)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_habit_records_date ON habit_records(date)`);
+
+    // vtuber_entries 索引
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_vtuber_entries_user_id ON vtuber_entries(user_id)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_vtuber_entries_updated_at ON vtuber_entries(updated_at)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_vtuber_entries_type ON vtuber_entries(type)`);
 
     console.log('[DB] PostgreSQL database initialized successfully');
   } finally {

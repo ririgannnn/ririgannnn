@@ -1,8 +1,8 @@
 import api, { ApiError } from './api';
 
 const DB_NAME = 'ririgannnn_cache';
-const DB_VERSION = 3;
-const STORES = ['tasks', 'notes', 'events', 'knowledge', 'inspirations', 'projects', 'habits', 'habitRecords'] as const;
+const DB_VERSION = 4;
+const STORES = ['tasks', 'notes', 'events', 'knowledge', 'inspirations', 'projects', 'habits', 'habitRecords', 'vtuberEntries'] as const;
 const QUEUE_STORE = 'sync_queue';
 
 type EntityType = typeof STORES[number];
@@ -245,6 +245,12 @@ class SyncEngine {
           create: (data: Record<string, unknown>) => api.createHabit(data),
           update: (id: string, data: Record<string, unknown>) => api.updateHabit(id, data),
           delete: (id: string) => api.deleteHabit(id),
+        };
+      case 'vtuberEntries':
+        return {
+          create: (data: Record<string, unknown>) => api.createVtuberEntry(data),
+          update: (id: string, data: Record<string, unknown>) => api.updateVtuberEntry(id, data),
+          delete: (id: string) => api.deleteVtuberEntry(id),
         };
     }
   }
