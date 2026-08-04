@@ -27,7 +27,7 @@ router.post('/', async (req: Request, res: Response) => {
   `).run(id, req.user!.id, content, tagsJson, imagesJson, color || '#6366f1', now, now);
 
   const item = await db.prepare('SELECT * FROM inspirations WHERE id = ?').get(id);
-  broadcastChange(req.user!.id, 'inspiration', 'create', item);
+  broadcastChange(req.user!.id, 'inspirations', 'create', item);
   res.status(201).json({ inspiration: item });
 });
 
@@ -54,7 +54,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   `).run(content ?? null, tagsJson, imagesJson, color ?? null, now, req.params.id, req.user!.id);
 
   const item = await db.prepare('SELECT * FROM inspirations WHERE id = ?').get(req.params.id);
-  broadcastChange(req.user!.id, 'inspiration', 'update', item);
+  broadcastChange(req.user!.id, 'inspirations', 'update', item);
   res.json({ inspiration: item });
 });
 
@@ -67,7 +67,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
   const now = new Date().toISOString();
   await db.prepare('UPDATE inspirations SET deleted_at = ?, updated_at = ? WHERE id = ?').run(now, now, req.params.id);
-  broadcastChange(req.user!.id, 'inspiration', 'delete', { id: req.params.id });
+  broadcastChange(req.user!.id, 'inspirations', 'delete', { id: req.params.id });
   res.json({ success: true });
 });
 

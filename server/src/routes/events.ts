@@ -25,7 +25,7 @@ router.post('/', async (req: Request, res: Response) => {
   `).run(id, req.user!.id, title, description || '', start_time, end_time, all_day ? 1 : 0, color || '#3b82f6', now, now);
 
   const event = await db.prepare('SELECT * FROM events WHERE id = ?').get(id);
-  broadcastChange(req.user!.id, 'event', 'create', event);
+  broadcastChange(req.user!.id, 'events', 'create', event);
   res.status(201).json({ event });
 });
 
@@ -56,7 +56,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   );
 
   const event = await db.prepare('SELECT * FROM events WHERE id = ?').get(req.params.id);
-  broadcastChange(req.user!.id, 'event', 'update', event);
+  broadcastChange(req.user!.id, 'events', 'update', event);
   res.json({ event });
 });
 
@@ -69,7 +69,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
   const now = new Date().toISOString();
   await db.prepare('UPDATE events SET deleted_at = ?, updated_at = ? WHERE id = ?').run(now, now, req.params.id);
-  broadcastChange(req.user!.id, 'event', 'delete', { id: req.params.id });
+  broadcastChange(req.user!.id, 'events', 'delete', { id: req.params.id });
   res.json({ success: true });
 });
 

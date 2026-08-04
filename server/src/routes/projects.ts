@@ -45,7 +45,7 @@ router.post('/', async (req: Request, res: Response) => {
     tagsJson, priority || 'medium', now, now);
 
   const project = await db.prepare('SELECT * FROM projects WHERE id = ?').get(id);
-  broadcastChange(req.user!.id, 'project', 'create', project);
+  broadcastChange(req.user!.id, 'projects', 'create', project);
   res.status(201).json({ project });
 });
 
@@ -87,7 +87,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   );
 
   const project = await db.prepare('SELECT * FROM projects WHERE id = ?').get(req.params.id);
-  broadcastChange(req.user!.id, 'project', 'update', project);
+  broadcastChange(req.user!.id, 'projects', 'update', project);
   res.json({ project });
 });
 
@@ -112,7 +112,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   await db.prepare('UPDATE projects SET deleted_at = ?, updated_at = ? WHERE id = ?')
     .run(now, now, req.params.id);
 
-  broadcastChange(req.user!.id, 'project', 'delete', { id: req.params.id });
+  broadcastChange(req.user!.id, 'projects', 'delete', { id: req.params.id });
   res.json({ success: true });
 });
 
@@ -160,7 +160,7 @@ router.post('/:id/tasks', async (req: Request, res: Response) => {
     subtasksJson, focusSessionJson, now, now);
 
   const task = await db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
-  broadcastChange(req.user!.id, 'task', 'create', task);
+  broadcastChange(req.user!.id, 'tasks', 'create', task);
   res.status(201).json({ task });
 });
 
@@ -194,7 +194,7 @@ router.post('/:id/tasks/move', async (req: Request, res: Response) => {
   for (const taskId of taskIds) {
     const task = await db.prepare('SELECT * FROM tasks WHERE id = ?').get(taskId);
     if (task) {
-      broadcastChange(req.user!.id, 'task', 'update', task);
+      broadcastChange(req.user!.id, 'tasks', 'update', task);
     }
   }
 

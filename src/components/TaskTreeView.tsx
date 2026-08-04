@@ -4,15 +4,15 @@ import type { Task, TaskStatus, TaskPriority } from '../types';
 import { Plus, Trash2, Search, ChevronDown, ChevronRight, Check, Pencil, X, GitBranch, AlertTriangle } from 'lucide-react';
 
 const statusLabels: Record<TaskStatus, { label: string; color: string }> = {
-  'todo': { label: '待办', color: '#f59e0b' },
-  'in-progress': { label: '进行中', color: '#3b82f6' },
-  'done': { label: '已完成', color: '#10b981' },
+  'todo': { label: '待办', color: 'var(--accent-warm)' },
+  'in-progress': { label: '进行中', color: 'var(--kon-dark)' },
+  'done': { label: '已完成', color: 'var(--accent-teal)' },
 };
 
 const priorityColors: Record<TaskPriority, string> = {
-  high: '#ef4444',
-  medium: '#f59e0b',
-  low: '#94a3b8',
+  high: 'var(--accent-orange)',
+  medium: 'var(--accent-warm)',
+  low: 'var(--text-dim)',
 };
 
 interface TreeNode {
@@ -29,7 +29,6 @@ function buildTaskTree(tasks: Task[], parentId: string | null = null): TreeNode[
     }));
 }
 
-/** Collect all descendant IDs of a task */
 function getDescendantIds(tasks: Task[], taskId: string): Set<string> {
   const ids = new Set<string>();
   const walk = (parentId: string) => {
@@ -52,16 +51,13 @@ export default function TaskTreeView({ projectId }: { projectId?: string }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
 
-  // New task form
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [parentId, setParentId] = useState<string>('');
 
-  // Delete confirmation
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; title: string; childCount: number } | null>(null);
 
-  // Filter tasks
   const scopeTasks = useMemo(() => {
     return projectId ? tasks.filter((t) => t.projectId === projectId) : tasks;
   }, [tasks, projectId]);
@@ -72,10 +68,8 @@ export default function TaskTreeView({ projectId }: { projectId?: string }) {
       .filter((t) => t.title.toLowerCase().includes(search.toLowerCase()));
   }, [scopeTasks, filter, search]);
 
-  // Build tree from filtered tasks (only root nodes visible at top level)
   const tree = useMemo(() => buildTaskTree(filtered, null), [filtered]);
 
-  // Available parent tasks (exclude self when editing)
   const availableParents = useMemo(() => {
     return scopeTasks.filter((t) => t.status !== 'done');
   }, [scopeTasks]);
@@ -107,22 +101,27 @@ export default function TaskTreeView({ projectId }: { projectId?: string }) {
     }
   };
 
-  // Total counts
   const totalCount = filtered.length;
   const doneCount = filtered.filter((t) => t.status === 'done').length;
 
+  const inputStyle: React.CSSProperties = {
+    border: '1px solid var(--line)',
+    background: 'var(--bg-surface)',
+    color: 'var(--text-primary)',
+  };
+
   return (
     <div className="space-y-4">
-      {/* Search & Filter bar */}
       <div className="flex gap-3 flex-wrap items-center">
         <div className="relative flex-1 min-w-[200px] max-w-xs">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-fg" />
+          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
           <input
-            type="text" placeholder="搜索任务..."
-            value={search}
+            type="text" placeholder="搜索任务..." value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-black/5 text-fg outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-            style={{ background: 'rgba(255,255,255,0.65)' }}
+            className="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none"
+            style={inputStyle}
+            onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--kon-main)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(153,167,188,0.12)'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line)'; e.currentTarget.style.boxShadow = 'none'; }}
           />
         </div>
 
@@ -130,39 +129,35 @@ export default function TaskTreeView({ projectId }: { projectId?: string }) {
           <button
             key={s}
             onClick={() => setFilter(s)}
-            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-              filter === s ? 'bg-primary text-primary-fg' : 'bg-muted text-muted-fg hover:bg-border'
-            }`}
+            className="px-3 py-1.5 text-sm rounded-md transition-colors"
+            style={{
+              background: filter === s ? 'rgba(153,167,188,0.12)' : 'var(--bg-deep)',
+              color: filter === s ? 'var(--kon-deeper)' : 'var(--text-dim)',
+              fontWeight: filter === s ? 500 : 400,
+            }}
           >
             {s === 'all' ? '全部' : statusLabels[s].label}
           </button>
         ))}
 
-        <span className="text-xs text-muted-fg ml-auto">
+        <span className="text-xs ml-auto" style={{ color: 'var(--text-dim)' }}>
           {doneCount}/{totalCount} 已完成
         </span>
 
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-fg text-sm font-medium hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition-all"
+          style={{ background: 'linear-gradient(135deg, var(--kon-dark), var(--kon-deeper))' }}
         >
           <Plus size={16} /> 新建任务
         </button>
       </div>
 
-      {/* Tree */}
-      <div
-        className="rounded-xl border border-black/5 p-4"
-        style={{
-          background: 'rgba(255,255,255,0.55)',
-          backdropFilter: 'blur(12px) saturate(130%)',
-          WebkitBackdropFilter: 'blur(12px) saturate(130%)',
-        }}
-      >
+      <div className="rounded-xl border p-4" style={{ background: 'var(--bg-surface)', borderColor: 'var(--line)' }}>
         {tree.length === 0 ? (
           <div className="text-center py-16">
-            <GitBranch size={40} className="mx-auto mb-3 text-muted-fg opacity-25" />
-            <p className="text-sm text-muted-fg">
+            <GitBranch size={40} className="mx-auto mb-3 opacity-25" style={{ color: 'var(--text-dim)' }} />
+            <p className="text-sm" style={{ color: 'var(--text-dim)' }}>
               {search || filter !== 'all' ? '没有匹配的任务' : '还没有任务，点击上方按钮创建'}
             </p>
           </div>
@@ -198,50 +193,46 @@ export default function TaskTreeView({ projectId }: { projectId?: string }) {
 
       {/* Create Task Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
-          <div
-            className="rounded-2xl shadow-xl p-6 w-full max-w-md animate-scale-in border border-black/5"
-            style={{
-              background: 'rgba(255,255,255,0.82)',
-              backdropFilter: 'blur(24px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-bold text-fg mb-4">新建任务</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.3)' }} onClick={() => setShowForm(false)}>
+          <div className="card-surface p-6 w-full max-w-md animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-bold font-serif-cn text-fg mb-4">新建任务</h2>
             <input
               type="text" placeholder="任务标题" value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2.5 text-sm rounded-lg border bg-muted/50 text-fg outline-none focus:ring-2 focus:ring-primary/30 mb-3"
+              className="w-full px-3 py-2.5 text-sm rounded-lg border outline-none mb-3"
+              style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)' }}
               autoFocus
             />
             <textarea
               placeholder="任务描述（可选）" value={desc}
               onChange={(e) => setDesc(e.target.value)}
-              className="w-full px-3 py-2.5 text-sm rounded-lg border bg-muted/50 text-fg outline-none focus:ring-2 focus:ring-primary/30 mb-3 h-20 resize-none"
+              className="w-full px-3 py-2.5 text-sm rounded-lg border outline-none mb-3 h-20 resize-none"
+              style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)' }}
             />
             <div className="flex gap-2 mb-3">
               {(['low', 'medium', 'high'] as const).map((p) => (
                 <button
                   key={p}
                   onClick={() => setPriority(p)}
-                  className={`flex-1 py-1.5 text-xs rounded-md border transition-colors ${
-                    priority === p ? 'text-white' : 'text-muted-fg hover:bg-muted'
-                  }`}
-                  style={priority === p ? { backgroundColor: priorityColors[p], borderColor: priorityColors[p] } : {}}
+                  className="flex-1 py-1.5 text-xs rounded-md border transition-all"
+                  style={{
+                    background: priority === p ? priorityColors[p] : 'var(--bg-surface)',
+                    color: priority === p ? '#fff' : 'var(--text-dim)',
+                    borderColor: priority === p ? priorityColors[p] : 'var(--line)',
+                  }}
                 >
                   {p === 'high' ? '高' : p === 'medium' ? '中' : '低'}
                 </button>
               ))}
             </div>
 
-            {/* Parent task selector */}
             <div className="mb-4">
-              <label className="block text-xs font-semibold text-muted-fg mb-1.5">父任务（可选）</label>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-dim)' }}>父任务（可选）</label>
               <select
                 value={parentId}
                 onChange={(e) => setParentId(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-lg border bg-white/80 text-fg outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
+                style={{ background: 'var(--bg-surface)', color: 'var(--text-primary)', borderColor: 'var(--line)' }}
               >
                 <option value="">无（根任务）</option>
                 {availableParents.map((t) => (
@@ -253,8 +244,8 @@ export default function TaskTreeView({ projectId }: { projectId?: string }) {
             </div>
 
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm rounded-lg bg-muted text-muted-fg hover:bg-border transition-colors">取消</button>
-              <button onClick={handleAdd} className="px-4 py-2 text-sm rounded-lg bg-primary text-primary-fg hover:opacity-90 transition-opacity">创建</button>
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm rounded-lg transition-colors" style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}>取消</button>
+              <button onClick={handleAdd} className="px-4 py-2 text-sm rounded-lg text-white font-medium" style={{ background: 'var(--kon-dark)' }}>创建</button>
             </div>
           </div>
         </div>
@@ -262,40 +253,22 @@ export default function TaskTreeView({ projectId }: { projectId?: string }) {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={() => setDeleteConfirm(null)}>
-          <div
-            className="rounded-2xl shadow-xl p-6 w-full max-w-sm animate-scale-in border border-black/5"
-            style={{
-              background: 'rgba(255,255,255,0.92)',
-              backdropFilter: 'blur(24px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.3)' }} onClick={() => setDeleteConfirm(null)}>
+          <div className="card-surface p-6 w-full max-w-sm animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-                <AlertTriangle size={20} className="text-red-500" />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(216,107,66,0.12)' }}>
+                <AlertTriangle size={20} style={{ color: 'var(--accent-orange)' }} />
               </div>
               <div>
                 <h3 className="text-base font-bold text-fg">确认删除？</h3>
-                <p className="text-sm text-muted-fg mt-1">
-                  任务「<strong>{deleteConfirm.title}</strong>」有 <strong className="text-red-500">{deleteConfirm.childCount}</strong> 个子任务，删除后将一并移除。
+                <p className="text-sm mt-1" style={{ color: 'var(--text-mid)' }}>
+                  任务「<strong>{deleteConfirm.title}</strong>」有 <strong style={{ color: 'var(--accent-orange)' }}>{deleteConfirm.childCount}</strong> 个子任务，删除后将一并移除。
                 </p>
               </div>
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="flex-1 py-2.5 text-sm rounded-lg bg-muted text-muted-fg hover:bg-border transition-colors"
-              >
-                取消
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="flex-1 py-2.5 text-sm rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
-              >
-                确认删除
-              </button>
+              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 text-sm rounded-lg transition-colors" style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}>取消</button>
+              <button onClick={confirmDelete} className="flex-1 py-2.5 text-sm rounded-lg text-white font-medium transition-colors" style={{ background: 'var(--accent-orange)' }}>确认删除</button>
             </div>
           </div>
         </div>
@@ -340,7 +313,6 @@ function TreeItem({
     onUpdate(task.id, { status: nextStatus(task.status) });
   };
 
-  // Descendant count for parents
   const descendantCount = useMemo(() => getDescendantIds(allTasks, task.id).size, [allTasks, task.id]);
 
   return (
@@ -349,24 +321,19 @@ function TreeItem({
         className="flex items-center gap-2 py-2 px-2 rounded-lg transition-colors group"
         style={{
           paddingLeft: `${12 + depth * 24}px`,
-          background: hover ? 'rgba(255,255,255,0.6)' : 'transparent',
+          background: hover ? 'var(--bg-deep)' : 'transparent',
         }}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
       >
-        {/* Expand/Collapse or placeholder */}
         {hasChildren ? (
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="shrink-0 p-0.5 rounded hover:bg-black/5 transition-colors text-muted-fg"
-          >
+          <button onClick={() => setExpanded(!expanded)} className="shrink-0 p-0.5 rounded hover:bg-black/5 transition-colors" style={{ color: 'var(--text-dim)' }}>
             {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
           </button>
         ) : (
           <div className="w-[22px] shrink-0" />
         )}
 
-        {/* Status dot */}
         <button
           onClick={handleStatusToggle}
           className="shrink-0 w-3 h-3 rounded-full border-2 transition-colors"
@@ -377,17 +344,14 @@ function TreeItem({
           title="切换状态"
         />
 
-        {/* Title */}
         {isEditing ? (
           <div className="flex items-center gap-1 flex-1 min-w-0">
             <input
               value={editTitle}
               onChange={(e) => onEditTitleChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') onSaveEdit(task.id);
-                if (e.key === 'Escape') onCancelEdit();
-              }}
-              className="flex-1 text-sm font-medium px-2 py-0.5 rounded border border-primary/30 bg-white/80 text-fg outline-none"
+              onKeyDown={(e) => { if (e.key === 'Enter') onSaveEdit(task.id); if (e.key === 'Escape') onCancelEdit(); }}
+              className="flex-1 text-sm font-medium px-2 py-0.5 rounded border outline-none"
+              style={{ borderColor: 'var(--kon-main)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
               autoFocus
             />
             <button onClick={() => onSaveEdit(task.id)} className="p-1 rounded hover:bg-green-50"><Check size={14} className="text-green-500" /></button>
@@ -395,7 +359,8 @@ function TreeItem({
           </div>
         ) : (
           <span
-            className={`flex-1 text-sm text-fg cursor-pointer truncate min-w-0 ${isDone ? 'line-through opacity-50' : ''}`}
+            className="flex-1 text-sm cursor-pointer truncate min-w-0"
+            style={{ color: isDone ? 'var(--text-dim)' : 'var(--text-primary)', textDecoration: isDone ? 'line-through' : 'none', opacity: isDone ? 0.5 : 1 }}
             onClick={() => onStartEdit(task.id, task.title)}
             title={task.title}
           >
@@ -403,49 +368,36 @@ function TreeItem({
           </span>
         )}
 
-        {/* Child count badge */}
         {hasChildren && (
-          <span className="text-[11px] text-muted-fg bg-black/5 px-1.5 py-0.5 rounded-full shrink-0">
+          <span className="text-[11px] px-1.5 py-0.5 rounded-full shrink-0" style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}>
             {descendantCount}
           </span>
         )}
 
-        {/* Priority badge */}
         <span
           className="text-[10px] font-semibold w-5 h-5 rounded flex items-center justify-center shrink-0"
-          style={{ backgroundColor: priorityColors[task.priority] + '18', color: priorityColors[task.priority] }}
+          style={{ backgroundColor: `${priorityColors[task.priority]}18`, color: priorityColors[task.priority] }}
         >
           {task.priority === 'high' ? '高' : task.priority === 'medium' ? '中' : '低'}
         </span>
 
-        {/* Status badge */}
         <span
           className="text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0 hidden sm:inline"
-          style={{ backgroundColor: statusLabels[task.status].color + '18', color: statusLabels[task.status].color }}
+          style={{ backgroundColor: `${statusLabels[task.status].color}18`, color: statusLabels[task.status].color }}
         >
           {statusLabels[task.status].label}
         </span>
 
-        {/* Actions (show on hover) */}
         <div className={`flex items-center gap-0.5 shrink-0 transition-opacity ${hover ? 'opacity-100' : 'opacity-0'}`}>
-          <button
-            onClick={() => onAddSubtask(task.id)}
-            className="p-1 rounded hover:bg-blue-50 transition-colors"
-            title="添加子任务"
-          >
-            <Plus size={13} className="text-blue-500" />
+          <button onClick={() => onAddSubtask(task.id)} className="p-1 rounded hover:bg-blue-50 transition-colors" title="添加子任务">
+            <Plus size={13} style={{ color: 'var(--kon-dark)' }} />
           </button>
-          <button
-            onClick={() => onDelete(task.id, task.title)}
-            className="p-1 rounded hover:bg-red-50 transition-colors"
-            title="删除"
-          >
-            <Trash2 size={13} className="text-muted-fg hover:text-red-500" />
+          <button onClick={() => onDelete(task.id, task.title)} className="p-1 rounded hover:bg-red-50 transition-colors" title="删除">
+            <Trash2 size={13} style={{ color: 'var(--text-dim)' }} />
           </button>
         </div>
       </div>
 
-      {/* Children (recursive) */}
       {hasChildren && expanded && (
         <div>
           {children.map((child) => (
@@ -468,12 +420,8 @@ function TreeItem({
         </div>
       )}
 
-      {/* Tree connector line (when collapsed with children) */}
       {hasChildren && !expanded && (
-        <div
-          className="text-[10px] text-muted-fg/50 pl-2"
-          style={{ paddingLeft: `${12 + (depth + 1) * 24}px` }}
-        >
+        <div className="text-[10px] pl-2" style={{ color: 'var(--text-dim)', paddingLeft: `${12 + (depth + 1) * 24}px` }}>
           {descendantCount} 个子任务已折叠
         </div>
       )}

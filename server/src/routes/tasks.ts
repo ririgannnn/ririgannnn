@@ -29,7 +29,7 @@ router.post('/', async (req: Request, res: Response) => {
   `).run(id, req.user!.id, project_id || null, parent_id || null, title, description || '', status || 'todo', priority || 'medium', due_date || null, category || '', subtasksJson, focusSessionJson, now, now);
 
   const task = await db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
-  broadcastChange(req.user!.id, 'task', 'create', task);
+  broadcastChange(req.user!.id, 'tasks', 'create', task);
   res.status(201).json({ task });
 });
 
@@ -79,7 +79,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   );
 
   const task = await db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
-  broadcastChange(req.user!.id, 'task', 'update', task);
+  broadcastChange(req.user!.id, 'tasks', 'update', task);
   res.json({ task });
 });
 
@@ -109,7 +109,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   // Soft delete the task itself
   await db.prepare('UPDATE tasks SET deleted_at = ?, updated_at = ? WHERE id = ?').run(now, now, req.params.id);
 
-  broadcastChange(req.user!.id, 'task', 'delete', { id: req.params.id });
+  broadcastChange(req.user!.id, 'tasks', 'delete', { id: req.params.id });
   res.json({ success: true });
 });
 
@@ -132,7 +132,7 @@ router.post('/batch-move', async (req: Request, res: Response) => {
   for (const taskId of taskIds) {
     const task = await db.prepare('SELECT * FROM tasks WHERE id = ?').get(taskId);
     if (task) {
-      broadcastChange(req.user!.id, 'task', 'update', task);
+      broadcastChange(req.user!.id, 'tasks', 'update', task);
     }
   }
 

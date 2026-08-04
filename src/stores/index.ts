@@ -161,7 +161,7 @@ export const useStore = create<AppState>()(
           api.createTask(apiPayload).catch(() => {
             syncEngine.addToQueue({
               id: uid(), entity: 'tasks', action: 'create',
-              entityId: newId, data: newTask, timestamp: now,
+              entityId: newId, data: apiPayload, timestamp: now,
             });
           });
         }
@@ -185,7 +185,7 @@ export const useStore = create<AppState>()(
           api.updateTask(id, apiPayload).catch(() => {
             syncEngine.addToQueue({
               id: uid(), entity: 'tasks', action: 'update',
-              entityId: id, data: { ...partial, updated_at: now }, timestamp: now,
+              entityId: id, data: apiPayload, timestamp: now,
             });
           });
         }
@@ -374,10 +374,16 @@ export const useStore = create<AppState>()(
         set((s) => ({ events: [...s.events, mergedEvent] }));
 
         if (syncInitialized) {
-          api.createEvent(mergedEvent as unknown as Record<string, unknown>).catch(() => {
+          const eventPayload: Record<string, unknown> = {
+            ...mergedEvent,
+            start_time: mergedEvent.startDate,
+            end_time: mergedEvent.endDate,
+            all_day: mergedEvent.allDay,
+          };
+          api.createEvent(eventPayload).catch(() => {
             syncEngine.addToQueue({
               id: uid(), entity: 'events', action: 'create',
-              entityId: mergedEvent.id, data: mergedEvent, timestamp: now,
+              entityId: mergedEvent.id, data: eventPayload, timestamp: now,
             });
           });
         }
@@ -390,10 +396,14 @@ export const useStore = create<AppState>()(
         }));
 
         if (syncInitialized) {
-          api.updateEvent(id, partial as Record<string, unknown>).catch(() => {
+          const eventPayload: Record<string, unknown> = { ...partial };
+          if (partial.startDate !== undefined) eventPayload.start_time = partial.startDate;
+          if (partial.endDate !== undefined) eventPayload.end_time = partial.endDate;
+          if (partial.allDay !== undefined) eventPayload.all_day = partial.allDay;
+          api.updateEvent(id, eventPayload).catch(() => {
             syncEngine.addToQueue({
               id: uid(), entity: 'events', action: 'update',
-              entityId: id, data: partial, timestamp: new Date().toISOString(),
+              entityId: id, data: eventPayload, timestamp: new Date().toISOString(),
             });
           });
         }
@@ -625,10 +635,16 @@ export const useStore = create<AppState>()(
         set((s) => ({ projects: [...s.projects, newProject] }));
 
         if (syncInitialized) {
-          api.createProject(newProject as unknown as Record<string, unknown>).catch(() => {
+          const projectPayload: Record<string, unknown> = {
+            ...newProject,
+            start_date: newProject.startDate,
+            end_date: newProject.endDate,
+            cover_color: newProject.coverColor,
+          };
+          api.createProject(projectPayload).catch(() => {
             syncEngine.addToQueue({
               id: uid(), entity: 'projects', action: 'create',
-              entityId: newId, data: newProject, timestamp: now,
+              entityId: newId, data: projectPayload, timestamp: now,
             });
           });
         }
@@ -642,10 +658,14 @@ export const useStore = create<AppState>()(
         }));
 
         if (syncInitialized) {
-          api.updateProject(id, { ...partial, updated_at: now } as Record<string, unknown>).catch(() => {
+          const projectPayload: Record<string, unknown> = { ...partial, updated_at: now };
+          if (partial.startDate !== undefined) projectPayload.start_date = partial.startDate;
+          if (partial.endDate !== undefined) projectPayload.end_date = partial.endDate;
+          if (partial.coverColor !== undefined) projectPayload.cover_color = partial.coverColor;
+          api.updateProject(id, projectPayload).catch(() => {
             syncEngine.addToQueue({
               id: uid(), entity: 'projects', action: 'update',
-              entityId: id, data: { ...partial, updated_at: now }, timestamp: now,
+              entityId: id, data: projectPayload, timestamp: now,
             });
           });
         }

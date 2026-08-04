@@ -33,40 +33,48 @@ export default function InspirationView() {
     }
   };
 
+  const inputStyle: React.CSSProperties = {
+    border: '1px solid var(--line)',
+    background: 'var(--bg-deep)',
+    color: 'var(--text-primary)',
+    outline: 'none',
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-fg">灵感数据库</h1>
+        <h1 className="text-2xl font-bold font-serif-cn text-fg">灵感数据库</h1>
         <button onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-fg text-sm font-medium hover:opacity-90">
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition-all"
+          style={{ background: 'linear-gradient(135deg, var(--accent-dust), var(--accent-dust))' }}
+        >
           <Sparkles size={16} /> 记录灵感
         </button>
       </div>
 
-      <p className="text-sm text-muted-fg">快速捕捉转瞬即逝的想法，按标签归类，构建你的创意素材库。</p>
+      <p className="text-sm" style={{ color: 'var(--text-dim)' }}>快速捕捉转瞬即逝的想法，按标签归类，构建你的创意素材库。</p>
 
-      {/* Inspiration Grid */}
       {inspirations.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-muted-fg">
-          <Lightbulb size={48} className="mb-4 opacity-20" />
-          <p className="text-sm">还没有灵感记录</p>
-          <p className="text-xs mt-1">点击右上角按钮，捕捉你的第一个灵感</p>
+        <div className="flex flex-col items-center justify-center py-20">
+          <Lightbulb size={48} className="mb-4 opacity-20" style={{ color: 'var(--text-dim)' }} />
+          <p className="text-sm" style={{ color: 'var(--text-dim)' }}>还没有灵感记录</p>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-dim)' }}>点击右上角按钮，捕捉你的第一个灵感</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {inspirations.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((insp) => (
             <div
               key={insp.id}
-              className="rounded-xl border p-4 shadow-sm hover:shadow-md transition-all group relative"
-              style={{ backgroundColor: insp.color + '10', borderColor: insp.color + '30' }}
+              className="card-surface border p-4 group relative"
+              style={{ borderColor: `${insp.color}30` }}
             >
               <button
                 onClick={() => deleteInspiration(insp.id)}
                 className="absolute top-2 right-2 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/50"
               >
-                <Trash2 size={13} className="text-muted-fg" />
+                <Trash2 size={13} style={{ color: 'var(--text-dim)' }} />
               </button>
-              <p className="text-sm text-fg leading-relaxed whitespace-pre-wrap">{insp.content}</p>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: 'var(--text-primary)' }}>{insp.content}</p>
               {Array.isArray(insp.images) && insp.images.length > 0 && (
                 <div className="grid grid-cols-2 gap-1.5 mt-2">
                   {insp.images.slice(0, 4).map((img, i) => (
@@ -81,12 +89,12 @@ export default function InspirationView() {
               )}
               <div className="flex flex-wrap gap-1 mt-2">
                 {(Array.isArray(insp.tags) ? insp.tags : []).map((t) => (
-                  <span key={t} className="text-xs px-1.5 py-0.5 rounded-full border" style={{ borderColor: insp.color + '40', color: insp.color }}>
+                  <span key={t} className="text-xs px-1.5 py-0.5 rounded-full border" style={{ borderColor: `${insp.color}40`, color: insp.color }}>
                     {t}
                   </span>
                 ))}
               </div>
-              <p className="text-xs text-muted-fg mt-2">{format(new Date(insp.createdAt), 'yyyy-MM-dd HH:mm')}</p>
+              <p className="text-xs mt-2" style={{ color: 'var(--text-dim)' }}>{format(new Date(insp.createdAt), 'yyyy-MM-dd HH:mm')}</p>
             </div>
           ))}
         </div>
@@ -94,24 +102,25 @@ export default function InspirationView() {
 
       {/* Add Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
-          <div className="rounded-2xl border border-black/5 shadow-xl p-6 w-full max-w-lg animate-scale-in" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)' }} onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.3)' }} onClick={() => setShowForm(false)}>
+          <div className="card-surface rounded-2xl p-6 w-full max-w-lg animate-scale-in" style={{ boxShadow: 'var(--shadow-xl)' }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-fg flex items-center gap-2">
+              <h2 className="text-lg font-bold font-serif-cn text-fg flex items-center gap-2">
                 <Sparkles size={18} style={{ color }} /> 记录灵感
               </h2>
-              <button onClick={() => setShowForm(false)} className="p-1 rounded hover:bg-muted"><X size={18} className="text-muted-fg" /></button>
+              <button onClick={() => setShowForm(false)} className="p-1 rounded hover:bg-black/5"><X size={18} style={{ color: 'var(--text-dim)' }} /></button>
             </div>
 
             <textarea
               placeholder="写下你的灵感..." value={content} onChange={(e) => setContent(e.target.value)}
-              className="w-full px-3 py-3 text-sm rounded-lg border bg-muted/50 text-fg outline-none focus:ring-2 focus:ring-primary/30 min-h-[120px] resize-none mb-3"
-              autoFocus
+              className="w-full px-3 py-3 text-sm rounded-lg min-h-[120px] resize-none mb-3"
+              style={inputStyle} autoFocus
             />
 
             <input
               type="text" placeholder="来源（可选）" value={source} onChange={(e) => setSource(e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-lg border bg-muted/50 text-fg outline-none mb-3"
+              className="w-full px-3 py-2 text-sm rounded-lg mb-3"
+              style={inputStyle}
             />
 
             <div className="flex gap-2 mb-3">
@@ -119,17 +128,19 @@ export default function InspirationView() {
                 type="text" placeholder="添加标签" value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag(); } }}
-                className="flex-1 px-3 py-2 text-sm rounded-lg border bg-muted/50 text-fg outline-none"
+                className="flex-1 px-3 py-2 text-sm rounded-lg"
+                style={inputStyle}
               />
               <button onClick={handleAddTag}
-                className="px-3 py-2 text-sm rounded-lg bg-muted text-muted-fg hover:bg-border transition-colors">
+                className="px-3 py-2 text-sm rounded-lg transition-colors"
+                style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}>
                 添加
               </button>
             </div>
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mb-3">
                 {tags.map((t) => (
-                  <span key={t} className="text-xs px-2 py-1 rounded-full bg-muted text-fg flex items-center gap-1">
+                  <span key={t} className="text-xs px-2 py-1 rounded-full flex items-center gap-1" style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)' }}>
                     {t}
                     <button onClick={() => setTags(tags.filter((tg) => tg !== t))}><X size={11} /></button>
                   </span>
@@ -141,7 +152,7 @@ export default function InspirationView() {
               {cardColors.map((c) => (
                 <button key={c} onClick={() => setColor(c)}
                   className="w-6 h-6 rounded-full border-2 transition-all"
-                  style={{ backgroundColor: c, borderColor: color === c ? 'hsl(var(--foreground))' : 'transparent' }} />
+                  style={{ backgroundColor: c, borderColor: color === c ? 'var(--text-primary)' : 'transparent' }} />
               ))}
             </div>
 
@@ -151,9 +162,9 @@ export default function InspirationView() {
 
             <div className="flex gap-2 justify-end">
               <button onClick={() => setShowForm(false)}
-                className="px-4 py-2 text-sm rounded-lg bg-muted text-muted-fg hover:bg-border">取消</button>
+                className="px-4 py-2 text-sm rounded-lg transition-colors" style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}>取消</button>
               <button onClick={handleAdd}
-                className="px-4 py-2 text-sm rounded-lg bg-primary text-primary-fg hover:opacity-90">保存灵感</button>
+                className="px-4 py-2 text-sm rounded-lg text-white font-medium" style={{ background: 'var(--kon-dark)' }}>保存灵感</button>
             </div>
           </div>
         </div>

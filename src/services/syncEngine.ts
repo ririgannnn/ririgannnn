@@ -112,6 +112,13 @@ class SyncEngine {
 
   async addToQueue(change: QueuedChange): Promise<void> {
     await this.dbPut(QUEUE_STORE, change);
+    // Also persist entity data to entity store for offline resilience
+    // So even without server sync, data survives page refreshes
+    if (change.action === 'delete') {
+      await this.dbDelete(change.entity, change.entityId);
+    } else if (change.data && (STORES as readonly string[]).includes(change.entity)) {
+      await this.dbPut(change.entity, change.data);
+    }
   }
 
   async getQueue(): Promise<QueuedChange[]> {
@@ -348,14 +355,18 @@ class SyncEngine {
   async start(token: string) {
     this.wsReconnectCount = 0; // Reset reconnection counter on new start
     await this.initCache();
-    this.connectWebSocket(token);
 
-    // Pull initial data
-    await this.pullFromServer();
+    const isOffline = api.getOfflineMode();
+
+    if (!isOffline) {
+      this.connectWebSocket(token);
+      // Pull initial data
+      await this.pullFromServer();
+    }
 
     // Periodic sync (every 30 seconds)
     this.syncInterval = setInterval(() => {
-      if (this.isOnline) {
+      if (this.isOnline && !api.getOfflineMode()) {
         this.fullSync();
       }
     }, 30000);

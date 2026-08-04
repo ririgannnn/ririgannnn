@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全功能界面预览 — 空气感杂志风 · 柔和立体 · 微动效</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c-bg:#f8f7f4;
+  --c-bg-deep:#f0eeea;
+  --c-surface:#fdfcfb;
+  --c-surface-hover:#faf8f5;
+  --c-text:#1c1c1a;
+  --c-text-mid:#5c5b55;
+  --c-text-dim:#9c9b93;
+  --c-line:rgba(0,0,0,0.05);
+  --c-line-strong:rgba(0,0,0,0.08);
+  --c-kon-main:#99a7bc;
+  --c-kon-dark:#7d8ba2;
+  --c-kon-deeper:#6a7a93;
+  --c-soft-rust:#d86b42;
+  --c-soft-teal:#5a9a8a;
+  --c-soft-warm:#c09a7a;
+  --c-soft-dust:#b8979d;
+  --c-soft-indigo:#5a6d8a;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;--radius-xl:22px;
+  --shadow-xs:0 1px 2px rgba(0,0,0,0.02);
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.03),0 1px 2px rgba(0,0,0,0.02);
+  --shadow-md:0 3px 10px rgba(0,0,0,0.04),0 1px 3px rgba(0,0,0,0.03);
+  --shadow-lg:0 6px 20px rgba(0,0,0,0.05),0 2px 6px rgba(0,0,0,0.03);
+  --shadow-xl:0 12px 32px rgba(0,0,0,0.06),0 3px 10px rgba(0,0,0,0.04);
+  --ease-smooth:cubic-bezier(0.4,0,0.2,1);
+  --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+  --font-sans:'Inter',-apple-system,sans-serif;
+  --font-serif:'Noto Serif SC','Songti SC',serif;
+  --font-mono:'SF Mono','Consolas',monospace;
+}
+body{
+  font-family:var(--font-sans);
+  background:linear-gradient(180deg,var(--c-bg) 0%,var(--c-bg-deep) 100%);
+  color:var(--c-text);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.65;
+  position:relative;
+  min-height:100vh;
+}
+
+/* ════════════════ TOP NAV ════════════════ */
+.nav-bar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(248,247,244,0.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--c-line);
+  padding:0 24px;
+}
+.nav-inner{
+  max-width:1100px;margin:0 auto;
+  display:flex;align-items:center;gap:4px;
+  overflow-x:auto;
+}
+.nav-brand{
+  font-family:var(--font-serif);
+  font-size:15px;font-weight:500;color:var(--c-kon-dark);
+  margin-right:24px;white-space:nowrap;
+  letter-spacing:0.04em;
+}
+.nav-tab{
+  padding:14px 18px;font-size:13px;font-weight:500;
+  color:var(--c-text-dim);cursor:pointer;white-space:nowrap;
+  border-bottom:2px solid transparent;
+  transition:all 0.25s var(--ease-smooth);
+  background:none;border-top:none;border-left:none;border-right:none;
+  font-family:var(--font-sans);
+}
+.nav-tab:hover{color:var(--c-text-mid)}
+.nav-tab.active{
+  color:var(--c-kon-deeper);
+  border-bottom-color:var(--c-kon-main);
+}
+@media(max-width:768px){
+  .nav-brand{font-size:13px;margin-right:12px}
+  .nav-tab{padding:12px 10px;font-size:11px}
+}
+
+/* ════════════════ SHARED ════════════════ */
+.page-section{display:none}
+.page-section.active{display:block}
+.page-inner{max-width:1100px;margin:0 auto;padding:48px 36px 80px}
+.ambient{
+  position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;
+}
+.ambient .shape{
+  position:absolute;border-radius:50%;
+}
+.ambient .s1{width:500px;height:500px;border:1px solid var(--c-kon-main);opacity:0.04;top:-8%;right:-10%;animation:drift 22s ease-in-out infinite}
+.ambient .s2{width:360px;height:360px;background:var(--c-soft-warm);opacity:0.03;bottom:-10%;left:-6%;animation:drift 26s ease-in-out infinite reverse}
+.ambient .s3{width:260px;height:260px;background:var(--c-soft-indigo);opacity:0.03;top:55%;right:-8%;animation:drift 30s ease-in-out infinite 5s}
+@keyframes drift{0%,100%{transform:translate(0,0) rotate(0deg)}33%{transform:translate(40px,-30px) rotate(5deg)}66%{transform:translate(-25px,20px) rotate(-3deg)}}
+
+.fade-in{animation:fadeUp 0.5s var(--ease-smooth) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.sec-title{
+  font-family:var(--font-serif);
+  font-size:26px;font-weight:400;color:var(--c-text);
+  margin-bottom:8px;letter-spacing:-0.01em;
+}
+.sec-desc{
+  font-size:13px;color:var(--c-text-dim);margin-bottom:32px;
+  max-width:520px;line-height:1.7;
+}
+
+/* ════════════════ CARD BASE ════════════════ */
+.card{
+  background:var(--c-surface);border-radius:var(--radius-lg);
+  border:1px solid var(--c-line);box-shadow:var(--shadow-sm);
+  transition:all 0.3s var(--ease-smooth);
+}
+.card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+
+/* ════════════════ BADGES ════════════════ */
+.badge{
+  display:inline-block;padding:2px 10px;border-radius:99px;
+  font-size:12px;font-weight:500;letter-spacing:0.02em;
+}
+.badge-p0{background:rgba(184,151,157,0.15);color:var(--c-soft-dust)}
+.badge-p1{background:rgba(192,154,122,0.15);color:var(--c-soft-warm)}
+.badge-p2{background:rgba(0,0,0,0.04);color:var(--c-text-dim)}
+.badge-kon{background:rgba(153,167,188,0.15);color:var(--c-kon-deeper)}
+.badge-teal{background:rgba(90,154,138,0.15);color:var(--c-soft-teal)}
+
+/* ════════════════ BUTTONS ════════════════ */
+.btn{
+  padding:9px 24px;border-radius:99px;font-size:13px;font-weight:500;
+  cursor:pointer;border:none;transition:all 0.3s var(--ease-smooth);
+  font-family:var(--font-sans);
+}
+.btn-primary{background:var(--c-soft-rust);color:#fff;box-shadow:0 2px 8px rgba(216,107,66,0.22)}
+.btn-primary:hover{background:#c45e36;box-shadow:0 4px 16px rgba(216,107,66,0.32);transform:translateY(-1px)}
+.btn-outline{background:var(--c-surface);color:var(--c-text-mid);border:1px solid var(--c-line)}
+.btn-outline:hover{background:var(--c-surface-hover);border-color:var(--c-line-strong)}
+.btn-ghost{background:transparent;color:var(--c-text-dim);padding:6px 12px;font-size:12px}
+.btn-ghost:hover{color:var(--c-text-mid);background:rgba(0,0,0,0.02)}
+
+/* ════════════════ GRID ════════════════ */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+@media(max-width:768px){.grid-2,.grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+/* ════════════════ 1. 仪表盘 DASHBOARD ════════════════ */
+.dash-hero{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:36px;margin-bottom:48px;
+}
+.dash-hero-left{flex:1}
+.dash-hero .wave{
+  font-family:var(--font-serif);font-size:clamp(22px,3.5vw,32px);
+  font-weight:300;color:var(--c-text-mid);margin-bottom:6px;
+}
+.dash-hero .name{
+  font-family:var(--font-serif);font-size:clamp(40px,5.5vw,60px);
+  font-weight:300;color:var(--c-kon-deeper);line-height:1.1;
+  margin-bottom:4px;
+}
+.dash-hero .date{
+  font-family:var(--font-serif);font-size:14px;color:var(--c-text-dim);
+  margin-bottom:12px;
+}
+.dash-hero .date .wd{display:inline-block;margin-left:6px;padding:1px 9px;border-radius:99px;background:var(--c-kon-main);color:#fff;font-size:12px}
+.dash-hero .summary{font-size:13px;color:var(--c-text-dim)}
+.dash-hero .summary em{font-style:normal;font-weight:500;color:var(--c-text-mid)}
+.dash-hero-right{display:flex;flex-direction:column;align-items:center;gap:12px;flex-shrink:0}
+.dash-avatar{
+  width:72px;height:72px;border-radius:50%;
+  overflow:hidden;
+  box-shadow:0 2px 12px rgba(153,167,188,0.2);
+  transition:all 0.4s var(--ease-smooth);
+}
+.dash-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.dash-avatar:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(153,167,188,0.3)}
+.dash-art{width:200px;height:200px;position:relative;opacity:0.7}
+@media(max-width:768px){.dash-hero{flex-direction:column;gap:20px}.dash-art{width:140px;height:140px}}
+
+/* Stats row */
+.dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:48px}
+.dash-stat{}
+.dash-stat-num{font-family:var(--font-serif);font-size:52px;font-weight:300;line-height:1;margin-bottom:4px}
+.dash-stat-num small{font-size:20px;color:var(--c-text-dim)}
+.dash-stat-label{font-size:14px;color:var(--c-text-mid);font-weight:500}
+.dash-stat-trend{font-size:12px;color:var(--c-kon-dark);margin-top:4px}
+
+/* Widget grid */
+.dash-widgets{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.dash-widget{padding:24px 28px}
+.widget-head{font-family:var(--font-serif);font-size:17px;font-weight:400;margin-bottom:16px;letter-spacing:-0.01em}
+.dash-quote{
+  font-family:var(--font-serif);font-size:16px;color:var(--c-text-mid);
+  line-height:1.8;font-style:italic;padding:32px;text-align:center;
+}
+.dash-quote .attr{display:block;font-size:12px;color:var(--c-text-dim);margin-top:10px;font-style:normal}
+
+/* ════════════════ 2. 任务看板 TASK ════════════════ */
+.task-kanban{display:flex;gap:16px}
+.task-col{flex:1;min-width:0;padding:20px;border-radius:3px;transition:all 0.3s var(--ease-smooth)}
+.task-col:nth-child(2){box-shadow:var(--shadow-md)}
+.task-col .col-head{
+  font-size:16px;font-weight:600;margin-bottom:16px;padding-bottom:12px;
+  border-bottom:1px solid var(--c-line);
+  display:flex;align-items:center;gap:8px;
+}
+.task-col .col-head .dot{width:8px;height:8px;border-radius:2px}
+.task-col .col-head .count{color:var(--c-text-dim);font-weight:400;margin-left:auto;font-size:14px}
+.task-item{
+  padding:14px 0;border-bottom:1px solid rgba(0,0,0,0.03);
+  cursor:pointer;transition:all 0.25s ease;
+}
+.task-item:last-child{border-bottom:none}
+.task-item:hover{padding-left:6px}
+.task-item:hover .task-item-title{color:var(--c-kon-dark)}
+.task-item-title{font-size:15px;font-weight:500;transition:color 0.25s ease;line-height:1.4;margin-bottom:4px}
+.task-item-meta{display:flex;align-items:center;gap:8px;font-size:12px}
+.task-item-date{color:var(--c-text-dim);margin-left:auto}
+.task-item.done{opacity:0.45}.task-item.done .task-item-title{text-decoration:line-through}
+.task-progress{height:2px;background:rgba(0,0,0,0.04);margin-top:6px;border-radius:1px;overflow:hidden}
+.task-progress-bar{height:100%;border-radius:1px;transition:width 0.6s var(--ease-smooth)}
+@media(max-width:768px){.task-kanban{flex-direction:column}}
+
+/* ════════════════ 3. 项目 PROJECTS ════════════════ */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+.proj-card{padding:0;overflow:hidden}
+.proj-card-top{height:6px}
+.proj-card-body{padding:24px 22px}
+.proj-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px;color:#fff;font-weight:600}
+.proj-name{font-family:var(--font-serif);font-size:18px;font-weight:400;margin-bottom:6px}
+.proj-desc{font-size:13px;color:var(--c-text-dim);margin-bottom:16px;line-height:1.6}
+.proj-progress{display:flex;align-items:center;gap:10px}
+.proj-progress-bar{flex:1;height:4px;background:rgba(0,0,0,0.05);border-radius:2px;overflow:hidden}
+.proj-progress-fill{height:100%;border-radius:2px;transition:width 0.6s var(--ease-smooth)}
+.proj-progress-val{font-size:12px;color:var(--c-text-dim);white-space:nowrap}
+.proj-meta{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:12px;color:var(--c-text-dim)}
+
+/* ════════════════ 4. 笔记 NOTES ════════════════ */
+.notes-layout{display:grid;grid-template-columns:220px 280px 1fr;gap:0;min-height:520px}
+.notes-layout>*{padding:24px}
+.notes-sidebar{border-right:1px solid var(--c-line);background:var(--c-bg);border-radius:var(--radius-lg) 0 0 var(--radius-lg)}
+.notes-list{background:var(--c-bg);overflow-y:auto}
+.notes-detail{background:var(--c-surface);border-radius:0 var(--radius-lg) var(--radius-lg) 0}
+.notes-sidebar-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--c-text-dim);margin-bottom:16px}
+.note-folder{padding:8px 12px;border-radius:6px;font-size:13px;cursor:pointer;transition:all 0.2s ease;color:var(--c-text-mid);margin-bottom:2px}
+.note-folder:hover{background:rgba(0,0,0,0.03)}
+.note-folder.active{background:rgba(153,167,188,0.12);color:var(--c-kon-deeper);font-weight:500}
+/* ── 笔记列表：独立圆角卡片 ── */
+.note-list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.note-list-header .notes-sidebar-title{margin-bottom:0}
+.note-item{
+  padding:16px 18px;border-radius:var(--radius-md);
+  background:var(--c-surface);border:1px solid var(--c-line);
+  box-shadow:var(--shadow-xs);cursor:pointer;
+  transition:all 0.25s var(--ease-smooth);
+  margin-bottom:10px;
+  position:relative;
+}
+.note-item:hover{
+  box-shadow:var(--shadow-md);transform:translateY(-1px);
+  border-color:rgba(153,167,188,0.25);
+}
+.note-item.active{
+  border-color:var(--c-kon-main);
+  box-shadow:0 2px 12px rgba(153,167,188,0.12);
+  background:linear-gradient(135deg,var(--c-surface) 0%,rgba(153,167,188,0.04) 100%);
+}
+.note-item-title{font-size:14px;font-weight:500;margin-bottom:4px;color:var(--c-text);transition:color 0.2s ease}
+.note-item:hover .note-item-title{color:var(--c-kon-deeper)}
+.note-item-meta{font-size:12px;color:var(--c-text-dim);display:flex;align-items:center;gap:8px}
+.note-item-badge{
+  font-size:10px;font-weight:600;padding:1px 7px;border-radius:99px;
+  letter-spacing:0.02em;
+}
+.note-detail-title{font-family:var(--font-serif);font-size:24px;font-weight:400;margin-bottom:8px}
+.note-detail-date{font-size:12px;color:var(--c-text-dim);margin-bottom:24px}
+.note-detail-body{font-family:var(--font-serif);font-size:17px;line-height:2;color:var(--c-text-mid)}
+@media(max-width:860px){.notes-layout{grid-template-columns:1fr}.notes-sidebar{display:none}.notes-list{display:block;border-radius:var(--radius-lg)}}
+
+/* ════════════════ 5. 日历 CALENDAR ════════════════ */
+.cal-header{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.cal-month{font-family:var(--font-serif);font-size:24px;font-weight:400}
+.cal-nav{width:36px;height:36px;border-radius:50%;border:1px solid var(--c-line);background:var(--c-surface);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all 0.2s ease;color:var(--c-text-dim)}
+.cal-nav:hover{background:var(--c-surface-hover);color:var(--c-text)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-dow{font-size:11px;color:var(--c-text-dim);text-align:center;padding:10px 0;font-weight:600;letter-spacing:0.04em;text-transform:uppercase}
+.cal-day{aspect-ratio:1;padding:6px;background:var(--c-surface);border:1px solid var(--c-line);border-radius:2px;transition:all 0.2s ease;cursor:pointer;font-size:12px;display:flex;flex-direction:column}
+.cal-day:hover{box-shadow:var(--shadow-sm)}
+.cal-day.today{background:var(--c-kon-main);color:#fff;border-color:var(--c-kon-main)}
+.cal-day.other{background:transparent;border-color:transparent;color:var(--c-text-dim)}
+.cal-day .num{font-weight:500;margin-bottom:2px}
+.cal-day .events{flex:1;display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.cal-event-dot{height:4px;border-radius:2px;opacity:0.7}
+.cal-today-panel{background:var(--c-surface);border-radius:var(--radius-lg);border:1px solid var(--c-line);padding:24px;margin-top:24px}
+.cal-today-title{font-family:var(--font-serif);font-size:17px;margin-bottom:16px}
+.cal-today-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.03)}
+.cal-today-item:last-child{border:none}
+.cal-today-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.cal-today-time{font-size:12px;color:var(--c-text-dim);width:50px}
+.cal-today-text{font-size:14px;flex:1}
+
+/* ════════════════ 6. 知识库 KNOWLEDGE ════════════════ */
+.kb-layout{display:grid;grid-template-columns:220px 1fr;gap:0;min-height:500px}
+.kb-sidebar{padding:24px;border-right:1px solid var(--c-line);background:var(--c-surface);border-radius:var(--radius-lg) 0 0 var(--radius-lg)}
+.kb-main{padding:28px;background:var(--c-surface);border-radius:0 var(--radius-lg) var(--radius-lg) 0}
+.kb-sidebar-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--c-text-dim);margin-bottom:16px}
+.kb-cat{padding:8px 12px;border-radius:6px;font-size:13px;cursor:pointer;transition:all 0.2s ease;color:var(--c-text-mid);margin-bottom:2px}
+.kb-cat:hover{background:rgba(0,0,0,0.03)}
+.kb-cat.active{background:rgba(153,167,188,0.12);color:var(--c-kon-deeper);font-weight:500}
+.kb-search{
+  width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--c-line);
+  font-size:13px;background:var(--c-bg);margin-bottom:20px;font-family:var(--font-sans);
+  transition:all 0.2s ease;
+}
+.kb-search:focus{outline:none;border-color:var(--c-kon-main);box-shadow:0 0 0 3px rgba(153,167,188,0.1)}
+.kb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+.kb-card{padding:0;overflow:hidden;cursor:pointer}
+.kb-card-img{width:100%;height:120px;object-fit:cover;background:linear-gradient(135deg,var(--c-kon-main),var(--c-kon-dark));opacity:0.3}
+.kb-card-body{padding:18px 20px}
+.kb-card-title{font-family:var(--font-serif);font-size:16px;font-weight:400;margin-bottom:4px}
+.kb-card-desc{font-size:12px;color:var(--c-text-dim);line-height:1.6;margin-bottom:10px}
+.kb-card-tags{display:flex;gap:4px;flex-wrap:wrap}
+
+/* ════════════════ 7. 专注 TIMER ════════════════ */
+.timer-full{display:grid;grid-template-columns:1fr 320px;gap:36px}
+.timer-main{text-align:center;padding:40px 0}
+.timer-ring-lg{
+  width:220px;height:220px;border-radius:50%;
+  margin:0 auto 28px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.timer-ring-lg .track{
+  position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(var(--c-soft-rust) 0deg 220deg,transparent 220deg 360deg);
+  -webkit-mask:radial-gradient(transparent 66%,#000 67%);
+  mask:radial-gradient(transparent 66%,#000 67%);
+  opacity:0.55;
+}
+.timer-ring-lg .inner-ring{
+  position:absolute;inset:8px;border-radius:50%;
+  border:1px solid rgba(0,0,0,0.04);
+}
+.timer-time-lg{
+  position:relative;z-index:1;
+  font-family:var(--font-serif);
+  font-size:56px;font-weight:300;color:var(--c-text);
+  letter-spacing:-0.02em;
+}
+.timer-session-label{font-size:16px;color:var(--c-text-dim);margin-bottom:24px}
+.timer-controls{display:flex;align-items:center;justify-content:center;gap:12px}
+.timer-btn-lg{
+  padding:12px 36px;border-radius:99px;font-size:15px;font-weight:500;
+  cursor:pointer;border:none;transition:all 0.3s var(--ease-smooth);
+  font-family:var(--font-sans);
+}
+.timer-btn-start{background:var(--c-soft-rust);color:#fff;box-shadow:0 2px 12px rgba(216,107,66,0.25)}
+.timer-btn-start:hover{background:#c45e36;transform:translateY(-1px);box-shadow:0 4px 20px rgba(216,107,66,0.35)}
+.timer-btn-stop{background:var(--c-surface);color:var(--c-text-mid);border:1px solid var(--c-line)}
+.timer-btn-stop:hover{background:var(--c-surface-hover)}
+
+.timer-history{padding:28px}
+.timer-history-title{font-family:var(--font-serif);font-size:17px;margin-bottom:20px}
+.timer-session{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.03);
+  transition:all 0.2s ease;cursor:default;
+}
+.timer-session:hover{background:rgba(0,0,0,0.01);margin:0 -12px;padding-left:12px;padding-right:12px;border-radius:6px}
+.timer-session:last-child{border:none}
+.timer-session-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.timer-session-info{flex:1}
+.timer-session-info .dur{font-family:var(--font-mono);font-size:15px;font-weight:500}
+.timer-session-info .time-range{font-size:11px;color:var(--c-text-dim);margin-top:2px}
+.timer-session-status{font-size:12px;color:var(--c-text-dim)}
+@media(max-width:768px){.timer-full{grid-template-columns:1fr}}
+
+/* ════════════════ 8. 灵感 INSPIRATION ════════════════ */
+.inspo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+.inspo-card{padding:28px 24px;position:relative;overflow:hidden;min-height:180px}
+.inspo-card:nth-child(5n+1){border-left:3px solid var(--c-kon-main)}
+.inspo-card:nth-child(5n+2){border-left:3px solid var(--c-soft-rust)}
+.inspo-card:nth-child(5n+3){border-left:3px solid var(--c-soft-teal)}
+.inspo-card:nth-child(5n+4){border-left:3px solid var(--c-soft-warm)}
+.inspo-card:nth-child(5n+5){border-left:3px solid var(--c-soft-indigo)}
+.inspo-text{font-family:var(--font-serif);font-size:15px;line-height:1.8;color:var(--c-text-mid);margin-bottom:16px;min-height:60px}
+.inspo-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.inspo-source{font-size:11px;color:var(--c-text-dim)}
+.inspo-tag{font-size:10px;padding:1px 8px;border-radius:99px;border:1px solid var(--c-line);color:var(--c-text-dim)}
+.inspo-add{
+  background:var(--c-surface);border:2px dashed var(--c-line);
+  border-radius:var(--radius-lg);display:flex;
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;cursor:pointer;transition:all 0.3s ease;min-height:180px;
+}
+.inspo-add:hover{border-color:var(--c-kon-main);background:var(--c-surface-hover)}
+.inspo-add-icon{font-size:28px;color:var(--c-text-dim)}
+.inspo-add-text{font-size:12px;color:var(--c-text-dim)}
+
+/* ════════════════ 9. 数据分析 DATA ════════════════ */
+.data-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:32px}
+.data-stat{padding:24px}
+.data-stat-num{font-family:var(--font-serif);font-size:44px;font-weight:300;line-height:1}
+.data-stat-label{font-size:13px;color:var(--c-text-dim);margin-top:6px}
+.data-stat-trend{font-size:12px;margin-top:4px}
+.trend-up{color:var(--c-soft-teal)}.trend-down{color:var(--c-soft-rust)}
+.data-charts{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.chart-card{min-height:280px;padding:24px}
+.chart-title{font-family:var(--font-serif);font-size:16px;margin-bottom:16px}
+/* Mini bar chart */
+.mini-bar{display:flex;align-items:flex-end;gap:8px;height:160px;padding-top:20px}
+.mini-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px}
+.mini-bar-fill{border-radius:4px 4px 0 0;width:100%;transition:all 0.5s var(--ease-smooth)}
+.mini-bar-label{font-size:10px;color:var(--c-text-dim)}
+/* Mini donut */
+.donut-mini{width:140px;height:140px;border-radius:50%;margin:20px auto;position:relative}
+.donut-mini .label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut-mini .label .val{font-family:var(--font-serif);font-size:24px;font-weight:400}
+.donut-mini .label .tag{font-size:11px;color:var(--c-text-dim)}
+.data-legend{display:flex;gap:16px;justify-content:center;margin-top:16px}
+.data-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--c-text-dim)}
+.data-legend-dot{width:8px;height:8px;border-radius:2px}
+@media(max-width:768px){.data-charts{grid-template-columns:1fr}}
+
+/* ════════════════ 10. 项目详情 PROJECT DETAIL ════════════════ */
+.pd-header{display:flex;align-items:flex-start;gap:28px;margin-bottom:36px}
+.pd-ring{width:120px;height:120px;border-radius:50%;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center}
+.pd-ring svg{transform:rotate(-90deg)}
+.pd-ring .percent{
+  position:absolute;font-family:var(--font-serif);
+  font-size:28px;font-weight:300;
+}
+.pd-info{flex:1}
+.pd-name{font-family:var(--font-serif);font-size:28px;font-weight:400;margin-bottom:6px}
+.pd-meta{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.pd-desc{font-size:14px;color:var(--c-text-dim);line-height:1.7;max-width:480px}
+.pd-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px}
+.pd-stat{padding:20px;text-align:center}
+.pd-stat-num{font-family:var(--font-serif);font-size:32px;font-weight:300}
+.pd-stat-label{font-size:12px;color:var(--c-text-dim);margin-top:4px}
+.pd-tabs{display:flex;gap:0;margin-bottom:0}
+.pd-tab{
+  padding:12px 24px;font-size:13px;font-weight:500;
+  cursor:pointer;transition:all 0.2s ease;
+  background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--c-text-dim);font-family:var(--font-sans);
+}
+.pd-tab.active{color:var(--c-kon-deeper);border-bottom-color:var(--c-kon-main)}
+.pd-tab-content{padding:24px 0}
+.pd-task-tree{padding-left:0}
+.pd-tree-item{padding:10px 0;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s ease}
+.pd-tree-item:hover .pd-tree-title{color:var(--c-kon-dark)}
+.pd-tree-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.pd-tree-title{font-size:14px;transition:color 0.2s ease}
+.pd-tree-meta{font-size:11px;color:var(--c-text-dim);margin-left:auto}
+.pd-tree-item.child{padding-left:32px}
+</style>
+</head>
+<body>
+
+<div class="ambient"><div class="shape s1"></div><div class="shape s2"></div><div class="shape s3"></div></div>
+
+<!-- ════════════════ TOP NAV ════════════════ -->
+<nav class="nav-bar">
+  <div class="nav-inner">
+    <span class="nav-brand">荔荔绀 · 工作台</span>
+    <button class="nav-tab active" data-view="dash">仪表盘</button>
+    <button class="nav-tab" data-view="task">任务</button>
+    <button class="nav-tab" data-view="proj">项目</button>
+    <button class="nav-tab" data-view="notes">笔记</button>
+    <button class="nav-tab" data-view="cal">日历</button>
+    <button class="nav-tab" data-view="kb">知识库</button>
+    <button class="nav-tab" data-view="timer">专注</button>
+    <button class="nav-tab" data-view="inspo">灵感</button>
+    <button class="nav-tab" data-view="data">数据</button>
+    <button class="nav-tab" data-view="pdetail">项目详情</button>
+  </div>
+</nav>
+
+<!-- ════════════════ 1. DASHBOARD ════════════════ -->
+<section class="page-section active" id="dash">
+<div class="page-inner">
+  <div class="dash-hero fade-in">
+    <div class="dash-hero-left">
+      <div class="wave">下午好</div>
+      <div class="name">荔荔绀</div>
+      <div class="date">2026 年 8 月 4 日 <span class="wd">星期二</span></div>
+      <div class="summary">已完成 <em>8</em> / <em>15</em> 项今日任务 · 本周专注 <em>12.6</em> 小时</div>
+    </div>
+    <div class="dash-hero-right">
+      <div class="dash-avatar"><img src="ito.jpg" alt="头像"></div>
+      <div class="dash-art">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="85" fill="none" stroke="var(--c-kon-main)" stroke-width="0.6" opacity="0.3"/>
+          <circle cx="100" cy="100" r="60" fill="none" stroke="var(--c-soft-rust)" stroke-width="0.6" opacity="0.2"/>
+          <circle cx="100" cy="100" r="35" fill="none" stroke="var(--c-soft-warm)" stroke-width="0.6" opacity="0.18"/>
+          <rect x="85" y="85" width="30" height="30" transform="rotate(45,100,100)" fill="var(--c-kon-main)" opacity="0.1"/>
+          <polygon points="100,55 112,78 88,78" fill="var(--c-soft-warm)" opacity="0.15"/>
+          <circle cx="155" cy="72" r="3" fill="var(--c-soft-rust)" opacity="0.4"/>
+          <circle cx="145" cy="85" r="2" fill="var(--c-soft-rust)" opacity="0.3"/>
+          <circle cx="48" cy="130" r="2.5" fill="var(--c-soft-rust)" opacity="0.35"/>
+          <line x1="45" y1="100" x2="70" y2="100" stroke="var(--c-kon-main)" stroke-width="0.4" opacity="0.15"/>
+          <line x1="130" y1="100" x2="155" y2="100" stroke="var(--c-kon-main)" stroke-width="0.4" opacity="0.15"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-stats fade-in" style="animation-delay:0.15s">
+    <div class="dash-stat">
+      <div class="dash-stat-num">8<small>/15</small></div>
+      <div class="dash-stat-label">今日任务</div>
+      <div class="dash-stat-trend">完成率 53%</div>
+    </div>
+    <div class="dash-stat">
+      <div class="dash-stat-num">148<small>min</small></div>
+      <div class="dash-stat-label">今日专注</div>
+      <div class="dash-stat-trend">较昨日 +18%</div>
+    </div>
+    <div class="dash-stat">
+      <div class="dash-stat-num">12</div>
+      <div class="dash-stat-label">进行中任务</div>
+      <div class="dash-stat-trend">本周新增 5 项</div>
+    </div>
+    <div class="dash-stat">
+      <div class="dash-stat-num">4</div>
+      <div class="dash-stat-label">活跃项目</div>
+      <div class="dash-stat-trend">持平</div>
+    </div>
+  </div>
+
+  <div class="dash-widgets fade-in" style="animation-delay:0.3s">
+    <div class="card dash-widget">
+      <div class="widget-head">📋 任务概览</div>
+      <div style="display:flex;gap:16px;margin-bottom:16px">
+        <div style="text-align:center;flex:1;padding:12px;border-radius:8px;background:rgba(153,167,188,0.08)">
+          <div style="font-family:var(--font-serif);font-size:22px;font-weight:500;color:var(--c-kon-deeper)">3</div>
+          <div style="font-size:11px;color:var(--c-text-dim);margin-top:2px">待处理</div>
+        </div>
+        <div style="text-align:center;flex:1;padding:12px;border-radius:8px;background:rgba(216,107,66,0.08)">
+          <div style="font-family:var(--font-serif);font-size:22px;font-weight:500;color:var(--c-soft-rust)">4</div>
+          <div style="font-size:11px;color:var(--c-text-dim);margin-top:2px">进行中</div>
+        </div>
+        <div style="text-align:center;flex:1;padding:12px;border-radius:8px;background:rgba(90,154,138,0.08)">
+          <div style="font-family:var(--font-serif);font-size:22px;font-weight:500;color:var(--c-soft-teal)">8</div>
+          <div style="font-size:11px;color:var(--c-text-dim);margin-top:2px">已完成</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--c-text-dim)">最近: 完成「FocusTimer UI 重写」「笔记模块视觉增强」</div>
+    </div>
+
+    <div class="card dash-widget">
+      <div class="widget-head">📝 灵感火花</div>
+      <div class="dash-quote">
+        "设计是功能与美的交集，<br>少即是多，但简约不是简单。"
+        <span class="attr">— 设计哲学 · 本周金句</span>
+      </div>
+    </div>
+
+    <div class="card dash-widget">
+      <div class="widget-head">📅 近期日程</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.03)">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--c-soft-rust)"></div>
+          <span style="font-size:12px;color:var(--c-text-dim);width:55px">14:00</span>
+          <span style="font-size:13px">设计评审 — 个人工作台 v3</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.03)">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--c-kon-main)"></div>
+          <span style="font-size:12px;color:var(--c-text-dim);width:55px">16:30</span>
+          <span style="font-size:13px">代码 Review · 数据库优化</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--c-soft-teal)"></div>
+          <span style="font-size:12px;color:var(--c-text-dim);width:55px">19:00</span>
+          <span style="font-size:13px">团队周会</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card dash-widget">
+      <div class="widget-head">📊 周完成率</div>
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-family:var(--font-serif);font-size:56px;font-weight:300;color:var(--c-soft-teal)">86<small style="font-size:20px;color:var(--c-text-dim)">%</small></div>
+        <div style="font-size:12px;color:var(--c-text-dim);margin-top:4px">较上周 +5%</div>
+        <div style="width:70%;height:4px;background:rgba(0,0,0,0.04);margin:16px auto 0;border-radius:2px;overflow:hidden">
+          <div style="width:86%;height:100%;background:var(--c-soft-teal);border-radius:2px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════ 2. TASK BOARD ════════════════ -->
+<section class="page-section" id="task">
+<div class="page-inner">
+  <div class="sec-title">任务看板</div>
+  <div class="sec-desc">按状态分列的看板视图，hover 卡片可查看详情或内联编辑。支持拖拽和批量操作。</div>
+
+  <div class="task-kanban fade-in">
+    <div class="task-col card">
+      <div class="col-head"><span class="dot" style="background:var(--c-soft-teal)"></span>待处理<span class="count">4</span></div>
+      <div class="task-item">
+        <div class="task-item-title">设计新的 Onboarding 流程</div>
+        <div class="task-item-meta"><span class="badge badge-p1">P1</span><span class="badge badge-kon">设计</span><span class="task-item-date">8/6</span></div>
+      </div>
+      <div class="task-item">
+        <div class="task-item-title">移动端侧边栏动画优化</div>
+        <div class="task-item-meta"><span class="badge badge-p2">P2</span><span class="task-item-date">8/8</span></div>
+      </div>
+      <div class="task-item">
+        <div class="task-item-title">数据导出 CSV 功能</div>
+        <div class="task-item-meta"><span class="badge badge-p1">P1</span><span class="task-item-date">8/10</span></div>
+      </div>
+      <div class="task-item">
+        <div class="task-item-title">暗色模式方案调研</div>
+        <div class="task-item-meta"><span class="badge badge-p2">P2</span><span class="task-item-date">8/15</span></div>
+      </div>
+    </div>
+
+    <div class="task-col card">
+      <div class="col-head"><span class="dot" style="background:var(--c-soft-rust)"></span>进行中<span class="count">3</span></div>
+      <div class="task-item">
+        <div class="task-item-title">TaskTree 递归渲染重构</div>
+        <div class="task-item-meta"><span class="badge badge-p0">P0</span><span class="task-item-date">8/4</span></div>
+        <div class="task-progress"><div class="task-progress-bar" style="width:70%;background:var(--c-soft-rust)"></div></div>
+      </div>
+      <div class="task-item">
+        <div class="task-item-title">数据库索引性能优化</div>
+        <div class="task-item-meta"><span class="badge badge-p1">P1</span><span class="task-item-date">8/5</span></div>
+        <div class="task-progress"><div class="task-progress-bar" style="width:40%;background:var(--c-soft-teal)"></div></div>
+      </div>
+      <div class="task-item">
+        <div class="task-item-title">API 接口文档编写</div>
+        <div class="task-item-meta"><span class="badge badge-p2">P2</span><span class="task-item-date">8/7</span></div>
+        <div class="task-progress"><div class="task-progress-bar" style="width:15%;background:var(--c-soft-indigo)"></div></div>
+      </div>
+    </div>
+
+    <div class="task-col card">
+      <div class="col-head"><span class="dot" style="background:var(--c-soft-indigo)"></span>已完成<span class="count">5</span></div>
+      <div class="task-item done"><div class="task-item-title">FocusTimer UI 重写</div><div class="task-item-meta"><span class="task-item-date">8/3</span></div></div>
+      <div class="task-item done"><div class="task-item-title">Railway 502 修复</div><div class="task-item-meta"><span class="task-item-date">8/3</span></div></div>
+      <div class="task-item done"><div class="task-item-title">笔记模块视觉增强</div><div class="task-item-meta"><span class="task-item-date">8/2</span></div></div>
+      <div class="task-item done"><div class="task-item-title">全局圆角 & 边框统一</div><div class="task-item-meta"><span class="task-item-date">8/2</span></div></div>
+      <div class="task-item done"><div class="task-item-title">Timer 重置 Bug 修复</div><div class="task-item-meta"><span class="task-item-date">8/1</span></div></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════ 3. PROJECTS ════════════════ -->
+<section class="page-section" id="proj">
+<div class="page-inner">
+  <div class="sec-title">项目</div>
+  <div class="sec-desc">所有活跃项目的卡片视图，顶部色条标识项目类型，hover 可查看详情或编辑。</div>
+
+  <div class="proj-grid fade-in">
+    <div class="card proj-card">
+      <div class="proj-card-top" style="background:var(--c-kon-main)"></div>
+      <div class="proj-card-body">
+        <div class="proj-icon" style="background:linear-gradient(135deg,var(--c-kon-main),var(--c-kon-dark))">工</div>
+        <div class="proj-name">个人工作台 v3</div>
+        <div class="proj-desc">全栈个人效率工具，含任务看板、知识库、日历、专注计时器和数据看板。</div>
+        <div class="proj-progress">
+          <div class="proj-progress-bar"><div class="proj-progress-fill" style="width:70%;background:var(--c-kon-main)"></div></div>
+          <div class="proj-progress-val">70%</div>
+        </div>
+        <div class="proj-meta">
+          <span class="badge badge-kon">长期</span>
+          <span style="color:var(--c-text-dim)">12 项任务</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card proj-card">
+      <div class="proj-card-top" style="background:var(--c-soft-rust)"></div>
+      <div class="proj-card-body">
+        <div class="proj-icon" style="background:linear-gradient(135deg,var(--c-soft-rust),#c45e36)">设</div>
+        <div class="proj-name">品牌形象升级</div>
+        <div class="proj-desc">新 Logo 设计、VI 手册、官网视觉改版，统一品牌调性。</div>
+        <div class="proj-progress">
+          <div class="proj-progress-bar"><div class="proj-progress-fill" style="width:45%;background:var(--c-soft-rust)"></div></div>
+          <div class="proj-progress-val">45%</div>
+        </div>
+        <div class="proj-meta">
+          <span class="badge badge-teal">短期</span>
+          <span style="color:var(--c-text-dim)">8 项任务</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card proj-card">
+      <div class="proj-card-top" style="background:var(--c-soft-teal)"></div>
+      <div class="proj-card-body">
+        <div class="proj-icon" style="background:linear-gradient(135deg,var(--c-soft-teal),#3d7a6a)">数</div>
+        <div class="proj-name">数据中台搭建</div>
+        <div class="proj-desc">统一数据 ETL 管道、指标看板和权限体系，服务内部 3 个业务线。</div>
+        <div class="proj-progress">
+          <div class="proj-progress-bar"><div class="proj-progress-fill" style="width:25%;background:var(--c-soft-teal)"></div></div>
+          <div class="proj-progress-val">25%</div>
+        </div>
+        <div class="proj-meta">
+          <span class="badge badge-kon">长期</span>
+          <span style="color:var(--c-text-dim)">15 项任务</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════ 4. NOTES ════════════════ -->
+<section class="page-section" id="notes">
+<div class="page-inner">
+  <div class="sec-title">笔记</div>
+  <div class="sec-desc">三栏布局：文件夹分类 + 笔记列表 + 富文本阅读/编辑。衬线体阅读模式。</div>
+
+  <div class="notes-layout card fade-in">
+    <div class="notes-sidebar">
+      <div class="notes-sidebar-title">文件夹</div>
+      <div class="note-folder active">所有笔记</div>
+      <div class="note-folder">📐 设计参考</div>
+      <div class="note-folder">💻 开发笔记</div>
+      <div class="note-folder">📖 阅读摘录</div>
+      <div class="note-folder">🗂️ 项目文档</div>
+    </div>
+    <div class="notes-list">
+      <div class="note-list-header">
+        <div class="notes-sidebar-title">笔记列表</div>
+        <span style="font-size:11px;color:var(--c-text-dim)">5 篇</span>
+      </div>
+      <div class="note-item">
+        <div class="note-item-title">个人工作台下一阶段迭代</div>
+        <div class="note-item-meta">
+          8月2日
+          <span class="note-item-badge" style="background:rgba(153,167,188,0.12);color:var(--c-kon-dark)">设计参考</span>
+        </div>
+      </div>
+      <div class="note-item active">
+        <div class="note-item-title">Tailwind v4 CSS-first 迁移</div>
+        <div class="note-item-meta">
+          8月1日
+          <span class="note-item-badge" style="background:rgba(90,154,138,0.12);color:var(--c-soft-teal)">开发笔记</span>
+        </div>
+      </div>
+      <div class="note-item">
+        <div class="note-item-title">三套风格融合的设计决策</div>
+        <div class="note-item-meta">
+          7月30日
+          <span class="note-item-badge" style="background:rgba(153,167,188,0.12);color:var(--c-kon-dark)">设计参考</span>
+        </div>
+      </div>
+      <div class="note-item">
+        <div class="note-item-title">数据库 soft-delete 最佳实践</div>
+        <div class="note-item-meta">
+          7月28日
+          <span class="note-item-badge" style="background:rgba(90,154,138,0.12);color:var(--c-soft-teal)">开发笔记</span>
+        </div>
+      </div>
+      <div class="note-item">
+        <div class="note-item-title">《写给大家看的设计书》摘录</div>
+        <div class="note-item-meta">
+          7月25日
+          <span class="note-item-badge" style="background:rgba(192,154,122,0.12);color:var(--c-soft-warm)">阅读摘录</span>
+        </div>
+      </div>
+    </div>
+    <div class="notes-detail">
+      <div class="note-detail-title">Tailwind v4 CSS-first 配置迁移</div>
+      <div class="note-detail-date">2026 年 8 月 1 日 · 开发笔记</div>
+      <div class="note-detail-body">
+        Tailwind CSS v4 引入了全新的 CSS-first 配置方式，不再依赖 <code>tailwind.config.js</code> 文件，而是通过 <code>@theme</code> 指令在 CSS 中直接定义设计令牌……
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════ 5. CALENDAR ════════════════ -->
+<section class="page-section" id="cal">
+<div class="page-inner">
+  <div class="sec-title">日历</div>
+  <div class="sec-desc">月视图日历，每天显示最多 3 个日程，点击日期查看详情。6 种颜色可自定义。</div>
+
+  <div class="cal-header fade-in">
+    <button class="cal-nav">←</button>
+    <div class="cal-month">2026 年 8 月</div>
+    <button class="cal-nav">→</button>
+  </div>
+
+  <div class="cal-grid fade-in">
+    <div class="cal-dow">一</div><div class="cal-dow">二</div><div class="cal-dow">三</div><div class="cal-dow">四</div><div class="cal-dow">五</div><div class="cal-dow">六</div><div class="cal-dow">日</div>
+    <div class="cal-day other"><div class="num">28</div></div>
+    <div class="cal-day other"><div class="num">29</div></div>
+    <div class="cal-day other"><div class="num">30</div></div>
+    <div class="cal-day other"><div class="num">31</div></div>
+    <div class="cal-day"><div class="num">1</div><div class="events"><div class="cal-event-dot" style="background:var(--c-soft-indigo)"></div></div></div>
+    <div class="cal-day"><div class="num">2</div><div class="events"><div class="cal-event-dot" style="background:var(--c-soft-teal)"></div><div class="cal-event-dot" style="background:var(--c-kon-main)"></div></div></div>
+    <div class="cal-day"><div class="num">3</div><div class="events"><div class="cal-event-dot" style="background:var(--c-soft-rust)"></div></div></div>
+    <div class="cal-day today"><div class="num">4</div><div class="events"><div class="cal-event-dot" style="background:rgba(255,255,255,0.6)"></div><div class="cal-event-dot" style="background:rgba(255,255,255,0.6)"></div><div class="cal-event-dot" style="background:rgba(255,255,255,0.6)"></div></div></div>
+    <div class="cal-day"><div class="num">5</div></div>
+    <div class="cal-day"><div class="num">6</div><div class="events"><div class="cal-event-dot" style="background:var(--c-soft-warm)"></div></div></div>
+    <div class="cal-day"><div class="num">7</div></div>
+    <div class="cal-day"><div class="num">8</div><div class="events"><div class="cal-event-dot" style="background:var(--c-kon-main)"></div></div></div>
+    <div class="cal-day"><div class="num">9</div></div>
+    <div class="cal-day"><div class="num">10</div><div class="events"><div class="cal-event-dot" style="background:var(--c-soft-teal)"></div><div class="cal-event-dot" style="background:var(--c-soft-rust)"></div></div></div>
+    <div class="cal-day"><div class="num">11</div></div>
+    <div class="cal-day"><div class="num">12</div></div>
+    <div class="cal-day"><div class="num">13</div></div>
+    <div class="cal-day"><div class="num">14</div></div>
+    <div class="cal-day"><div class="num">15</div><div class="events"><div class="cal-event-dot" style="background:var(--c-soft-indigo)"></div></div></div>
+  </div>
+
+  <div class="cal-today-panel fade-in">
+    <div class="cal-today-title">今日日程</div>
+    <div class="cal-today-item">
+      <div class="cal-today-dot" style="background:var(--c-soft-rust)"></div>
+      <div class="cal-today-time">14:00</div>
+      <div class="cal-today-text">设计评审 — 个人工作台 v3 UI 方案定稿</div>
+    </div>
+    <div class="cal-today-item">
+      <div class="cal-today-dot" style="background:var(--c-kon-main)"></div>
+      <div class="cal-today-time">16:30</div>
+      <div class="cal-today-text">代码 Review · 数据库索引优化 PR</div>
+    </div>
+    <div class="cal-today-item">
+      <div class="cal-today-dot" style="background:var(--c-soft-teal)"></div>
+      <div class="cal-today-time">19:00</div>
+      <div class="cal-today-text">团队周会</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════ 6. KNOWLEDGE BASE ════════════════ -->
+<section class="page-section" id="kb">
+<div class="page-inner">
+  <div class="sec-title">知识库</div>
+  <div class="sec-desc">分类管理的知识条目卡片，支持搜索、标签和图片。点击进入详情阅读模式。</div>
+
+  <div class="kb-layout card fade-in">
+    <div class="kb-sidebar">
+      <div class="kb-sidebar-title">分类</div>
+      <div class="kb-cat active">全部条目</div>
+      <div class="kb-cat">💡 设计原则</div>
+      <div class="kb-cat">⚙️ 技术备忘</div>
+      <div class="kb-cat">📚 读书笔记</div>
+      <div class="kb-cat">🎯 工作方法</div>
+    </div>
+    <div class="kb-main">
+      <input class="kb-search" placeholder="搜索知识条目..." />
+      <div class="kb-grid">
+        <div class="card kb-card">
+          <div class="kb-card-img"></div>
+          <div class="kb-card-body">
+            <div class="kb-card-title">少即是多的设计哲学</div>
+            <div class="kb-card-desc">极简主义不是削减元素，而是让每个元素都有存在的理由。</div>
+            <div class="kb-card-tags">
+              <span class="badge badge-kon">设计</span><span class="badge badge-p2">极简</span>
+            </div>
+          </div>
+        </div>
+        <div class="card kb-card">
+          <div class="kb-card-body">
+            <div class="kb-card-title">CSS 毛玻璃实现最佳实践</div>
+            <div class="kb-card-desc">backdrop-filter + rgba 背景的组合，以及移动端的性能权衡。</div>
+            <div class="kb-card-tags">
+              <span class="badge badge-teal">技术</span><span class="badge badge-p2">CSS</span>
+            </div>
+          </div>
+        </div>
+        <div class="card kb-card">
+          <div class="kb-card-body">
+            <div class="kb-card-title">番茄工作法深度理解</div>
+            <div class="kb-card-desc">为什么 25 分钟是最有效的专注时长？神经科学的解释。</div>
+            <div class="kb-card-tags">
+              <span class="badge badge-p1">方法</span><span class="badge badge-p2">效率</span>
+            </div>
+          </div>
+        </div>
+        <div class="card kb-card">
+          <div class="kb-card-img" style="background:linear-gradient(135deg,var(--c-soft-warm),var(--c-soft-rust))"></div>
+          <div class="kb-card-body">
+            <div class="kb-card-title">排版节奏与视觉呼吸</div>
+            <div class="kb-card-desc">字号对比、行高、留白——建立清晰的阅读层次。</div>
+            <div class="kb-card-tags">
+              <span class="badge badge-kon">设计</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════ 7. FOCUS TIMER ════════════════ -->
+<section class="page-section" id="timer">
+<div class="page-inner">
+  <div class="sec-title">专注计时器</div>
+  <div class="sec-desc">番茄钟计时 + 历史记录。焦橙色环标识进度，衬线体数字，hover 有微动效反馈。</div>
+
+  <div class="timer-full fade-in">
+    <div class="timer-main">
+      <div class="timer-ring-lg">
+        <div class="track"></div>
+        <div class="inner-ring"></div>
+        <div class="timer-time-lg">32:18</div>
+      </div>
+      <div class="timer-session-label">专注中 · 第 4 个番茄</div>
+      <div class="timer-controls">
+        <button class="timer-btn-lg timer-btn-start">继续</button>
+        <button class="timer-btn-lg timer-btn-stop">暂停</button>
+      </div>
+    </div>
+
+    <div class="card timer-history">
+      <div class="timer-history-title">专注记录</div>
+      <div class="timer-session">
+        <div class="timer-session-dot" style="background:var(--c-soft-teal)"></div>
+        <div class="timer-session-info">
+          <div class="dur">25:00</div>
+          <div class="time-range">14:00 — 14:25</div>
+        </div>
+        <div class="timer-session-status">✅ 完成</div>
+      </div>
+      <div class="timer-session">
+        <div class="timer-session-dot" style="background:var(--c-soft-teal)"></div>
+        <div class="timer-session-info">
+          <div class="dur">25:00</div>
+          <div class="time-range">14:30 — 14:55</div>
+        </div>
+        <div class="timer-session-status">✅ 完成</div>
+      </div>
+      <div class="timer-session">
+        <div class="timer-session-dot" style="background:var(--c-soft-teal)"></div>
+        <div class="timer-session-info">
+          <div class="dur">25:00</div>
+          <div class="time-range">15:00 — 15:25</div>
+        </div>
+        <div class="timer-session-status">✅ 完成</div>
+      </div>
+      <div class="timer-session">
+        <div class="timer-session-dot" style="background:var(--c-soft-rust)"></div>
+        <div class="timer-session-info">
+          <div class="dur">32:18</div>
+          <div class="time-range">15:30 — 现在</div>
+        </div>
+        <div class="timer-session-status">⏱️ 进行中</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════ 8. INSPIRATIONS ════════════════ -->
+<section class="page-section" id="inspo">
+<div class="page-inner">
+  <div class="sec-title">灵感</div>
+  <div class="sec-desc">彩色标签卡收集零散想法和灵感片段。每张卡片左侧有色条区分来源类别。</div>
+
+  <div class="inspo-grid fade-in">
+    <div class="card inspo-card">
+      <div class="inspo-text">一个优秀的工具不在功能多少，而在于它在正确的时候做正确的事，不多不少。</div>
+      <div class="inspo-meta"><span class="inspo-tag">#设计</span><span class="inspo-source">来自 Twitter</span></div>
+    </div>
+    <div class="card inspo-card">
+      <div class="inspo-text">专注力是当代最稀缺的资源，保护它比管理时间更重要。</div>
+      <div class="inspo-meta"><span class="inspo-tag">#效率</span><span class="inspo-tag">#思考</span><span class="inspo-source">读书笔记</span></div>
+    </div>
+    <div class="card inspo-card">
+      <div class="inspo-text">杂志排版的三要素——字体对比、留白节奏、色彩克制。这三点做到位，就成功了一大半。</div>
+      <div class="inspo-meta"><span class="inspo-tag">#排版</span><span class="inspo-source">灵感收集</span></div>
+    </div>
+    <div class="card inspo-card">
+      <div class="inspo-text">微动效应该像标点符号，自然而不被注意，但缺了它阅读体验就会打折。</div>
+      <div class="inspo-meta"><span class="inspo-tag">#动画</span><span class="inspo-tag">#交互</span><span class="inspo-source">Dribbble</span></div>
+    </div>
+    <div class="inspo-add">
+      <div class="inspo-add-icon">+</div>
+      <div class="inspo-add-text">记录一条灵感</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════ 9. DATA DASHBOARD ════════════════ -->
+<section class="page-section" id="data">
+<div class="page-inner">
+  <div class="sec-title">数据分析</div>
+  <div class="sec-desc">工作台使用数据概览，近 7 天活跃度、任务分布、完成率趋势一目了然。</div>
+
+  <div class="data-stats fade-in">
+    <div class="card data-stat">
+      <div class="data-stat-num">148</div>
+      <div class="data-stat-label">总任务数</div>
+      <div class="data-stat-trend trend-up">较上月 +12</div>
+    </div>
+    <div class="card data-stat">
+      <div class="data-stat-num">86<small>%</small></div>
+      <div class="data-stat-label">周完成率</div>
+      <div class="data-stat-trend trend-up">较上周 +5%</div>
+    </div>
+    <div class="card data-stat">
+      <div class="data-stat-num">32.4<small>h</small></div>
+      <div class="data-stat-label">本周专注</div>
+      <div class="data-stat-trend trend-down">较上周 -2.1h</div>
+    </div>
+    <div class="card data-stat">
+      <div class="data-stat-num">4</div>
+      <div class="data-stat-label">活跃项目</div>
+      <div class="data-stat-trend trend-up">新增 1 个</div>
+    </div>
+  </div>
+
+  <div class="data-charts fade-in">
+    <div class="card chart-card">
+      <div class="chart-title">近 7 天活跃度</div>
+      <div class="mini-bar">
+        <div class="mini-bar-col"><div class="mini-bar-fill" style="height:70%;background:var(--c-kon-main);opacity:0.5"></div><div class="mini-bar-label">周一</div></div>
+        <div class="mini-bar-col"><div class="mini-bar-fill" style="height:90%;background:var(--c-kon-main);opacity:0.6"></div><div class="mini-bar-label">周二</div></div>
+        <div class="mini-bar-col"><div class="mini-bar-fill" style="height:55%;background:var(--c-kon-main);opacity:0.5"></div><div class="mini-bar-label">周三</div></div>
+        <div class="mini-bar-col"><div class="mini-bar-fill" style="height:80%;background:var(--c-kon-main);opacity:0.6"></div><div class="mini-bar-label">周四</div></div>
+        <div class="mini-bar-col"><div class="mini-bar-fill" style="height:65%;background:var(--c-kon-main);opacity:0.5"></div><div class="mini-bar-label">周五</div></div>
+        <div class="mini-bar-col"><div class="mini-bar-fill" style="height:35%;background:var(--c-soft-warm);opacity:0.4"></div><div class="mini-bar-label">周六</div></div>
+        <div class="mini-bar-col"><div class="mini-bar-fill" style="height:25%;background:var(--c-soft-warm);opacity:0.3"></div><div class="mini-bar-label">周日</div></div>
+      </div>
+    </div>
+
+    <div class="card chart-card">
+      <div class="chart-title">任务状态分布</div>
+      <div class="donut-mini" style="background:conic-gradient(var(--c-soft-teal) 0% 53%, var(--c-soft-rust) 53% 73%, var(--c-kon-main) 73% 100%)">
+        <div class="label"><div class="val">15</div><div class="tag">总任务</div></div>
+      </div>
+      <div class="data-legend">
+        <div class="data-legend-item"><div class="data-legend-dot" style="background:var(--c-soft-teal)"></div>已完成 8</div>
+        <div class="data-legend-item"><div class="data-legend-dot" style="background:var(--c-soft-rust)"></div>进行中 3</div>
+        <div class="data-legend-item"><div class="data-legend-dot" style="background:var(--c-kon-main)"></div>待处理 4</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════ 10. PROJECT DETAIL ════════════════ -->
+<section class="page-section" id="pdetail">
+<div class="page-inner">
+  <div class="pd-header fade-in">
+    <div class="pd-ring">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="8"/>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--c-soft-teal)" stroke-width="8" stroke-dasharray="326.7" stroke-dashoffset="98" stroke-linecap="round"/>
+      </svg>
+      <div class="percent">70%</div>
+    </div>
+    <div class="pd-info">
+      <div class="pd-name">个人工作台 v3</div>
+      <div class="pd-meta">
+        <span class="badge badge-kon">长期</span>
+        <span class="badge badge-teal">进行中</span>
+      </div>
+      <div class="pd-desc">
+        全栈个人效率工具，基于 React + TypeScript + Express + PostgreSQL。
+        当前版本聚焦 UI 设计系统升级与功能完善。
+      </div>
+    </div>
+  </div>
+
+  <div class="pd-stats-grid fade-in">
+    <div class="card pd-stat">
+      <div class="pd-stat-num">12</div>
+      <div class="pd-stat-label">总任务</div>
+    </div>
+    <div class="card pd-stat">
+      <div class="pd-stat-num" style="color:var(--c-soft-teal)">8</div>
+      <div class="pd-stat-label">已完成</div>
+    </div>
+    <div class="card pd-stat">
+      <div class="pd-stat-num" style="color:var(--c-soft-rust)">3</div>
+      <div class="pd-stat-label">进行中</div>
+    </div>
+    <div class="card pd-stat">
+      <div class="pd-stat-num" style="color:var(--c-kon-dark)">1</div>
+      <div class="pd-stat-label">待处理</div>
+    </div>
+  </div>
+
+  <div class="fade-in">
+    <div class="pd-tabs">
+      <button class="pd-tab active">任务列表</button>
+      <button class="pd-tab">看板视图</button>
+    </div>
+    <div class="pd-tab-content">
+      <div class="card" style="padding:24px">
+        <div class="pd-task-tree">
+          <div class="pd-tree-item">
+            <div class="pd-tree-dot" style="background:var(--c-soft-teal)"></div>
+            <div class="pd-tree-title">📐 设计系统升级</div>
+            <div class="pd-tree-meta">完成</div>
+          </div>
+          <div class="pd-tree-item child">
+            <div class="pd-tree-dot" style="background:var(--c-soft-teal)"></div>
+            <div class="pd-tree-title">全局圆角 & 边框统一</div>
+            <div class="pd-tree-meta">8/2</div>
+          </div>
+          <div class="pd-tree-item child">
+            <div class="pd-tree-dot" style="background:var(--c-soft-teal)"></div>
+            <div class="pd-tree-title">笔记模块视觉增强</div>
+            <div class="pd-tree-meta">8/2</div>
+          </div>
+          <div class="pd-tree-item">
+            <div class="pd-tree-dot" style="background:var(--c-soft-rust)"></div>
+            <div class="pd-tree-title">⚙️ 功能优化</div>
+            <div class="pd-tree-meta">进行中</div>
+          </div>
+          <div class="pd-tree-item child">
+            <div class="pd-tree-dot" style="background:var(--c-soft-rust)"></div>
+            <div class="pd-tree-title">TaskTree 递归渲染重构</div>
+            <div class="pd-tree-meta">70%</div>
+          </div>
+          <div class="pd-tree-item child">
+            <div class="pd-tree-dot" style="background:var(--c-kon-main)"></div>
+            <div class="pd-tree-title">数据库索引性能优化</div>
+            <div class="pd-tree-meta">40%</div>
+          </div>
+          <div class="pd-tree-item">
+            <div class="pd-tree-dot" style="background:var(--c-kon-main)"></div>
+            <div class="pd-tree-title">✨ 新功能规划</div>
+            <div class="pd-tree-meta">待处理</div>
+          </div>
+          <div class="pd-tree-item child">
+            <div class="pd-tree-dot" style="background:var(--c-kon-main)"></div>
+            <div class="pd-tree-title">暗色模式支持</div>
+            <div class="pd-tree-meta">8/15</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════ NAV JS ════════════════ -->
+<script>
+(function(){
+  var tabs = document.querySelectorAll('.nav-tab');
+  var sections = document.querySelectorAll('.page-section');
+  tabs.forEach(function(t){
+    t.addEventListener('click',function(){
+      tabs.forEach(function(tt){tt.classList.remove('active')});
+      this.classList.add('active');
+      var vid = this.getAttribute('data-view');
+      sections.forEach(function(s){
+        s.classList.remove('active');
+        if(s.id===vid) s.classList.add('active');
+      });
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

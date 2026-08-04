@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>融合风格示例 — 杂志·立体·动效</title>
+<style>
+/* ====== FONTS ====== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap');
+
+/* ====== RESET & TOKENS ====== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c-bg:#f6f5f3;
+  --c-surface:#ffffff;
+  --c-surface-hover:#fafaf9;
+  --c-text:#1a1a18;
+  --c-text-secondary:#6b6b65;
+  --c-text-tertiary:#9c9c94;
+  --c-border:rgba(0,0,0,0.06);
+  --c-primary:#3b6fca;
+  --c-primary-light:rgba(59,111,202,0.08);
+  --c-amber:#d97706;
+  --c-amber-bg:rgba(217,119,6,0.08);
+  --c-emerald:#059669;
+  --c-emerald-bg:rgba(5,150,105,0.08);
+  --c-rose:#e11d48;
+  --c-rose-bg:rgba(225,29,72,0.06);
+  --c-purple:#7c3aed;
+  --c-purple-bg:rgba(124,58,237,0.08);
+  --c-teal:#0d9488;
+  --c-teal-bg:rgba(13,148,136,0.08);
+  --radius-sm:10px;
+  --radius-md:14px;
+  --radius-lg:20px;
+  --radius-xl:24px;
+  --shadow-xs:0 1px 2px rgba(0,0,0,0.03);
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.04),0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.05),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg:0 8px 24px rgba(0,0,0,0.07),0 2px 6px rgba(0,0,0,0.04);
+  --shadow-xl:0 16px 40px rgba(0,0,0,0.09),0 4px 12px rgba(0,0,0,0.05);
+  --ease-out:cubic-bezier(0.4,0,0.2,1);
+  --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-serif:'Noto Serif SC','Source Han Serif SC','Songti SC',serif;
+}
+
+body{
+  font-family:var(--font-sans);
+  background:var(--c-bg);
+  color:var(--c-text);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ====== BACKGROUND AMBIANCE ====== */
+.bg-ambiance{
+  position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;
+}
+.bg-ambiance .orb{
+  position:absolute;border-radius:50%;filter:blur(120px);opacity:0.4;
+}
+.bg-ambiance .orb-1{
+  width:500px;height:500px;
+  background:radial-gradient(circle,rgba(59,111,202,0.12),transparent);
+  top:-10%;right:-8%;
+  animation:orbFloat 12s ease-in-out infinite;
+}
+.bg-ambiance .orb-2{
+  width:350px;height:350px;
+  background:radial-gradient(circle,rgba(124,58,237,0.08),transparent);
+  bottom:-5%;left:-5%;
+  animation:orbFloat 15s ease-in-out infinite reverse;
+}
+.bg-ambiance .orb-3{
+  width:280px;height:280px;
+  background:radial-gradient(circle,rgba(217,119,6,0.06),transparent);
+  top:40%;left:50%;
+  animation:orbFloat 18s ease-in-out infinite 3s;
+}
+@keyframes orbFloat{
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(30px,-20px) scale(1.05)}
+  66%{transform:translate(-20px,15px) scale(0.95)}
+}
+
+/* ====== MAIN CONTAINER ====== */
+.app{
+  max-width:1100px;margin:0 auto;padding:32px 24px 80px;
+  position:relative;z-index:1;
+}
+
+/* ====== HERO HEADER ====== */
+.hero{
+  margin-bottom:40px;padding:0 4px;
+  animation:fadeSlideUp 0.7s var(--ease-out) both;
+}
+.hero-greeting{
+  font-family:var(--font-serif);
+  font-size:clamp(28px,4vw,40px);
+  font-weight:300;line-height:1.25;
+  letter-spacing:-0.01em;color:var(--c-text);
+  margin-bottom:6px;
+}
+.hero-greeting em{
+  font-style:normal;font-weight:600;
+  background:linear-gradient(135deg,var(--c-primary),var(--c-purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-sub{
+  font-size:14px;color:var(--c-text-tertiary);
+  display:flex;align-items:center;gap:12px;
+}
+.hero-sub .dot{width:4px;height:4px;border-radius:50%;background:var(--c-border)}
+@keyframes fadeSlideUp{
+  from{opacity:0;transform:translateY(24px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ====== STAT STRIP ====== */
+.stat-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:20px;
+  margin-bottom:36px;
+}
+.stat-card{
+  background:var(--c-surface);border-radius:var(--radius-lg);
+  padding:22px 24px;position:relative;overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  transition:all 0.35s var(--ease-out);
+  cursor:default;
+}
+.stat-card:hover{
+  box-shadow:var(--shadow-lg);
+  transform:translateY(-2px);
+}
+.stat-card::after{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:80px;height:80px;border-radius:50%;
+  opacity:0.06;transition:all 0.5s var(--ease-out);
+}
+.stat-card:hover::after{transform:scale(1.3);opacity:0.1}
+.stat-card:nth-child(1)::after{background:var(--c-primary)}
+.stat-card:nth-child(2)::after{background:var(--c-emerald)}
+.stat-card:nth-child(3)::after{background:var(--c-purple)}
+.stat-card:nth-child(4)::after{background:var(--c-amber)}
+
+.stat-num{
+  font-family:var(--font-serif);
+  font-size:38px;font-weight:300;line-height:1;
+  color:var(--c-text);margin-bottom:6px;
+  position:relative;z-index:1;
+}
+.stat-label{
+  font-size:12px;color:var(--c-text-tertiary);
+  text-transform:uppercase;letter-spacing:0.06em;
+  font-weight:500;position:relative;z-index:1;
+}
+.stat-trend{
+  font-size:11px;font-weight:600;margin-top:4px;
+  position:relative;z-index:1;
+}
+
+/* Staggered entry */
+.stat-card:nth-child(1){animation:fadeSlideUp 0.5s var(--ease-out) 0.1s both}
+.stat-card:nth-child(2){animation:fadeSlideUp 0.5s var(--ease-out) 0.2s both}
+.stat-card:nth-child(3){animation:fadeSlideUp 0.5s var(--ease-out) 0.3s both}
+.stat-card:nth-child(4){animation:fadeSlideUp 0.5s var(--ease-out) 0.4s both}
+
+@media(max-width:768px){
+  .stat-strip{grid-template-columns:repeat(2,1fr);gap:12px}
+  .stat-num{font-size:28px}
+}
+
+/* ====== MAIN TWO-COLUMN ====== */
+.main-grid{
+  display:grid;grid-template-columns:1fr 360px;gap:24px;
+  align-items:start;
+}
+@media(max-width:900px){.main-grid{grid-template-columns:1fr}}
+
+/* ====== SECTION TITLE ====== */
+.section-title{
+  font-family:var(--font-serif);
+  font-size:22px;font-weight:400;
+  letter-spacing:-0.01em;
+  margin-bottom:18px;padding-left:4px;
+  position:relative;
+  animation:fadeSlideUp 0.5s var(--ease-out) 0.3s both;
+}
+.section-title::before{
+  content:'';position:absolute;left:0;top:4px;bottom:4px;
+  width:3px;border-radius:0 2px 2px 0;
+  background:linear-gradient(180deg,var(--c-primary),var(--c-purple));
+  opacity:0;transition:opacity 0.4s var(--ease-out);
+  transform:scaleY(0);transform-origin:top;
+}
+.section-title.visible::before{opacity:1;transform:scaleY(1)}
+
+/* ====== TASK BOARD ====== */
+.task-board{
+  display:flex;gap:14px;
+  animation:fadeSlideUp 0.6s var(--ease-out) 0.4s both;
+}
+.task-col{
+  flex:1;min-width:0;
+  background:var(--c-surface);border-radius:var(--radius-xl);
+  padding:18px;box-shadow:var(--shadow-sm);
+  transition:all 0.35s var(--ease-out);
+}
+.task-col:hover{
+  box-shadow:var(--shadow-lg);
+  transform:translateY(-2px);
+}
+.col-header{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:14px;padding-bottom:12px;
+  position:relative;
+}
+.col-header::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,var(--c-border),transparent);
+}
+.col-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.col-name{font-size:13px;font-weight:700;color:var(--c-text)}
+.col-count{font-size:11px;color:var(--c-text-tertiary);background:rgba(0,0,0,0.04);padding:1px 8px;border-radius:99px;margin-left:auto}
+
+/* Task card */
+.task-item{
+  background:var(--c-surface);border-radius:var(--radius-md);
+  padding:14px;margin-bottom:10px;
+  box-shadow:var(--shadow-xs);
+  border:1px solid transparent;
+  transition:all 0.3s var(--ease-out);
+  cursor:pointer;
+  position:relative;overflow:hidden;
+}
+.task-item::before{
+  content:'';position:absolute;left:0;top:12px;bottom:12px;
+  width:3px;border-radius:0 2px 2px 0;
+  background:var(--c-primary);
+  opacity:0;transform:scaleY(0);
+  transition:all 0.3s var(--ease-spring);
+}
+.task-item:hover{
+  box-shadow:var(--shadow-md);
+  transform:translateY(-1px);
+  border-color:var(--c-border);
+}
+.task-item:hover::before{opacity:1;transform:scaleY(1)}
+.task-title{
+  font-size:13px;font-weight:600;color:var(--c-text);margin-bottom:6px;
+  transition:color 0.25s ease;
+}
+.task-item:hover .task-title{color:var(--c-primary)}
+.task-meta{
+  display:flex;align-items:center;gap:8px;font-size:11px;
+}
+.task-tag{
+  font-size:10px;padding:2px 7px;border-radius:5px;font-weight:700;
+}
+.task-tag.p0{background:var(--c-rose-bg);color:var(--c-rose)}
+.task-tag.p1{background:var(--c-amber-bg);color:var(--c-amber)}
+.task-tag.p2{background:rgba(0,0,0,0.04);color:var(--c-text-tertiary)}
+.task-date{color:var(--c-text-tertiary);margin-left:auto}
+.task-progress{
+  height:3px;border-radius:2px;background:rgba(0,0,0,0.05);
+  margin-top:8px;overflow:hidden;
+}
+.task-progress-bar{
+  height:100%;border-radius:2px;
+  transition:width 0.6s var(--ease-out);
+}
+
+.task-item.done{opacity:0.55}
+.task-item.done .task-title{text-decoration:line-through}
+
+@media(max-width:768px){.task-board{flex-direction:column}}
+
+/* ====== SIDEBAR ====== */
+.sidebar{display:flex;flex-direction:column;gap:20px}
+
+/* Timer card */
+.timer-card{
+  background:var(--c-surface);border-radius:var(--radius-xl);
+  padding:28px 24px;text-align:center;
+  box-shadow:var(--shadow-sm);
+  transition:all 0.35s var(--ease-out);
+  animation:fadeSlideUp 0.5s var(--ease-out) 0.5s both;
+  position:relative;overflow:hidden;
+}
+.timer-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(59,111,202,0.04),transparent 70%);
+}
+.timer-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.timer-ring{
+  width:140px;height:140px;border-radius:50%;
+  margin:0 auto 20px;
+  position:relative;display:flex;align-items:center;justify-content:center;
+}
+.timer-ring-bg{
+  position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(var(--c-primary) 0deg 240deg,rgba(0,0,0,0.04) 240deg 360deg);
+  transition:background 0.6s var(--ease-out);
+}
+.timer-ring::after{
+  content:'';position:absolute;inset:6px;border-radius:50%;
+  background:var(--c-surface);
+}
+.timer-time{
+  position:relative;z-index:1;
+  font-family:'SF Mono','Consolas',monospace;
+  font-size:32px;font-weight:700;
+  letter-spacing:-0.02em;
+}
+.timer-label{
+  font-size:13px;color:var(--c-text-secondary);margin-bottom:16px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.timer-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--c-emerald);
+  animation:pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.35}}
+.timer-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:10px 28px;border-radius:99px;border:none;
+  font-size:14px;font-weight:600;font-family:var(--font-sans);
+  background:var(--c-primary);color:#fff;cursor:pointer;
+  box-shadow:0 2px 8px rgba(59,111,202,0.25);
+  transition:all 0.3s var(--ease-out);
+}
+.timer-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(59,111,202,0.35);
+}
+
+/* Recent sessions */
+.timer-sessions{margin-top:20px;text-align:left}
+.timer-sessions h4{
+  font-size:11px;text-transform:uppercase;letter-spacing:0.06em;
+  color:var(--c-text-tertiary);margin-bottom:10px;font-weight:600;
+}
+.session-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0;font-size:12px;
+  border-bottom:1px solid rgba(0,0,0,0.03);
+}
+.session-dur{font-weight:700;color:var(--c-text);font-family:'SF Mono',monospace}
+.session-time{color:var(--c-text-tertiary)}
+.session-status{
+  font-size:10px;padding:2px 8px;border-radius:99px;font-weight:600;
+}
+
+/* Quick notes card */
+.notes-card{
+  background:var(--c-surface);border-radius:var(--radius-xl);
+  padding:20px 24px;
+  box-shadow:var(--shadow-sm);
+  transition:all 0.35s var(--ease-out);
+  animation:fadeSlideUp 0.5s var(--ease-out) 0.6s both;
+}
+.notes-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.notes-card h4{
+  font-family:var(--font-serif);font-size:16px;font-weight:400;
+  margin-bottom:14px;color:var(--c-text);
+}
+.note-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 0;
+  border-bottom:1px solid rgba(0,0,0,0.03);
+  transition:all 0.25s ease;
+  cursor:pointer;
+}
+.note-item:last-child{border-bottom:none}
+.note-item:hover .note-text{color:var(--c-primary)}
+.note-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.note-text{font-size:13px;color:var(--c-text-secondary);transition:color 0.25s ease;line-height:1.5;flex:1}
+.note-date{font-size:11px;color:var(--c-text-tertiary);flex-shrink:0}
+
+/* ====== BOTTOM PANEL: TIMELINE ====== */
+.timeline-panel{
+  margin-top:32px;
+  background:var(--c-surface);border-radius:var(--radius-xl);
+  padding:28px 32px;
+  box-shadow:var(--shadow-sm);
+  transition:all 0.35s var(--ease-out);
+  animation:fadeSlideUp 0.6s var(--ease-out) 0.7s both;
+  position:relative;overflow:hidden;
+}
+.timeline-panel:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.timeline-panel::after{
+  content:'';position:absolute;right:0;top:0;bottom:0;width:200px;
+  background:linear-gradient(90deg,transparent,rgba(59,111,202,0.02));
+  pointer-events:none;
+}
+.timeline-panel h3{
+  font-family:var(--font-serif);font-size:20px;font-weight:400;
+  margin-bottom:20px;
+}
+.timeline-track{
+  position:relative;padding-left:24px;
+}
+.timeline-track::before{
+  content:'';position:absolute;left:8px;top:4px;bottom:4px;
+  width:1px;background:linear-gradient(180deg,var(--c-primary),var(--c-purple),transparent);
+}
+.tl-item{
+  position:relative;padding:6px 0 18px 24px;font-size:13px;
+  color:var(--c-text-secondary);
+  transition:all 0.3s ease;
+}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{
+  content:'';position:absolute;left:-20px;top:10px;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--c-surface);border:2px solid var(--c-primary);
+  transition:all 0.3s var(--ease-out);
+}
+.tl-item:hover{color:var(--c-text)}
+.tl-item:hover::before{
+  background:var(--c-primary);
+  box-shadow:0 0 0 4px var(--c-primary-light);
+}
+.tl-time{font-weight:600;color:var(--c-text);display:inline-block;width:52px}
+.tl-dot-mini{color:var(--c-text-tertiary);margin:0 6px}
+
+/* ====== UTILITY ====== */
+.text-up{color:var(--c-emerald)}
+</style>
+</head>
+<body>
+
+<!-- Ambient background orbs -->
+<div class="bg-ambiance">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- ====== APP ====== -->
+<div class="app">
+
+  <!-- ===== 区域标题 ===== -->
+  <header class="hero">
+    <div class="hero-greeting">
+      下午好，<em>荔荔绀</em>
+    </div>
+    <div class="hero-sub">
+      8月4日 · 星期二<span class="dot"></span>已完成 3 / 8 项任务
+    </div>
+  </header>
+
+  <!-- ===== 数据卡片 ===== -->
+  <div class="stat-strip">
+    <div class="stat-card">
+      <div class="stat-num">12</div>
+      <div class="stat-label">进行中任务</div>
+      <div class="stat-trend text-up">↑ 3 项本周新增</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">128<small style="font-size:18px">&nbsp;min</small></div>
+      <div class="stat-label">今日专注时长</div>
+      <div class="stat-trend text-up">↑ 22% vs 昨日</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">86<small style="font-size:18px">%</small></div>
+      <div class="stat-label">本周完成率</div>
+      <div class="stat-trend text-up">↑ 5%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">3</div>
+      <div class="stat-label">活跃项目</div>
+      <div class="stat-trend" style="color:var(--c-text-tertiary)">持平</div>
+    </div>
+  </div>
+
+  <!-- ===== 主双栏 ===== -->
+  <div class="main-grid">
+    <!-- 左栏: 任务看板 -->
+    <div>
+      <div class="section-title visible">当前任务</div>
+      <div class="task-board">
+        <!-- 待处理 -->
+        <div class="task-col">
+          <div class="col-header">
+            <div class="col-dot" style="background:var(--c-amber)"></div>
+            <span class="col-name">待处理</span>
+            <span class="col-count">4</span>
+          </div>
+          <div class="task-item">
+            <div class="task-title">设计新的 Onboarding 流程</div>
+            <div class="task-meta">
+              <span class="task-tag p1">P1</span>
+              <span class="task-date">截止 8/6</span>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-title">优化移动端侧边栏动画</div>
+            <div class="task-meta">
+              <span class="task-tag p2">P2</span>
+              <span class="task-date">截止 8/8</span>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-title">数据导出 CSV 功能</div>
+            <div class="task-meta">
+              <span class="task-tag p1">P1</span>
+              <span class="task-date">截止 8/10</span>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-title">暗色模式调研</div>
+            <div class="task-meta">
+              <span class="task-tag p2">P2</span>
+              <span class="task-date">截止 8/15</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 进行中 -->
+        <div class="task-col">
+          <div class="col-header">
+            <div class="col-dot" style="background:var(--c-primary)"></div>
+            <span class="col-name">进行中</span>
+            <span class="col-count">3</span>
+          </div>
+          <div class="task-item">
+            <div class="task-title">TaskTree 递归渲染重构</div>
+            <div class="task-meta">
+              <span class="task-tag p0">P0</span>
+              <span class="task-date">截止 8/4</span>
+            </div>
+            <div class="task-progress"><div class="task-progress-bar" style="width:70%;background:var(--c-primary)"></div></div>
+          </div>
+          <div class="task-item">
+            <div class="task-title">数据库索引性能优化</div>
+            <div class="task-meta">
+              <span class="task-tag p1">P1</span>
+              <span class="task-date">截止 8/5</span>
+            </div>
+            <div class="task-progress"><div class="task-progress-bar" style="width:40%;background:var(--c-primary)"></div></div>
+          </div>
+          <div class="task-item">
+            <div class="task-title">API 接口文档编写</div>
+            <div class="task-meta">
+              <span class="task-tag p2">P2</span>
+              <span class="task-date">截止 8/7</span>
+            </div>
+            <div class="task-progress"><div class="task-progress-bar" style="width:15%;background:var(--c-primary)"></div></div>
+          </div>
+        </div>
+
+        <!-- 已完成 -->
+        <div class="task-col">
+          <div class="col-header">
+            <div class="col-dot" style="background:var(--c-emerald)"></div>
+            <span class="col-name">已完成</span>
+            <span class="col-count">5</span>
+          </div>
+          <div class="task-item done">
+            <div class="task-title">FocusTimer UI 重写</div>
+            <div class="task-meta"><span class="task-date">8/3 完成</span></div>
+          </div>
+          <div class="task-item done">
+            <div class="task-title">Railway 502 修复</div>
+            <div class="task-meta"><span class="task-date">8/3 完成</span></div>
+          </div>
+          <div class="task-item done">
+            <div class="task-title">笔记视觉增强</div>
+            <div class="task-meta"><span class="task-date">8/2 完成</span></div>
+          </div>
+          <div class="task-item done">
+            <div class="task-title">全局圆角统一</div>
+            <div class="task-meta"><span class="task-date">8/2 完成</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右栏 -->
+    <div class="sidebar">
+      <!-- 专注计时器 -->
+      <div class="timer-card">
+        <div class="timer-ring">
+          <div class="timer-ring-bg"></div>
+          <div class="timer-time">32:18</div>
+        </div>
+        <div class="timer-label">
+          <span class="timer-dot"></span>
+          专注中 · 第 4 个番茄
+        </div>
+        <button class="timer-btn">⏸ 暂停专注</button>
+
+        <div class="timer-sessions">
+          <h4>今日记录</h4>
+          <div class="session-row">
+            <span class="session-dur">25:00</span>
+            <span class="session-status" style="background:var(--c-emerald-bg);color:var(--c-emerald)">完成</span>
+            <span class="session-time">10:30</span>
+          </div>
+          <div class="session-row">
+            <span class="session-dur">25:00</span>
+            <span class="session-status" style="background:var(--c-emerald-bg);color:var(--c-emerald)">完成</span>
+            <span class="session-time">11:00</span>
+          </div>
+          <div class="session-row">
+            <span class="session-dur">25:00</span>
+            <span class="session-status" style="background:var(--c-emerald-bg);color:var(--c-emerald)">完成</span>
+            <span class="session-time">14:00</span>
+          </div>
+          <div class="session-row">
+            <span class="session-dur">25:00</span>
+            <span class="session-status" style="background:var(--c-amber-bg);color:var(--c-amber)">中断</span>
+            <span class="session-time">14:30</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 快速笔记 -->
+      <div class="notes-card">
+        <h4>快速笔记</h4>
+        <div class="note-item">
+          <span class="note-icon">📝</span>
+          <span class="note-text">关于个人工作台下一阶段的迭代方向——从工具到节奏</span>
+          <span class="note-date">8/4</span>
+        </div>
+        <div class="note-item">
+          <span class="note-icon">💡</span>
+          <span class="note-text">Tailwind v4 CSS-first 配置迁移思路记录</span>
+          <span class="note-date">8/3</span>
+        </div>
+        <div class="note-item">
+          <span class="note-icon">🎨</span>
+          <span class="note-text">融合三套风格的设计决策与色彩映射</span>
+          <span class="note-date">8/4</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 底部时间线 ===== -->
+  <div class="timeline-panel">
+    <h3>今日时间线</h3>
+    <div class="timeline-track">
+      <div class="tl-item"><span class="tl-time">09:30</span> <span class="tl-dot-mini">·</span> 完成��计稿初版评审，确定本周迭代范围</div>
+      <div class="tl-item"><span class="tl-time">10:15</span> <span class="tl-dot-mini">·</span> 专注编码：TaskTree 递归渲染核心逻辑</div>
+      <div class="tl-item"><span class="tl-time">12:00</span> <span class="tl-dot-mini">·</span> 午休 · 阅读《Refactoring UI》色彩章节</div>
+      <div class="tl-item"><span class="tl-time">14:00</span> <span class="tl-dot-mini">·</span> 团队周会 · 同步进度与阻塞项</div>
+      <div class="tl-item"><span class="tl-time">15:30</span> <span class="tl-dot-mini">·</span> 修复 FocusTimer useRef 状态管理 Bug</div>
+      <div class="tl-item"><span class="tl-time">17:00</span> <span class="tl-dot-mini">·</span> 规划中：风格融合方案讨论与评审</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

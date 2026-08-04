@@ -6,15 +6,21 @@ import { Plus, Trash2, Search, Calendar, ChevronUp, ChevronDown, ChevronRight, C
 import FocusTimer, { stopTaskTimer } from './FocusTimer';
 
 const statusLabels: Record<TaskStatus, { label: string; color: string }> = {
-  'todo': { label: '待办', color: '#f59e0b' },
-  'in-progress': { label: '进行中', color: '#3b82f6' },
-  'done': { label: '已完成', color: '#10b981' },
+  'todo': { label: '待办', color: 'var(--accent-warm)' },
+  'in-progress': { label: '进行中', color: 'var(--kon-dark)' },
+  'done': { label: '已完成', color: 'var(--accent-teal)' },
 };
 
 const priorityColors: Record<TaskPriority, string> = {
-  high: '#ef4444',
-  medium: '#f59e0b',
-  low: '#94a3b8',
+  high: 'var(--accent-orange)',
+  medium: 'var(--accent-warm)',
+  low: 'var(--text-dim)',
+};
+
+const statusBgMap: Record<TaskStatus, string> = {
+  'todo': '#b8a08818',
+  'in-progress': '#99a7bc18',
+  'done': '#4a8a7a18',
 };
 
 const MAX_SUBTASKS = 20;
@@ -36,19 +42,16 @@ export default function TaskView({ projectId }: { projectId?: string }) {
   const [editing, setEditing] = useState<string | null>(null);
   const [projectFilter, setProjectFilter] = useState<string>('all');
 
-  // New task form state
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [taskProjectId, setTaskProjectId] = useState<string>(projectId || '');
   const [taskParentId, setTaskParentId] = useState<string>('');
 
-  // When projectId prop changes, update form default
   useEffect(() => {
     if (projectId) setTaskProjectId(projectId);
   }, [projectId]);
 
-  // Filter tasks
   const displayedTasks = projectId
     ? tasks.filter((t) => t.projectId === projectId)
     : tasks.filter((t) => projectFilter === 'all' || t.projectId === projectFilter || (projectFilter === 'none' && !t.projectId));
@@ -75,30 +78,57 @@ export default function TaskView({ projectId }: { projectId?: string }) {
       {!projectId && (
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-fg">任务管理</h1>
-          <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-fg text-sm font-medium hover:opacity-90 transition-opacity">
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition-all"
+            style={{
+              background: 'linear-gradient(135deg, var(--kon-dark), var(--kon-deeper))',
+              boxShadow: '0 2px 8px rgba(153,167,188,0.25)',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.9'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
             <Plus size={16} /> 新建任务
           </button>
         </div>
       )}
 
-      {/* Search & Filter */}
-      <div className="flex gap-3 flex-wrap items-center">
-        <div className="relative flex-1 min-w-[200px] max-w-xs">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-fg" />
+      {/* Search & Filter Bar */}
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ position: 'relative', flex: '1 1 200px', maxWidth: '260px' }}>
+          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
           <input
             type="text" placeholder="搜索任务..." value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-black/5 text-fg outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-            style={{ background: 'rgba(255,255,255,0.65)' }}
+            style={{
+              width: '100%',
+              padding: '8px 12px 8px 36px',
+              fontSize: '13px',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--line)',
+              background: 'var(--bg-surface)',
+              color: 'var(--text-primary)',
+              outline: 'none',
+              transition: 'all 0.3s var(--ease-smooth)',
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--kon-main)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(153,167,188,0.12)'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line)'; e.currentTarget.style.boxShadow = 'none'; }}
           />
         </div>
 
-        {/* Project filter (only in global task view) */}
         {!projectId && (
           <select
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
-            className="px-3 py-2 text-sm rounded-lg border border-black/5 bg-white/80 outline-none"
+            style={{
+              padding: '8px 12px',
+              fontSize: '13px',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--line)',
+              background: 'var(--bg-surface)',
+              color: 'var(--text-primary)',
+              outline: 'none',
+            }}
           >
             <option value="all">全部项目</option>
             <option value="none">无项目</option>
@@ -112,15 +142,26 @@ export default function TaskView({ projectId }: { projectId?: string }) {
           <button
             key={s}
             onClick={() => setFilter(s)}
-            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-              filter === s ? 'bg-primary text-primary-fg' : 'bg-muted text-muted-fg hover:bg-border'
-            }`}
+            style={{
+              padding: '6px 14px',
+              fontSize: '13px',
+              borderRadius: 'var(--radius-md)',
+              fontWeight: filter === s ? 500 : 400,
+              border: filter === s ? '1px solid var(--kon-main)' : '1px solid var(--line)',
+              background: filter === s ? 'rgba(153,167,188,0.12)' : 'var(--bg-surface)',
+              color: filter === s ? 'var(--kon-deeper)' : 'var(--text-dim)',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
           >
             {s === 'all' ? '全部' : statusLabels[s].label}
           </button>
         ))}
         {projectId && (
-          <button onClick={() => setShowForm(true)} className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-fg text-sm font-medium hover:opacity-90 transition-opacity">
+          <button
+            onClick={() => setShowForm(true)}
+            style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', fontSize: '13px', fontWeight: 500, borderRadius: 'var(--radius-md)', color: '#fff', background: 'linear-gradient(135deg, var(--kon-dark), var(--kon-deeper))', border: 'none', cursor: 'pointer' }}
+          >
             <Plus size={16} /> 新建任务
           </button>
         )}
@@ -133,18 +174,30 @@ export default function TaskView({ projectId }: { projectId?: string }) {
           return (
             <div
               key={col}
-              className="rounded-xl p-3 border border-black/5"
-              style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(12px) saturate(130%)', WebkitBackdropFilter: 'blur(12px) saturate(130%)' }}
+              style={{
+                borderRadius: 'var(--radius-lg)',
+                padding: '12px',
+                border: '1px solid var(--line)',
+                background: 'var(--bg-deep)',
+              }}
             >
-              <div className="flex items-center justify-between mb-3 px-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: statusLabels[col].color }} />
-                  <span className="text-sm font-semibold text-fg">{statusLabels[col].label}</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', padding: '0 4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: statusLabels[col].color }} />
+                  <span className="font-serif-cn" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '0.02em' }}>
+                    {statusLabels[col].label}
+                  </span>
                 </div>
-                <span
-                  className="text-xs text-muted-fg px-2 py-0.5 rounded-full border border-black/5"
-                  style={{ background: 'rgba(255,255,255,0.6)' }}
-                >{colTasks.length}</span>
+                <span style={{
+                  fontSize: '11px',
+                  color: 'var(--text-dim)',
+                  padding: '2px 8px',
+                  borderRadius: '999px',
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--line)',
+                }}>
+                  {colTasks.length}
+                </span>
               </div>
               <div className="space-y-2">
                 {colTasks.map((task) => (
@@ -166,37 +219,41 @@ export default function TaskView({ projectId }: { projectId?: string }) {
 
       {/* Add Task Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.3)' }} onClick={() => setShowForm(false)}>
           <div
-            className="rounded-2xl shadow-xl p-6 w-full max-w-md animate-scale-in border border-black/5"
-            style={{
-              background: 'rgba(255,255,255,0.82)',
-              backdropFilter: 'blur(24px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-            }}
+            className="card-surface animate-scale-in"
+            style={{ padding: '24px', width: '100%', maxWidth: '440px', cursor: 'default' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-lg font-bold text-fg mb-4">{projectId ? '新增任务' : '新建任务'}</h2>
+            <h2 className="font-serif-cn text-lg font-semibold text-fg mb-4">{projectId ? '新增任务' : '新建任务'}</h2>
             <input
               type="text" placeholder="任务标题" value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2.5 text-sm rounded-lg border bg-muted/50 text-fg outline-none focus:ring-2 focus:ring-primary/30 mb-3"
+              className="w-full px-3 py-2.5 rounded-lg text-sm outline-none focus:ring-2 transition-all mb-3"
+              style={{ border: '1px solid var(--line)', background: 'var(--bg-deep)', color: 'var(--text-primary)' }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--kon-main)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(153,167,188,0.12)'; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line)'; e.currentTarget.style.boxShadow = 'none'; }}
               autoFocus
             />
             <textarea
               placeholder="任务描述（可选）" value={desc}
               onChange={(e) => setDesc(e.target.value)}
-              className="w-full px-3 py-2.5 text-sm rounded-lg border bg-muted/50 text-fg outline-none focus:ring-2 focus:ring-primary/30 mb-3 h-20 resize-none"
+              className="w-full px-3 py-2.5 rounded-lg text-sm outline-none focus:ring-2 transition-all mb-3 h-20 resize-none"
+              style={{ border: '1px solid var(--line)', background: 'var(--bg-deep)', color: 'var(--text-primary)' }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--kon-main)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(153,167,188,0.12)'; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line)'; e.currentTarget.style.boxShadow = 'none'; }}
             />
             <div className="flex gap-2 mb-4">
               {(['low', 'medium', 'high'] as const).map((p) => (
                 <button
                   key={p}
                   onClick={() => setPriority(p)}
-                  className={`flex-1 py-1.5 text-xs rounded-md border transition-colors ${
-                    priority === p ? 'text-white' : 'text-muted-fg hover:bg-muted'
-                  }`}
-                  style={priority === p ? { backgroundColor: priorityColors[p], borderColor: priorityColors[p] } : {}}
+                  className="flex-1 py-1.5 rounded-md text-xs border transition-all"
+                  style={{
+                    background: priority === p ? priorityColors[p] : 'var(--bg-surface)',
+                    color: priority === p ? '#fff' : 'var(--text-dim)',
+                    borderColor: priority === p ? priorityColors[p] : 'var(--line)',
+                  }}
                 >
                   {p === 'high' ? '高' : p === 'medium' ? '中' : '低'}
                 </button>
@@ -204,11 +261,12 @@ export default function TaskView({ projectId }: { projectId?: string }) {
             </div>
             {/* Project selector */}
             <div className="mb-4">
-              <label className="block text-xs font-semibold text-muted-fg mb-1.5">所属项目</label>
+              <label className="block text-xs font-semibold text-fg-mid mb-1.5">所属项目</label>
               <select
                 value={taskProjectId}
                 onChange={(e) => setTaskProjectId(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-lg border bg-white/80 text-fg outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+                style={{ border: '1px solid var(--line)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
               >
                 <option value="">无项目</option>
                 {projects.filter((p) => p.status === 'active').map((p) => (
@@ -216,14 +274,14 @@ export default function TaskView({ projectId }: { projectId?: string }) {
                 ))}
               </select>
             </div>
-
             {/* Parent task selector */}
             <div className="mb-4">
-              <label className="block text-xs font-semibold text-muted-fg mb-1.5">父任务（可选）</label>
+              <label className="block text-xs font-semibold text-fg-mid mb-1.5">父任务（可选）</label>
               <select
                 value={taskParentId}
                 onChange={(e) => setTaskParentId(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-lg border bg-white/80 text-fg outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+                style={{ border: '1px solid var(--line)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
               >
                 <option value="">无（独立任务）</option>
                 {tasks
@@ -234,8 +292,20 @@ export default function TaskView({ projectId }: { projectId?: string }) {
               </select>
             </div>
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm rounded-lg bg-muted text-muted-fg hover:bg-border transition-colors">取消</button>
-              <button onClick={handleAdd} className="px-4 py-2 text-sm rounded-lg bg-primary text-primary-fg hover:opacity-90 transition-opacity">创建</button>
+              <button
+                onClick={() => setShowForm(false)}
+                className="px-4 py-2 text-sm rounded-lg transition-colors"
+                style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}
+              >
+                取消
+              </button>
+              <button
+                onClick={handleAdd}
+                className="px-4 py-2 text-sm rounded-lg text-white font-medium transition-all"
+                style={{ background: 'linear-gradient(135deg, var(--kon-dark), var(--kon-deeper))' }}
+              >
+                创建
+              </button>
             </div>
           </div>
         </div>
@@ -266,17 +336,14 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
   const [subtaskError, setSubtaskError] = useState('');
   const [showTimerPrompt, setShowTimerPrompt] = useState(false);
   const [timerStarted, setTimerStarted] = useState(false);
-  // Increment this to force re-mount / re-start the timer
   const [timerSessionKey, setTimerSessionKey] = useState(0);
   const hasAutoStartedRef = useRef(false);
-  // Collapsible details panel for done tasks
   const [showDetails, setShowDetails] = useState(false);
 
   const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
   const completedSubtasks = subtasks.filter((st) => st.done).length;
   const isDone = task.status === 'done';
 
-  // Auto-resume timer on mount if task is in-progress (survives navigation)
   useEffect(() => {
     if (task.status === 'in-progress' && !timerStarted && !hasAutoStartedRef.current) {
       hasAutoStartedRef.current = true;
@@ -290,8 +357,6 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
     if (current === 'in-progress') return 'done';
     return 'todo';
   };
-
-  // ── Subtask operations ──
 
   const handleAddSubtask = () => {
     if (!newSubtaskTitle.trim()) return;
@@ -313,13 +378,11 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
     const updated = subtasks.map((st) =>
       st.id === subtaskId ? { ...st, done: !st.done } : st
     );
-    // Pure subtask operation — no timer interaction, no parent status change
     onUpdate({ subtasks: updated });
   };
 
   const handleDeleteSubtask = (subtaskId: string) => {
     const updated = subtasks.filter((st) => st.id !== subtaskId);
-    // Pure subtask operation — no timer interaction, no parent status change
     onUpdate({ subtasks: updated });
   };
 
@@ -338,15 +401,11 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
     setEditingSubtaskTitle('');
   };
 
-  // ── Parent status toggle with subtask sync ──
-
   const handleParentStatusToggle = () => {
     const next = nextStatus(task.status);
     if (next === 'in-progress') {
-      // Show timer prompt instead of directly changing status
       setShowTimerPrompt(true);
     } else if (next === 'done') {
-      // Stop any running timer for this task
       stopTaskTimer(task.id);
       setTimerStarted(false);
       if (subtasks.length > 0) {
@@ -356,7 +415,6 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
         onUpdate({ status: 'done' });
       }
     } else if (task.status === 'done') {
-      // Moving away from done
       onUpdate({ status: next });
     } else {
       onUpdate({ status: next });
@@ -395,10 +453,15 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
 
   return (
     <div
-      className="rounded-xl border border-black/5 shadow-sm hover:shadow-md transition-shadow group overflow-hidden"
-      style={{ background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
+      className="rounded-xl border overflow-hidden transition-shadow group"
+      style={{
+        background: 'var(--bg-surface)',
+        borderColor: 'var(--line)',
+        boxShadow: 'var(--shadow-xs)',
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-xs)'; }}
     >
-      {/* Project color bar */}
       {project && (
         <div className="h-0.5 w-full" style={{ backgroundColor: project.coverColor }} />
       )}
@@ -407,47 +470,50 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
         <div className="space-y-2">
           <input
             value={editTitle} onChange={(e) => setEditTitle(e.target.value)}
-            className="w-full text-sm font-medium px-2 py-1 rounded border bg-muted/50 text-fg outline-none"
+            className="w-full text-sm font-medium px-2 py-1 rounded border outline-none"
+            style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)' }}
             autoFocus
           />
           <textarea
             value={editDesc} onChange={(e) => setEditDesc(e.target.value)}
-            className="w-full text-xs px-2 py-1 rounded border bg-muted/50 text-fg outline-none h-16 resize-none"
+            className="w-full text-xs px-2 py-1 rounded border outline-none h-16 resize-none"
+            style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)' }}
           />
           <div className="flex gap-1 justify-end">
-            <button onClick={() => onEditingChange(false)} className="px-2 py-1 text-xs rounded bg-muted text-muted-fg">取消</button>
-            <button onClick={() => { onEdit({ title: editTitle, description: editDesc }); onEditingChange(false); }} className="px-2 py-1 text-xs rounded bg-primary text-primary-fg">保存</button>
+            <button
+              onClick={() => onEditingChange(false)}
+              className="px-2 py-1 text-xs rounded"
+              style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}
+            >取消</button>
+            <button
+              onClick={() => { onEdit({ title: editTitle, description: editDesc }); onEditingChange(false); }}
+              className="px-2 py-1 text-xs rounded text-white"
+              style={{ background: 'var(--kon-dark)' }}
+            >保存</button>
           </div>
         </div>
       ) : isDone ? (
         <div className="p-4">
-          {/* ── Title row — most prominent ── */}
           <div className="flex items-start gap-2.5">
-            <div
-              className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-              style={{ backgroundColor: '#10b981' }}
-            >
+            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background: 'var(--accent-teal)' }}>
               <Check size={14} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start gap-2">
-                <span
-                  className="text-base font-semibold text-fg leading-snug"
-                  style={{ opacity: 0.55, textDecoration: 'line-through' }}
-                >
+                <span className="text-base font-semibold leading-snug" style={{ opacity: 0.55, textDecoration: 'line-through', color: 'var(--text-primary)' }}>
                   {task.title}
                 </span>
                 <button
                   onClick={() => setShowDetails(!showDetails)}
-                  className="ml-auto p-1 rounded hover:bg-black/5 transition-colors shrink-0 text-muted-fg mt-0.5"
+                  className="ml-auto p-1 rounded hover:bg-black/5 transition-colors shrink-0"
+                  style={{ color: 'var(--text-dim)' }}
                   title={showDetails ? '收起详情' : '展开详情'}
                 >
                   {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                 </button>
               </div>
-              {/* One-line summary when collapsed */}
               {!showDetails && (
-                <div className="text-xs text-muted-fg mt-1.5 flex items-center gap-2 flex-wrap">
+                <div className="text-xs mt-1.5 flex items-center gap-2 flex-wrap" style={{ color: 'var(--text-dim)' }}>
                   {subtasks.length > 0 && <span>{completedSubtasks}/{subtasks.length} 子任务</span>}
                   {(task.focusSession?.totalDuration ?? 0) > 0 && <span>专注 {formatDuration(task.focusSession!.totalDuration)} · {task.focusSession!.sessionCount} 次</span>}
                   {task.dueDate && <span>{format(new Date(task.dueDate), 'MM/dd')}</span>}
@@ -456,50 +522,41 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             </div>
           </div>
 
-          {/* ── Expandable details panel ── */}
           {showDetails && (
             <div className="mt-3 space-y-3 animate-scale-in" style={{ marginLeft: '2.125rem' }}>
               {task.description && (
-                <p className="text-xs text-muted-fg leading-relaxed">{task.description}</p>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--text-mid)' }}>{task.description}</p>
               )}
-
-              {/* Subtasks — read-only */}
               {subtasks.length > 0 && (
                 <div>
-                  <p className="text-[11px] font-medium text-muted-fg mb-1.5 uppercase tracking-wide">子任务</p>
+                  <p className="text-[11px] font-medium mb-1.5 uppercase tracking-wide" style={{ color: 'var(--text-dim)' }}>子任务</p>
                   <div className="space-y-1">
                     {subtasks.map((st) => (
                       <div key={st.id} className="flex items-center gap-1.5">
                         <Check size={11} className="text-green-500 shrink-0" />
-                        <span className="text-xs text-muted-fg line-through">{st.title}</span>
+                        <span className="text-xs line-through" style={{ color: 'var(--text-dim)' }}>{st.title}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-
-              {/* Focus summary */}
               {(task.focusSession?.totalDuration ?? 0) > 0 && (
                 <div>
-                  <p className="text-[11px] font-medium text-muted-fg mb-1.5 uppercase tracking-wide">专注记录</p>
-                  <div className="text-xs text-muted-fg flex items-center gap-1.5">
+                  <p className="text-[11px] font-medium mb-1.5 uppercase tracking-wide" style={{ color: 'var(--text-dim)' }}>专注记录</p>
+                  <div className="text-xs flex items-center gap-1.5" style={{ color: 'var(--text-dim)' }}>
                     <Timer size={12} />
                     <span>累计 {formatDuration(task.focusSession!.totalDuration)} · {task.focusSession!.sessionCount} 次</span>
                   </div>
                 </div>
               )}
-
-              {/* Meta row */}
-              <div className="flex items-center gap-2 pt-2 border-t border-black/5">
-                <span className="text-[11px] px-1.5 py-0.5 rounded bg-green-50 text-green-600">已完成</span>
-                {task.dueDate && <span className="text-[11px] text-muted-fg">{format(new Date(task.dueDate), 'yyyy-MM-dd')}</span>}
-                <span className="text-[11px] text-muted-fg">优先级：{task.priority === 'high' ? '高' : task.priority === 'medium' ? '中' : '低'}</span>
+              <div className="flex items-center gap-2 pt-2 border-t" style={{ borderColor: 'var(--line)' }}>
+                <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(74,138,122,0.1)', color: 'var(--accent-teal)' }}>已完成</span>
+                {task.dueDate && <span className="text-[11px]" style={{ color: 'var(--text-dim)' }}>{format(new Date(task.dueDate), 'yyyy-MM-dd')}</span>}
+                <span className="text-[11px]" style={{ color: 'var(--text-dim)' }}>优先级：{task.priority === 'high' ? '高' : task.priority === 'medium' ? '中' : '低'}</span>
               </div>
-
-              {/* Actions */}
               <div className="flex items-center gap-2 pt-1">
-                <button onClick={handleParentStatusToggle} className="text-xs px-2.5 py-1 rounded-lg bg-muted text-muted-fg hover:bg-border transition-colors">重新开始</button>
-                <button onClick={onDelete} className="text-xs px-2.5 py-1 rounded-lg text-red-500 hover:bg-red-50 transition-colors">删除</button>
+                <button onClick={handleParentStatusToggle} className="text-xs px-2.5 py-1 rounded-lg transition-colors" style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}>重新开始</button>
+                <button onClick={onDelete} className="text-xs px-2.5 py-1 rounded-lg transition-colors" style={{ color: 'var(--accent-orange)' }}>删除</button>
               </div>
             </div>
           )}
@@ -508,58 +565,64 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
         <>
           <div className="flex items-start gap-2">
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
-              <div className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ backgroundColor: priorityColors[task.priority] }} />
+              <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ backgroundColor: priorityColors[task.priority] }} />
               {parentTask && (
-                <span className="text-[10px] text-muted-fg/60 bg-black/3 px-1 rounded shrink-0 mt-0.5" title={`父任务: ${parentTask.title}`}>
+                <span className="text-[10px] bg-black/3 px-1 rounded shrink-0 mt-0.5" style={{ color: 'var(--text-dim)' }} title={`父任务: ${parentTask.title}`}>
                   ↳{parentTask.title.slice(0, 4)}…
                 </span>
               )}
               <span
-                className="text-sm font-medium text-fg cursor-pointer hover:text-primary transition-colors truncate"
+                className="text-sm font-medium cursor-pointer truncate transition-colors"
+                style={{ color: 'var(--text-primary)' }}
                 onClick={() => onEditingChange(true)}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--kon-dark)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-primary)'; }}
               >
                 {task.title}
               </span>
             </div>
             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-              <button onClick={handleParentStatusToggle} className="p-1 rounded hover:bg-muted transition-colors" title="切换状态">
-                <Check size={13} className={isDone ? 'text-green-500' : 'text-muted-fg'} />
+              <button onClick={handleParentStatusToggle} className="p-1 rounded hover:bg-black/5 transition-colors" title="切换状态">
+                <Check size={13} style={{ color: isDone ? 'var(--accent-teal)' : 'var(--text-dim)' }} />
               </button>
               <button onClick={onDelete} className="p-1 rounded hover:bg-red-50 transition-colors" title="删除">
-                <Trash2 size={13} className="text-muted-fg hover:text-red-500" />
+                <Trash2 size={13} style={{ color: 'var(--text-dim)' }} />
               </button>
             </div>
           </div>
 
           {task.description && (
-            <p className="text-xs text-muted-fg mt-1.5 line-clamp-2 ml-3.5">{task.description}</p>
+            <p className="text-xs mt-1.5 line-clamp-2 ml-3.5" style={{ color: 'var(--text-dim)' }}>{task.description}</p>
           )}
 
-          {/* Subtask progress bar */}
           {subtasks.length > 0 && (
             <div className="mt-2 ml-3.5">
               <button
                 onClick={() => setShowSubtasks(!showSubtasks)}
-                className="flex items-center gap-1.5 text-xs text-muted-fg hover:text-fg transition-colors"
+                className="flex items-center gap-1.5 text-xs transition-colors"
+                style={{ color: 'var(--text-dim)' }}
               >
                 {showSubtasks ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                 <ListChecks size={12} />
                 <span>{completedSubtasks}/{subtasks.length} 子任务</span>
               </button>
-              <div className="h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
-                <div className="h-full rounded-full transition-all duration-300" style={{ width: `${subtasks.length > 0 ? (completedSubtasks / subtasks.length) * 100 : 0}%`, backgroundColor: '#3b82f6' }} />
+              <div className="h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'var(--bg-deep)' }}>
+                <div className="h-full rounded-full transition-all duration-300" style={{ width: `${subtasks.length > 0 ? (completedSubtasks / subtasks.length) * 100 : 0}%`, background: 'var(--kon-main)' }} />
               </div>
             </div>
           )}
 
-          {/* Subtask list (expandable) */}
           {showSubtasks && (
             <div className="mt-2 ml-3.5 space-y-1 animate-scale-in">
               {subtasks.map((st) => (
                 <div key={st.id} className="flex items-center gap-1.5 group/sub">
                   <button
                     onClick={() => handleToggleSubtask(st.id)}
-                    className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${st.done ? 'bg-green-500 border-green-500' : 'border-muted-fg/40 hover:border-primary'}`}
+                    className="w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all"
+                    style={{
+                      background: st.done ? 'var(--accent-teal)' : 'transparent',
+                      borderColor: st.done ? 'var(--accent-teal)' : 'var(--text-dim)',
+                    }}
                   >
                     {st.done && <Check size={10} className="text-white" />}
                   </button>
@@ -569,16 +632,23 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                       onChange={(e) => setEditingSubtaskTitle(e.target.value)}
                       onBlur={handleSaveEditSubtask}
                       onKeyDown={(e) => { if (e.key === 'Enter') handleSaveEditSubtask(); if (e.key === 'Escape') { setEditingSubtaskId(null); setEditingSubtaskTitle(''); }}}
-                      className="flex-1 text-xs px-1.5 py-0.5 rounded border border-primary/30 bg-white/80 text-fg outline-none"
+                      className="flex-1 text-xs px-1.5 py-0.5 rounded border outline-none"
+                      style={{ borderColor: 'var(--kon-main)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
                       autoFocus
                     />
                   ) : (
-                    <span className={`flex-1 text-xs text-fg cursor-text truncate ${st.done ? 'line-through opacity-40' : ''}`} onDoubleClick={() => handleStartEditSubtask(st)}>{st.title}</span>
+                    <span
+                      className="flex-1 text-xs cursor-text truncate"
+                      style={{ color: 'var(--text-primary)', textDecoration: st.done ? 'line-through' : 'none', opacity: st.done ? 0.4 : 1 }}
+                      onDoubleClick={() => handleStartEditSubtask(st)}
+                    >
+                      {st.title}
+                    </span>
                   )}
                   {editingSubtaskId !== st.id && (
                     <div className="flex gap-0.5 opacity-0 group-hover/sub:opacity-100 transition-opacity shrink-0">
-                      <button onClick={() => handleStartEditSubtask(st)} className="p-0.5 rounded hover:bg-muted transition-colors" title="编辑"><Pencil size={10} className="text-muted-fg" /></button>
-                      <button onClick={() => handleDeleteSubtask(st.id)} className="p-0.5 rounded hover:bg-red-50 transition-colors" title="删除"><Trash2 size={10} className="text-muted-fg hover:text-red-500" /></button>
+                      <button onClick={() => handleStartEditSubtask(st)} className="p-0.5 rounded hover:bg-black/5 transition-colors" title="编辑"><Pencil size={10} style={{ color: 'var(--text-dim)' }} /></button>
+                      <button onClick={() => handleDeleteSubtask(st.id)} className="p-0.5 rounded hover:bg-red-50 transition-colors" title="删除"><Trash2 size={10} style={{ color: 'var(--text-dim)' }} /></button>
                     </div>
                   )}
                 </div>
@@ -592,28 +662,30 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
                   onChange={(e) => setNewSubtaskTitle(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleAddSubtask(); }}
                   disabled={subtasks.length >= MAX_SUBTASKS}
-                  className="flex-1 text-xs px-1.5 py-0.5 rounded border border-black/5 bg-white/50 text-fg outline-none focus:ring-1 focus:ring-primary/30 disabled:opacity-50"
+                  className="flex-1 text-xs px-1.5 py-0.5 rounded border outline-none focus:ring-1 disabled:opacity-50"
+                  style={{ borderColor: 'var(--line)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--kon-main)'; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line)'; }}
                 />
                 {newSubtaskTitle.trim() && subtasks.length < MAX_SUBTASKS && (
-                  <button onClick={handleAddSubtask} className="p-0.5 rounded hover:bg-muted transition-colors"><Plus size={12} className="text-primary" /></button>
+                  <button onClick={handleAddSubtask} className="p-0.5 rounded hover:bg-black/5 transition-colors"><Plus size={12} style={{ color: 'var(--kon-dark)' }} /></button>
                 )}
               </div>
               {subtaskError && <p className="text-xs text-red-500 mt-1 ml-5.5">{subtaskError}</p>}
-              <p className="text-xs text-muted-fg/60 mt-0.5 ml-5.5">{subtasks.length}/{MAX_SUBTASKS}</p>
+              <p className="text-xs mt-0.5 ml-5.5" style={{ color: 'var(--text-dim)' }}>{subtasks.length}/{MAX_SUBTASKS}</p>
             </div>
           )}
 
-          {/* Add subtask button — hidden until hover (when collapsed) */}
           {!showSubtasks && subtasks.length < MAX_SUBTASKS && (
             <button
               onClick={() => setShowSubtasks(true)}
-              className="mt-2 ml-3.5 flex items-center gap-1 text-xs text-muted-fg/60 hover:text-primary transition-all opacity-0 group-hover:opacity-100"
+              className="mt-2 ml-3.5 flex items-center gap-1 text-xs opacity-0 group-hover:opacity-100 transition-all"
+              style={{ color: 'var(--text-dim)' }}
             >
               <Plus size={11} /> 添加子任务
             </button>
           )}
 
-          {/* ── Focus Timer ── */}
           <div className="mt-2">
             <FocusTimer
               taskId={task.id}
@@ -627,48 +699,47 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             />
           </div>
 
-          {/* Meta */}
           <div className="flex items-center gap-2 mt-2 ml-3.5">
-            <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: statusLabels[task.status].color + '20', color: statusLabels[task.status].color }}>
+            <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: statusBgMap[task.status], color: statusLabels[task.status].color }}>
               {statusLabels[task.status].label}
             </span>
             {childCount > 0 && (
-              <span className="text-xs text-muted-fg flex items-center gap-1" title={`${childCount} 个子任务`}>
+              <span className="text-xs flex items-center gap-1" style={{ color: 'var(--text-dim)' }} title={`${childCount} 个子任务`}>
                 <ListChecks size={10} /> {childCount}
               </span>
             )}
             {task.dueDate && (
-              <span className="text-xs text-muted-fg flex items-center gap-1">
+              <span className="text-xs flex items-center gap-1" style={{ color: 'var(--text-dim)' }}>
                 <Calendar size={10} /> {format(new Date(task.dueDate), 'MM/dd')}
               </span>
             )}
           </div>
 
-          {/* ── Timer Start Prompt Modal ── */}
+          {/* Timer Start Prompt Modal */}
           {showTimerPrompt && (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.45)' }} onClick={handleSkipTimer}>
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }} onClick={handleSkipTimer}>
               <div
-                className="rounded-2xl shadow-2xl p-6 w-full max-w-xs animate-scale-in border border-black/10"
-                style={{ background: '#ffffff', boxShadow: '0 25px 60px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.1)' }}
+                className="card-surface rounded-2xl p-6 w-full max-w-xs animate-scale-in"
+                style={{ boxShadow: 'var(--shadow-xl)', cursor: 'default' }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: '#3b82f620' }}>
-                    <Timer size={20} className="text-blue-500" />
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(153,167,188,0.15)' }}>
+                    <Timer size={20} style={{ color: 'var(--kon-dark)' }} />
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-fg">启动专注计时？</h3>
-                    <p className="text-xs text-muted-fg mt-0.5">任务「{task.title}」</p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>任务「{task.title}」</p>
                   </div>
                 </div>
                 {(task.focusSession?.totalDuration ?? 0) > 0 && (
-                  <p className="text-xs text-muted-fg mb-4 px-3 py-2 rounded-lg" style={{ background: 'rgba(0,0,0,0.03)' }}>
+                  <p className="text-xs mb-4 px-3 py-2 rounded-lg" style={{ color: 'var(--text-dim)', background: 'var(--bg-deep)' }}>
                     已累计专注 {formatDuration(task.focusSession!.totalDuration)}
                   </p>
                 )}
                 <div className="flex gap-2">
-                  <button onClick={handleSkipTimer} className="flex-1 py-2.5 text-sm rounded-lg bg-muted text-muted-fg hover:bg-border transition-colors">暂不启动</button>
-                  <button onClick={handleStartTimer} className="flex-1 py-2.5 text-sm rounded-lg text-white font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}>
+                  <button onClick={handleSkipTimer} className="flex-1 py-2.5 text-sm rounded-lg transition-colors" style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}>暂不启动</button>
+                  <button onClick={handleStartTimer} className="flex-1 py-2.5 text-sm rounded-lg text-white font-medium transition-all flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, var(--accent-orange), var(--accent-rust))' }}>
                     <Play size={14} /> 开始专注
                   </button>
                 </div>

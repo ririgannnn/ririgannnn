@@ -6,6 +6,13 @@ import ImageUpload from './ImageUpload';
 
 const defaultCategories = ['技术', '设计', '产品', '工具', '阅读', '其他'];
 
+const inputStyle: React.CSSProperties = {
+  border: '1px solid var(--line)',
+  background: 'var(--bg-deep)',
+  color: 'var(--text-primary)',
+  outline: 'none',
+};
+
 export default function KnowledgeBase() {
   const { knowledge, addKnowledge, updateKnowledge, deleteKnowledge } = useStore();
   const [search, setSearch] = useState('');
@@ -46,32 +53,39 @@ export default function KnowledgeBase() {
       {/* Sidebar */}
       <div className="w-56 shrink-0 space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-fg">知识库</h1>
-          <button onClick={() => { setShowForm(true); setSelectedId(null); }}
-            className="p-1.5 rounded-lg bg-primary text-primary-fg hover:opacity-90 transition-opacity">
+          <h1 className="text-xl font-bold font-serif-cn text-fg">知识库</h1>
+          <button
+            onClick={() => { setShowForm(true); setSelectedId(null); }}
+            className="p-1.5 rounded-lg text-white transition-all"
+            style={{ background: 'var(--kon-dark)' }}
+          >
             <Plus size={16} />
           </button>
         </div>
 
-        <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-fg" />
+        <div style={{ position: 'relative' }}>
+          <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
           <input
             type="text" placeholder="搜索知识条目..."
             value={search} onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border bg-card text-fg outline-none focus:ring-2 focus:ring-primary/30"
+            style={{ width: '100%', padding: '8px 12px 8px 32px', fontSize: '13px', borderRadius: 'var(--radius-md)', ...inputStyle, background: 'var(--bg-surface)' }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--kon-main)'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--line)'; }}
           />
         </div>
 
         <div>
-          <p className="text-xs font-semibold text-muted-fg uppercase tracking-wider mb-2">分类</p>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-dim)' }}>分类</p>
           <div className="space-y-0.5">
             <button onClick={() => setActiveCategory('all')}
-              className={`w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors ${activeCategory === 'all' ? 'bg-primary/10 text-primary font-medium' : 'text-muted-fg hover:bg-muted'}`}>
+              className="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors"
+              style={{ background: activeCategory === 'all' ? 'rgba(153,167,188,0.1)' : 'transparent', color: activeCategory === 'all' ? 'var(--kon-deeper)' : 'var(--text-dim)', fontWeight: activeCategory === 'all' ? 500 : 400 }}>
               全部分类
             </button>
             {categories.map((c) => (
               <button key={c} onClick={() => setActiveCategory(c)}
-                className={`w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors ${activeCategory === c ? 'bg-primary/10 text-primary font-medium' : 'text-muted-fg hover:bg-muted'}`}>
+                className="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors"
+                style={{ background: activeCategory === c ? 'rgba(153,167,188,0.1)' : 'transparent', color: activeCategory === c ? 'var(--kon-deeper)' : 'var(--text-dim)', fontWeight: activeCategory === c ? 500 : 400 }}>
                 <ChevronRight size={12} className="inline mr-1" />{c}
               </button>
             ))}
@@ -83,98 +97,101 @@ export default function KnowledgeBase() {
       <div className="flex-1 min-w-0">
         {showForm ? (
           <div className="space-y-3 animate-scale-in max-w-2xl">
-            <h2 className="text-lg font-bold text-fg">新建知识条目</h2>
+            <h2 className="text-lg font-bold font-serif-cn text-fg">新建知识条目</h2>
             <input type="text" placeholder="标题" value={title} onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-lg border bg-card text-fg outline-none focus:ring-2 focus:ring-primary/30" autoFocus />
+              className="w-full px-3 py-2 text-sm rounded-lg"
+              style={inputStyle} autoFocus />
             <textarea placeholder="内容..." value={content} onChange={(e) => setContent(e.target.value)}
-              className="w-full px-3 py-3 text-sm rounded-lg border bg-card text-fg outline-none focus:ring-2 focus:ring-primary/30 min-h-[200px] resize-none leading-relaxed" />
-
+              className="w-full px-3 py-3 text-sm rounded-lg min-h-[200px] resize-none leading-relaxed"
+              style={inputStyle} />
             <ImageUpload images={formImages} onChange={setFormImages} />
-
             <div className="flex gap-2 items-center flex-wrap">
-              <span className="text-xs text-muted-fg">分类：</span>
+              <span className="text-xs" style={{ color: 'var(--text-dim)' }}>分类：</span>
               {!showNewCategory ? (
                 <>
                   <select value={category} onChange={(e) => setCategory(e.target.value)}
-                    className="text-xs px-2 py-1 rounded border bg-muted/50 text-fg outline-none">
+                    className="text-xs px-2 py-1 rounded border outline-none"
+                    style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)' }}>
                     {categories.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
-                  <button onClick={() => setShowNewCategory(true)} className="text-xs text-primary hover:underline">+ 自定义</button>
+                  <button onClick={() => setShowNewCategory(true)} className="text-xs" style={{ color: 'var(--kon-dark)' }}>+ 自定义</button>
                 </>
               ) : (
                 <div className="flex gap-1">
                   <input value={customCategory} onChange={(e) => setCustomCategory(e.target.value)}
-                    placeholder="新分类名" className="text-xs px-2 py-1 rounded border bg-muted/50 text-fg outline-none w-28" />
-                  <button onClick={() => setShowNewCategory(false)} className="p-1"><X size={14} className="text-muted-fg" /></button>
+                    placeholder="新分类名" className="text-xs px-2 py-1 rounded border outline-none w-28"
+                    style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)' }} />
+                  <button onClick={() => setShowNewCategory(false)} className="p-1"><X size={14} style={{ color: 'var(--text-dim)' }} /></button>
                 </div>
               )}
               <input type="text" placeholder="标签，逗号分隔" value={tags} onChange={(e) => setTags(e.target.value)}
-                className="text-xs px-2 py-1 rounded border bg-muted/50 text-fg outline-none flex-1 min-w-[150px]" />
+                className="text-xs px-2 py-1 rounded border outline-none flex-1 min-w-[150px]"
+                style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)', borderColor: 'var(--line)' }} />
             </div>
-
             <div className="flex gap-2">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm rounded-lg bg-muted text-muted-fg hover:bg-border">取消</button>
-              <button onClick={handleCreate} className="px-4 py-2 text-sm rounded-lg bg-primary text-primary-fg hover:opacity-90">保存</button>
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm rounded-lg transition-colors" style={{ background: 'var(--bg-deep)', color: 'var(--text-dim)' }}>取消</button>
+              <button onClick={handleCreate} className="px-4 py-2 text-sm rounded-lg text-white font-medium" style={{ background: 'var(--kon-dark)' }}>保存</button>
             </div>
           </div>
         ) : selected ? (
           <div className="animate-scale-in max-w-3xl">
-            <div className="rounded-xl border border-black/5 shadow-md p-6" style={{ background: 'rgba(255,255,255,0.78)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
-            <div className="flex items-center justify-between mb-4">
-              <button onClick={() => setSelectedId(null)} className="text-sm text-muted-fg hover:text-fg transition-colors flex items-center gap-1">
-                ← 返回列表
-              </button>
-              <button onClick={() => { deleteKnowledge(selected.id); setSelectedId(null); }}
-                className="p-1.5 rounded hover:bg-red-50 transition-colors">
-                <Trash2 size={15} className="text-muted-fg hover:text-red-500" />
-              </button>
-            </div>
-            <h2 className="text-xl font-bold text-fg mb-2">{selected.title}</h2>
-            <div className="flex gap-3 text-xs text-muted-fg mb-4">
-              <span className="flex items-center gap-1"><BookOpen size={12} /> {selected.category}</span>
-              <span>{format(new Date(selected.createdAt), 'yyyy-MM-dd HH:mm')}</span>
-              {(Array.isArray(selected.tags) ? selected.tags : []).map((t) => (
-                <span key={t} className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-muted"><Tag size={10} /> {t}</span>
-              ))}
-            </div>
-            <div className="prose prose-sm max-w-none text-fg leading-relaxed whitespace-pre-wrap">{selected.content}</div>
-
-            {Array.isArray(selected.images) && selected.images.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
-                {selected.images.map((img, i) => (
-                  <div key={i} className="rounded-lg overflow-hidden border border-black/5">
-                    <img src={img} alt={`图片 ${i + 1}`} className="w-full h-auto object-cover" />
-                  </div>
+            <div className="card-surface p-6">
+              <div className="flex items-center justify-between mb-4">
+                <button onClick={() => setSelectedId(null)} className="text-sm transition-colors flex items-center gap-1" style={{ color: 'var(--text-dim)' }}>
+                  ← 返回列表
+                </button>
+                <button onClick={() => { deleteKnowledge(selected.id); setSelectedId(null); }}
+                  className="p-1.5 rounded hover:bg-red-50 transition-colors">
+                  <Trash2 size={15} style={{ color: 'var(--text-dim)' }} />
+                </button>
+              </div>
+              <h2 className="text-xl font-bold font-serif-cn text-fg mb-2">{selected.title}</h2>
+              <div className="flex gap-3 text-xs mb-4" style={{ color: 'var(--text-dim)' }}>
+                <span className="flex items-center gap-1"><BookOpen size={12} /> {selected.category}</span>
+                <span>{format(new Date(selected.createdAt), 'yyyy-MM-dd HH:mm')}</span>
+                {(Array.isArray(selected.tags) ? selected.tags : []).map((t) => (
+                  <span key={t} className="flex items-center gap-1 px-1.5 py-0.5 rounded-full" style={{ background: 'var(--bg-deep)' }}><Tag size={10} /> {t}</span>
                 ))}
               </div>
-            )}
+              <div className="prose prose-sm max-w-none leading-relaxed whitespace-pre-wrap" style={{ color: 'var(--text-primary)' }}>{selected.content}</div>
 
-            <div className="mt-4 pt-4 border-t border-black/5">
-              <ImageUpload
-                images={Array.isArray(selected.images) ? selected.images : []}
-                onChange={(imgs) => updateKnowledge(selected.id, { images: imgs })}
-              />
-            </div>
+              {Array.isArray(selected.images) && selected.images.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+                  {selected.images.map((img, i) => (
+                    <div key={i} className="rounded-lg overflow-hidden border" style={{ borderColor: 'var(--line)' }}>
+                      <img src={img} alt={`图片 ${i + 1}`} className="w-full h-auto object-cover" />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--line)' }}>
+                <ImageUpload
+                  images={Array.isArray(selected.images) ? selected.images : []}
+                  onChange={(imgs) => updateKnowledge(selected.id, { images: imgs })}
+                />
+              </div>
             </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {filtered.length === 0 ? (
-              <p className="text-sm text-muted-fg py-8 col-span-full text-center">暂无知识条目，点击右上角创建</p>
+              <p className="text-sm py-8 col-span-full text-center" style={{ color: 'var(--text-dim)' }}>暂无知识条目，点击右上��创建</p>
             ) : (
               filtered.map((k) => (
                 <button key={k.id} onClick={() => setSelectedId(k.id)}
-                  className="text-left p-4 rounded-xl border border-black/5 shadow-sm hover:shadow-md transition-all overflow-hidden"
-                  style={{ background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(12px) saturate(150%)', WebkitBackdropFilter: 'blur(12px) saturate(150%)' }}>
+                  className="card-surface text-left p-4 transition-all overflow-hidden"
+                  style={{ border: 'none' }}
+                >
                   {Array.isArray(k.images) && k.images.length > 0 && (
-                    <div className="mb-2 -mx-4 -mt-4 h-32 overflow-hidden">
+                    <div className="mb-2 -mx-4 -mt-4 h-32 overflow-hidden rounded-t-xl">
                       <img src={k.images[0]} alt={k.title} className="w-full h-full object-cover" />
                     </div>
                   )}
                   <h3 className="text-sm font-semibold text-fg mb-1 truncate">{k.title}</h3>
-                  <p className="text-xs text-muted-fg line-clamp-2 mb-2">{k.content}</p>
-                  <div className="flex items-center gap-2 text-xs text-muted-fg">
-                    <span className="px-1.5 py-0.5 rounded bg-muted">{k.category}</span>
+                  <p className="text-xs line-clamp-2 mb-2" style={{ color: 'var(--text-dim)' }}>{k.content}</p>
+                  <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-dim)' }}>
+                    <span className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-deep)' }}>{k.category}</span>
                     <span>{format(new Date(k.createdAt), 'MM-dd')}</span>
                   </div>
                 </button>

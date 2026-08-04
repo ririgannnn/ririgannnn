@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>杂志风加强版 — 低饱和 · 几何装饰对比</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c-bg:#f8f7f4;
+  --c-bg-deep:#f0eeea;
+  --c-surface:#fdfcfb;
+  --c-text:#1c1c1a;
+  --c-text-mid:#5c5b55;
+  --c-text-dim:#9c9b93;
+  --c-line:rgba(0,0,0,0.05);
+  /* 浅绀色系 — 透气、微紫调的蓝灰，用于侧边栏与全局点缀 */
+  --c-kon-main:#99a7bc;
+  --c-kon-surface:#aab7cc;
+  --c-kon-dark:#7d8ba2;
+  --c-kon-deeper:#6a7a93;
+  --c-kon-text:#2d313a;
+  --c-kon-text-dim:#6b7280;
+  --c-kon-line:rgba(255,255,255,0.15);
+  /* 撞色 */
+  --c-accent-slate:#7d8a95;
+  --c-accent-warm:#b8a088;
+  --c-accent-dust:#b8979d;
+  --c-pop-rust:#c47a5a;
+  --c-pop-indigo:#4a5b7a;
+  --c-focus-orange:#d86b42;
+  --c-focus-teal:#4a8a7a;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;--radius-xl:22px;
+  --shadow-xs:0 1px 2px rgba(0,0,0,0.02);
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.03),0 1px 2px rgba(0,0,0,0.02);
+  --shadow-md:0 3px 10px rgba(0,0,0,0.04),0 1px 3px rgba(0,0,0,0.03);
+  --shadow-lg:0 6px 20px rgba(0,0,0,0.05),0 2px 6px rgba(0,0,0,0.03);
+  --shadow-xl:0 12px 32px rgba(0,0,0,0.06),0 3px 10px rgba(0,0,0,0.04);
+  --shadow-kon:0 8px 28px rgba(153,167,188,0.22),0 2px 8px rgba(153,167,188,0.12);
+  --ease-smooth:cubic-bezier(0.4,0,0.2,1);
+  --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+  --font-sans:'Inter',-apple-system,sans-serif;
+  --font-serif:'Noto Serif SC','Songti SC',serif;
+}
+body{
+  font-family:var(--font-sans);
+  background:linear-gradient(180deg,var(--c-bg) 0%,var(--c-bg-deep) 100%);
+  color:var(--c-text);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.65;
+  position:relative;
+}
+
+/* ── HERO MASTHEAD ── */
+.masthead{
+  max-width:960px;margin:60px auto 0;
+  padding:0 36px;
+}
+.masthead-top{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-bottom:32px;border-bottom:1px solid var(--c-line);
+  animation:fadeUp 0.8s var(--ease-smooth) both;
+}
+.masthead-left{display:flex;align-items:center;gap:14px}
+.masthead-logo{
+  width:32px;height:32px;border-radius:8px;
+  overflow:hidden;
+  display:block;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+  transition:transform 0.3s var(--ease-smooth);
+}
+.masthead-logo:hover{transform:scale(1.08)}
+.masthead-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.masthead-brand{
+  font-family:var(--font-serif);
+  font-size:13px;font-weight:400;letter-spacing:0.15em;
+  color:var(--c-kon-dark);
+}
+.masthead-date{
+  font-size:12px;color:var(--c-text-dim);letter-spacing:0.04em;
+}
+
+/* ── GREETING SECTION ── */
+.greeting{
+  max-width:960px;margin:0 auto;padding:72px 36px 48px;
+  animation:fadeUp 0.8s var(--ease-smooth) 0.15s both;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:36px;
+}
+.greeting-body{flex:1;min-width:0}
+.greeting .wave{
+  font-family:var(--font-serif);font-size:clamp(24px,4vw,34px);font-weight:300;
+  color:var(--c-text-mid);margin-bottom:8px;
+  letter-spacing:0.04em;
+}
+.greeting .name-block{
+  font-family:var(--font-serif);
+  font-size:clamp(42px,6vw,64px);
+  font-weight:300;line-height:1.15;
+  letter-spacing:-0.015em;
+  margin-bottom:4px;
+}
+/* ── 日期行：年月日 + 星期 ── */
+.greeting .date-line{
+  font-family:var(--font-serif);
+  font-size:15px;color:var(--c-text-dim);
+  margin-bottom:14px;letter-spacing:0.03em;
+}
+.greeting .date-line .weekday{
+  display:inline-block;margin-left:8px;
+  padding:1px 10px;border-radius:99px;
+  background:var(--c-kon-main);color:#fff;
+  font-size:13px;font-weight:500;
+}
+/* ── 荔荔绀：浅绀色 ── */
+.name-accent{
+  position:relative;
+  color:var(--c-kon-dark);
+  font-weight:500;
+  transition:color 0.4s ease;
+}
+/* 干净的单色呈现，无叠印偏移 */
+.greeting .sub{
+  font-size:14px;color:var(--c-text-dim);margin-top:4px;
+  letter-spacing:0.02em;
+}
+.greeting .sub em{
+  font-style:normal;font-weight:500;color:var(--c-text-mid);
+}
+/* ── 头像 ── */
+.greeting-avatar{
+  width:80px;height:80px;border-radius:50%;
+  overflow:hidden;
+  flex-shrink:0;margin-top:12px;
+  box-shadow:0 2px 12px rgba(153,167,188,0.2);
+  transition:all 0.4s var(--ease-smooth);
+}
+.greeting-avatar img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+.greeting-avatar:hover{
+  transform:scale(1.05);
+  box-shadow:0 4px 20px rgba(153,167,188,0.3);
+}
+/* ── 右侧装饰插图区 ── */
+.greeting-art{
+  flex-shrink:0;width:240px;height:240px;
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:-20px;
+}
+.greeting-art svg{
+  width:100%;height:100%;
+  animation:artFloat 8s ease-in-out infinite;
+}
+.greeting-art .art-ring-outer{
+  fill:none;stroke:var(--c-kon-main);stroke-width:0.8;opacity:0.25;
+}
+.greeting-art .art-ring-mid{
+  fill:none;stroke:var(--c-focus-orange);stroke-width:0.8;opacity:0.18;
+}
+.greeting-art .art-ring-inner{
+  fill:none;stroke:var(--c-accent-warm);stroke-width:0.8;opacity:0.15;
+}
+.greeting-art .art-dot{
+  fill:var(--c-focus-orange);opacity:0.35;
+}
+.greeting-art .art-diamond{
+  fill:var(--c-kon-main);opacity:0.08;
+}
+.greeting-art .art-tri{
+  fill:var(--c-accent-warm);opacity:0.12;
+}
+@keyframes artFloat{
+  0%,100%{transform:translate(0,0)}
+  50%{transform:translate(0,-6px)}
+}
+@media(max-width:860px){
+  .greeting{flex-direction:column;gap:24px}
+  .greeting-art{width:180px;height:180px;margin:0 auto}
+  .greeting-avatar{width:64px;height:64px;font-size:26px;margin-top:0}
+}
+@media(max-width:768px){
+  .greeting{flex-direction:column-reverse;gap:20px}
+}
+
+/* ── STAT ROW ── */
+.stat-row{
+  max-width:960px;margin:0 auto;padding:0 36px 56px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:32px;
+  animation:fadeUp 0.7s var(--ease-smooth) 0.3s both;
+}
+.stat-item{
+  padding:0;
+}
+.stat-num{
+  font-family:var(--font-serif);
+  font-size:56px;font-weight:300;line-height:1;
+  color:var(--c-text);margin-bottom:6px;
+}
+.stat-num small{font-size:22px;color:var(--c-text-dim)}
+.stat-label{
+  font-size:14px;color:var(--c-text-mid);
+  letter-spacing:0.04em;font-weight:500;
+  margin-top:4px;
+}
+.stat-trend{
+  font-size:13px;margin-top:6px;font-weight:500;color:var(--c-kon-dark);
+}
+@media(max-width:768px){
+  .stat-row{grid-template-columns:repeat(2,1fr);gap:24px}
+  .stat-num{font-size:40px}
+}
+
+/* ── CONTENT GRID ── */
+.content{
+  max-width:960px;margin:0 auto;padding:0 36px 80px;
+  display:grid;grid-template-columns:2fr 1fr;gap:56px;
+}
+@media(max-width:860px){.content{grid-template-columns:1fr;gap:48px}}
+
+/* ── SECTION HEADING ── */
+.sec-heading{
+  font-family:var(--font-serif);
+  font-size:26px;font-weight:400;color:var(--c-text);
+  margin-bottom:28px;letter-spacing:-0.01em;
+}
+
+/* ── TASK BOARD ── */
+.task-board{
+  animation:fadeUp 0.7s var(--ease-smooth) 0.45s both;
+}
+.board-cols{display:flex;gap:16px}
+.board-col{
+  flex:1;min-width:0;
+  background:var(--c-surface);border-radius:2px;
+  padding:20px;box-shadow:var(--shadow-sm);
+  transition:all 0.35s var(--ease-smooth);
+  border:1px solid var(--c-line);
+  position:relative;
+}
+/* 微妙列间层次——中间列微微浮起 */
+.board-col:nth-child(2){
+  box-shadow:var(--shadow-md);
+  background:#fefdfc;
+}
+.board-col:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.board-col:nth-child(2):hover{box-shadow:var(--shadow-xl)}
+.col-head{
+  font-size:16px;font-weight:600;letter-spacing:0.02em;
+  margin-bottom:16px;padding-bottom:12px;
+  border-bottom:1px solid var(--c-line);
+  display:flex;align-items:center;gap:8px;
+}
+.col-head .mark{width:8px;height:8px;border-radius:2px}
+.col-count{color:var(--c-text-dim);font-weight:400;margin-left:auto;font-size:14px}
+
+.task{
+  padding:14px 0;border-bottom:1px solid rgba(0,0,0,0.03);
+  cursor:pointer;transition:all 0.3s ease;
+  position:relative;
+}
+.task:last-child{border-bottom:none}
+.task:hover{padding-left:6px}
+.task:hover .task-title{color:var(--c-kon-dark)}
+.task-title{
+  font-size:15px;font-weight:500;color:var(--c-text);
+  margin-bottom:6px;transition:color 0.3s ease;
+  line-height:1.45;
+}
+.task-meta{display:flex;align-items:center;gap:8px;font-size:13px}
+.task-tag{
+  font-size:12px;padding:2px 8px;font-weight:500;letter-spacing:0.02em;
+  border-radius:3px;
+}
+.task-tag.p0{background:rgba(184,151,157,0.15);color:var(--c-accent-dust)}
+.task-tag.p1{background:rgba(184,160,136,0.15);color:var(--c-accent-warm)}
+.task-tag.p2{background:rgba(0,0,0,0.04);color:var(--c-text-dim)}
+.task-date{color:var(--c-text-dim);margin-left:auto;font-size:13px}
+.task.done{opacity:0.45}.task.done .task-title{text-decoration:line-through}
+
+.task-progress{
+  height:2px;background:rgba(0,0,0,0.04);margin-top:8px;
+  border-radius:1px;overflow:hidden;
+}
+.task-progress-bar{height:100%;transition:width 0.6s var(--ease-smooth)}
+
+@media(max-width:768px){.board-cols{flex-direction:column}}
+
+/* ── RIGHT SIDEBAR ── */
+.sidebar{
+  display:flex;flex-direction:column;gap:36px;
+  animation:fadeUp 0.7s var(--ease-smooth) 0.5s both;
+}
+
+/* Timer — 奶白底 + 焦橙焦点 */
+.timer-block{
+  background:var(--c-surface);border-radius:16px;
+  padding:36px 28px;text-align:center;
+  border:1px solid var(--c-line);
+  box-shadow:var(--shadow-sm);
+  transition:all 0.35s var(--ease-smooth);
+  position:relative;overflow:hidden;
+}
+.timer-block:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+/* 右上角装饰小三角 */
+.timer-block::before{
+  content:'';position:absolute;top:-1px;right:-1px;
+  width:0;height:0;
+  border-left:28px solid transparent;
+  border-top:28px solid var(--c-focus-orange);
+  opacity:0.15;border-radius:0 16px 0 0;
+}
+.timer-ring{
+  width:150px;height:150px;border-radius:50%;
+  margin:0 auto 22px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+/* 焦橙色细线环 — 轻盈不闷 */
+.timer-ring .track{
+  position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(var(--c-focus-orange) 0deg 225deg,transparent 225deg 360deg);
+  -webkit-mask:radial-gradient(transparent 66%,#000 67%);
+  mask:radial-gradient(transparent 66%,#000 67%);
+  opacity:0.55;
+}
+/* 内圈细描边 */
+.timer-ring::after{
+  content:'';position:absolute;inset:8px;border-radius:50%;
+  border:1px solid rgba(0,0,0,0.04);pointer-events:none;
+}
+.timer-time{
+  position:relative;z-index:1;
+  font-family:var(--font-serif);
+  font-size:38px;font-weight:300;color:var(--c-text);
+  letter-spacing:-0.02em;
+}
+.timer-label{
+  font-size:14px;color:var(--c-text-dim);margin-bottom:20px;
+  font-weight:400;
+}
+.timer-btn{
+  padding:10px 32px;border-radius:99px;border:none;
+  background:var(--c-focus-orange);color:#fff;
+  font-size:14px;font-weight:500;cursor:pointer;
+  transition:all 0.3s var(--ease-smooth);
+  box-shadow:0 2px 8px rgba(216,107,66,0.22);
+}
+.timer-btn:hover{
+  background:#c45e36;
+  box-shadow:0 4px 16px rgba(216,107,66,0.32);
+  transform:translateY(-1px);
+}
+
+/* Notes — 浅色保持，但放大字号 */
+.notes-block{
+  background:var(--c-surface);border-radius:12px;
+  padding:28px 24px;border:1px solid var(--c-line);
+  box-shadow:var(--shadow-sm);
+  transition:all 0.35s var(--ease-smooth);
+}
+.notes-block:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.notes-block .sec-heading{font-size:20px;margin-bottom:20px}
+.note-row{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.03);
+  cursor:pointer;transition:all 0.25s ease;
+}
+.note-row:last-child{border-bottom:none}
+.note-row:hover .note-text{color:var(--c-kon-dark)}
+.note-icon{font-size:18px;flex-shrink:0;margin-top:2px;color:var(--c-text-dim)}
+.note-text{font-size:14px;color:var(--c-text-mid);flex:1;line-height:1.6;transition:color 0.25s ease}
+
+/* ── GEOMETRIC SHOWCASE ── */
+.geo-section{
+  max-width:960px;margin:0 auto 80px;padding:0 36px;
+  animation:fadeUp 0.7s var(--ease-smooth) 0.55s both;
+}
+.geo-section .sec-heading{margin-bottom:12px}
+.geo-desc{
+  font-size:13px;color:var(--c-text-dim);margin-bottom:32px;
+  max-width:520px;line-height:1.7;
+}
+.geo-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
+}
+.geo-card{
+  background:var(--c-surface);border-radius:2px;
+  padding:40px 28px 28px;border:1px solid var(--c-line);
+  box-shadow:var(--shadow-xs);
+  text-align:center;position:relative;
+  transition:all 0.4s var(--ease-smooth);
+  cursor:default;
+  min-height:260px;display:flex;flex-direction:column;align-items:center;
+}
+.geo-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-3px)}
+.geo-card .label{
+  font-size:10px;text-transform:uppercase;letter-spacing:0.1em;
+  color:var(--c-text-dim);margin-top:auto;padding-top:20px;
+}
+
+/* ── 圆形装饰 ── */
+.geo-circle{
+  width:72px;height:72px;border-radius:50%;
+  border:1px solid var(--c-kon-main);
+  position:relative;margin-bottom:16px;
+  transition:all 0.5s var(--ease-smooth);
+}
+.geo-circle::after{
+  content:'';position:absolute;inset:12px;border-radius:50%;
+  background:var(--c-kon-main);opacity:0.14;
+  transition:all 0.5s var(--ease-smooth);
+}
+.geo-card:hover .geo-circle{transform:scale(1.08)}
+.geo-card:hover .geo-circle::after{opacity:0.24;inset:8px}
+.geo-circle-accent{
+  position:absolute;width:8px;height:8px;border-radius:50%;
+  background:var(--c-kon-main);opacity:0.35;
+  top:-4px;right:8px;
+}
+
+/* ── 星形装饰 ── */
+.geo-star{
+  width:64px;height:64px;position:relative;margin-bottom:16px;
+  transition:all 0.5s var(--ease-smooth);
+}
+.geo-star svg{width:100%;height:100%}
+.geo-card:hover .geo-star{transform:scale(1.08) rotate(8deg)}
+.star-path{
+  fill:none;stroke:var(--c-kon-dark);stroke-width:1;
+  transition:all 0.5s var(--ease-smooth);
+}
+.geo-card:hover .star-path{stroke-width:1.5}
+.star-fill{
+  fill:var(--c-kon-main);opacity:0.10;
+  transition:all 0.5s var(--ease-smooth);
+}
+.geo-card:hover .star-fill{opacity:0.20}
+
+/* ── 三角形装饰 ── */
+.geo-triangle{
+  width:0;height:0;margin-bottom:16px;
+  border-left:32px solid transparent;
+  border-right:32px solid transparent;
+  border-bottom:56px solid var(--c-kon-main);
+  opacity:0.22;
+  transition:all 0.5s var(--ease-smooth);
+  position:relative;
+}
+.geo-triangle-border{
+  position:absolute;top:4px;left:-30px;
+  width:0;height:0;
+  border-left:30px solid transparent;
+  border-right:30px solid transparent;
+  border-bottom:52px solid var(--c-surface);
+  transition:all 0.5s var(--ease-smooth);
+}
+.geo-card:hover .geo-triangle{opacity:0.34;transform:translateY(-4px)}
+.geo-card:hover .geo-triangle-border{border-bottom-color:var(--c-surface)}
+
+/* ── 菱形装饰 ── */
+.geo-diamond{
+  width:52px;height:52px;margin-bottom:16px;
+  border:1px solid var(--c-kon-main);
+  transform:rotate(45deg);opacity:0.55;
+  transition:all 0.5s var(--ease-smooth);
+  position:relative;
+}
+.geo-diamond::after{
+  content:'';position:absolute;inset:4px;
+  background:var(--c-kon-main);opacity:0.14;
+  transition:all 0.5s var(--ease-smooth);
+}
+.geo-card:hover .geo-diamond{transform:rotate(45deg) scale(1.12);opacity:0.75}
+
+.geo-diamond-inner{
+  position:absolute;inset:12px;border:1px solid var(--c-kon-main);
+  opacity:0.3;transition:all 0.5s var(--ease-smooth);
+}
+.geo-card:hover .geo-diamond-inner{opacity:0.5;inset:8px}
+
+/* ── 元素应用示例 ── */
+.geo-usage{
+  margin-top:48px;padding:0 36px;
+}
+.geo-usage-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:28px;
+  max-width:960px;margin:0 auto;
+}
+.geo-usage-card{
+  background:var(--c-surface);border-radius:2px;
+  padding:28px;border:1px solid var(--c-line);
+  box-shadow:var(--shadow-xs);
+  position:relative;overflow:hidden;
+  transition:all 0.35s var(--ease-smooth);
+}
+.geo-usage-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.geo-usage-icon{
+  position:absolute;top:20px;right:20px;opacity:0.06;
+  transition:all 0.5s var(--ease-smooth);
+}
+.geo-usage-card:hover .geo-usage-icon{opacity:0.12}
+.geo-usage-name{font-family:var(--font-serif);font-size:17px;font-weight:400;margin-bottom:6px}
+.geo-usage-desc{font-size:12px;color:var(--c-text-dim);line-height:1.7}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ── AMBIANCE ── */
+.ambient{
+  position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;
+}
+.ambient .shape{
+  position:absolute;border-radius:50%;transition:all 8s ease;
+}
+.ambient .shape-1{
+  width:500px;height:500px;
+  border:1px solid var(--c-kon-main);
+  opacity:0.05;
+  top:-8%;right:-10%;
+  animation:drift 22s ease-in-out infinite;
+}
+.ambient .shape-2{
+  width:360px;height:360px;
+  background:var(--c-accent-warm);
+  opacity:0.04;
+  bottom:-10%;left:-6%;
+  animation:drift 26s ease-in-out infinite reverse;
+}
+/* 焦橙色——右下角远处 */
+.ambient .shape-3{
+  width:260px;height:260px;
+  background:var(--c-focus-orange);
+  opacity:0.05;
+  top:55%;right:-8%;
+  animation:drift 30s ease-in-out infinite 5s;
+}
+/* 浅绀——左上远方，主色调呼应 */
+.ambient .shape-4{
+  width:360px;height:360px;
+  background:var(--c-kon-main);
+  opacity:0.06;
+  top:20%;left:-10%;
+  animation:drift 28s ease-in-out infinite reverse 3s;
+}
+/* 青绿——左下，第三个色温 */
+.ambient .shape-5{
+  width:200px;height:200px;
+  background:var(--c-focus-teal);
+  opacity:0.05;
+  bottom:15%;left:20%;
+  animation:drift 34s ease-in-out infinite 8s;
+}
+@keyframes drift{
+  0%,100%{transform:translate(0,0) rotate(0deg)}
+  33%{transform:translate(40px,-30px) rotate(5deg)}
+  66%{transform:translate(-25px,20px) rotate(-3deg)}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient">
+  <div class="shape shape-1"></div>
+  <div class="shape shape-2"></div>
+  <div class="shape shape-3"></div>
+  <div class="shape shape-4"></div>
+  <div class="shape shape-5"></div>
+</div>
+
+<!-- ════════ MASTHEAD ════════ -->
+<div class="masthead">
+  <div class="masthead-top">
+    <div class="masthead-left">
+      <img class="masthead-logo" src="logo.png" alt="logo">
+      <span class="masthead-brand">Ririgannnn · Personal Workspace</span>
+    </div>
+    <span class="masthead-date">2026 年 8 月 · 第 32 周</span>
+  </div>
+</div>
+
+<!-- ════════ GREETING ════════ -->
+<div class="greeting">
+  <div class="greeting-body">
+    <div class="wave">下午好</div>
+    <div class="name-block">
+      <span class="name-accent">荔荔绀</span>
+    </div>
+    <div class="date-line">2026 年 8 月 4 日<span class="weekday">星期二</span></div>
+    <div class="sub">
+      已完成 <em>3</em> / <em>8</em> 项任务 · 本周专注 <em>5.2</em> 小时
+    </div>
+  </div>
+
+  <!-- 右侧：头像 + 装饰插图 -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:16px;flex-shrink:0">
+    <div class="greeting-avatar"><img src="ito.jpg" alt="头像"></div>
+    <div class="greeting-art">
+      <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+        <!-- 外环 -->
+        <circle cx="120" cy="120" r="100" class="art-ring-outer"/>
+        <!-- 中环 -->
+        <circle cx="120" cy="120" r="72" class="art-ring-mid"/>
+        <!-- 内环 -->
+        <circle cx="120" cy="120" r="44" class="art-ring-inner"/>
+        <!-- 菱形背景 -->
+        <rect x="100" y="100" width="40" height="40" transform="rotate(45,120,120)" class="art-diamond"/>
+        <!-- 三角装饰 -->
+        <polygon points="120,68 134,92 106,92" class="art-tri"/>
+        <!-- 圆点群 -->
+        <circle cx="185" cy="85" r="4" class="art-dot"/>
+        <circle cx="175" cy="100" r="2.5" class="art-dot" opacity="0.5"/>
+        <circle cx="55" cy="155" r="3" class="art-dot"/>
+        <circle cx="68" cy="142" r="2" class="art-dot" opacity="0.4"/>
+        <!-- 交叉线 -->
+        <line x1="50" y1="120" x2="80" y2="120" stroke="var(--c-kon-main)" stroke-width="0.5" opacity="0.15"/>
+        <line x1="160" y1="120" x2="190" y2="120" stroke="var(--c-kon-main)" stroke-width="0.5" opacity="0.15"/>
+        <line x1="120" y1="50" x2="120" y2="80" stroke="var(--c-accent-warm)" stroke-width="0.5" opacity="0.12"/>
+        <line x1="120" y1="160" x2="120" y2="190" stroke="var(--c-accent-warm)" stroke-width="0.5" opacity="0.12"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ STAT ROW ════════ -->
+<div class="stat-row">
+  <div class="stat-item">
+    <div class="stat-num">12<small>项</small></div>
+    <div class="stat-label">进行中任务</div>
+    <div class="stat-trend">本周新增 3 项</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">128<small>min</small></div>
+    <div class="stat-label">今日专注</div>
+    <div class="stat-trend">较昨日 +22%</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">86<small>%</small></div>
+    <div class="stat-label">周完成率</div>
+    <div class="stat-trend">较上周 +5%</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">3</div>
+    <div class="stat-label">活跃项目</div>
+    <div class="stat-trend">持平</div>
+  </div>
+</div>
+
+<!-- ════════ MAIN CONTENT ════════ -->
+<div class="content">
+  <!-- 左: 任务看板 -->
+  <div class="task-board">
+    <div class="sec-heading">任务</div>
+    <div class="board-cols">
+      <div class="board-col">
+        <div class="col-head"><span class="mark" style="background:var(--c-focus-teal)"></span>待处理<span class="col-count">4</span></div>
+        <div class="task">
+          <div class="task-title">设计新的 Onboarding 流程</div>
+          <div class="task-meta"><span class="task-tag p1">P1</span><span class="task-date">8/6</span></div>
+        </div>
+        <div class="task">
+          <div class="task-title">移动端侧边栏动画优化</div>
+          <div class="task-meta"><span class="task-tag p2">P2</span><span class="task-date">8/8</span></div>
+        </div>
+        <div class="task">
+          <div class="task-title">数据导出 CSV 功能</div>
+          <div class="task-meta"><span class="task-tag p1">P1</span><span class="task-date">8/10</span></div>
+        </div>
+        <div class="task">
+          <div class="task-title">暗色模式方案调研</div>
+          <div class="task-meta"><span class="task-tag p2">P2</span><span class="task-date">8/15</span></div>
+        </div>
+      </div>
+      <div class="board-col">
+        <div class="col-head"><span class="mark" style="background:var(--c-focus-orange)"></span>进行中<span class="col-count">3</span></div>
+        <div class="task">
+          <div class="task-title">TaskTree 递归渲染重构</div>
+          <div class="task-meta"><span class="task-tag p0">P0</span><span class="task-date">8/4</span></div>
+          <div class="task-progress"><div class="task-progress-bar" style="width:70%;background:var(--c-focus-orange)"></div></div>
+        </div>
+        <div class="task">
+          <div class="task-title">数据库索引性能优化</div>
+          <div class="task-meta"><span class="task-tag p1">P1</span><span class="task-date">8/5</span></div>
+          <div class="task-progress"><div class="task-progress-bar" style="width:40%;background:var(--c-focus-teal)"></div></div>
+        </div>
+        <div class="task">
+          <div class="task-title">API 接口文档编写</div>
+          <div class="task-meta"><span class="task-tag p2">P2</span><span class="task-date">8/7</span></div>
+          <div class="task-progress"><div class="task-progress-bar" style="width:15%;background:var(--c-pop-indigo)"></div></div>
+        </div>
+      </div>
+      <div class="board-col">
+        <div class="col-head"><span class="mark" style="background:var(--c-pop-indigo)"></span>已完成<span class="col-count">5</span></div>
+        <div class="task done"><div class="task-title">FocusTimer UI 重写</div><div class="task-meta"><span class="task-date">8/3</span></div></div>
+        <div class="task done"><div class="task-title">Railway 502 修复</div><div class="task-meta"><span class="task-date">8/3</span></div></div>
+        <div class="task done"><div class="task-title">笔记模块视觉增强</div><div class="task-meta"><span class="task-date">8/2</span></div></div>
+        <div class="task done"><div class="task-title">全局圆角 & 边框统一</div><div class="task-meta"><span class="task-date">8/2</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 右: 侧边栏 -->
+  <div class="sidebar">
+    <div class="timer-block">
+      <div class="timer-ring">
+        <div class="track"></div>
+        <div class="inner"></div>
+        <div class="timer-time">32:18</div>
+      </div>
+      <div class="timer-label">专注中 · 第 4 个番茄</div>
+      <button class="timer-btn">暂停</button>
+    </div>
+    <div class="notes-block">
+      <div class="sec-heading">笔记</div>
+      <div class="note-row">
+        <span class="note-icon">—</span>
+        <span class="note-text">个人工作台下一阶段迭代方向</span>
+      </div>
+      <div class="note-row">
+        <span class="note-icon">—</span>
+        <span class="note-text">Tailwind v4 CSS-first 配置迁移</span>
+      </div>
+      <div class="note-row">
+        <span class="note-icon">—</span>
+        <span class="note-text">三套风格融合的设计决策记录</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ GEOMETRIC COMPARISON ════════ -->
+<div class="geo-section">
+  <div class="sec-heading">几何装饰元素对比</div>
+  <p class="geo-desc">
+    以下四种几何形态作为卡片的装饰元素，hover 可看交互效果。它们也可用作分区标记、背景氛围、进度指示器等。
+  </p>
+  <div class="geo-grid">
+    <!-- 圆形 -->
+    <div class="geo-card">
+      <div class="geo-circle"><div class="geo-circle-accent"></div></div>
+      <div class="label">圆形 · Circle</div>
+    </div>
+    <!-- 星形 -->
+    <div class="geo-card">
+      <div class="geo-star">
+        <svg viewBox="0 0 64 64">
+          <path class="star-fill" d="M32 4l8.5 17.2L59 23.5l-13.5 13.2 3.2 18.6L32 45.3l-16.7 10 3.2-18.6L5 23.5l18.5-2.3z"/>
+          <path class="star-path" d="M32 4l8.5 17.2L59 23.5l-13.5 13.2 3.2 18.6L32 45.3l-16.7 10 3.2-18.6L5 23.5l18.5-2.3z"/>
+        </svg>
+      </div>
+      <div class="label">五角星 · Star</div>
+    </div>
+    <!-- 三角形 -->
+    <div class="geo-card">
+      <div class="geo-triangle">
+        <div class="geo-triangle-border"></div>
+      </div>
+      <div class="label">三角形 · Triangle</div>
+    </div>
+    <!-- 菱形 -->
+    <div class="geo-card">
+      <div class="geo-diamond"><div class="geo-diamond-inner"></div></div>
+      <div class="label">菱形 · Diamond</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ 元素应用场景 ════════ -->
+<div class="geo-usage" style="max-width:960px;margin:0 auto 80px">
+  <div class="sec-heading" style="padding:0 36px">实际应用示例</div>
+  <div class="geo-usage-grid">
+    <div class="geo-usage-card">
+      <!-- 星形角标 -->
+      <svg class="geo-usage-icon" width="80" height="80" viewBox="0 0 64 64" style="top:12px;right:12px">
+        <path fill="var(--c-kon-main)" d="M32 4l8.5 17.2L59 23.5l-13.5 13.2 3.2 18.6L32 45.3l-16.7 10 3.2-18.6L5 23.5l18.5-2.3z"/>
+      </svg>
+      <div class="geo-usage-name">星形 · 收藏标记</div>
+      <div class="geo-usage-desc">用作灵感卡片或知识库条目的"收藏/重点"标识，hover 时微旋转 + 填充加深。</div>
+    </div>
+    <div class="geo-usage-card">
+      <!-- 菱形水印 -->
+      <svg class="geo-usage-icon" width="100" height="100" viewBox="0 0 100 100" style="bottom:-10px;right:-10px;top:auto">
+        <rect x="20" y="20" width="60" height="60" fill="var(--c-kon-main)" transform="rotate(45,50,50)"/>
+      </svg>
+      <div class="geo-usage-name">菱形 · 背景水印</div>
+      <div class="geo-usage-desc">大尺寸菱形作为卡片背景的水印图案，降低透明度后不干扰阅读，增加设计感。</div>
+    </div>
+    <div class="geo-usage-card">
+      <!-- 三角箭头 -->
+      <svg class="geo-usage-icon" width="60" height="60" viewBox="0 0 60 60" style="top:50%;right:16px;transform:translateY(-50%)">
+        <polygon points="10,5 50,30 10,55" fill="var(--c-kon-dark)"/>
+      </svg>
+      <div class="geo-usage-name">三角 · 方向引导</div>
+      <div class="geo-usage-desc">三角形天然有方向感，适合用作进度指示、展开/折叠箭头、或列表项的前缀标记。</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

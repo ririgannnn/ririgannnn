@@ -35,44 +35,39 @@ export default function Sidebar({ mobileOpen, onMobileClose }: Props) {
       className="h-full flex flex-col shrink-0 overflow-hidden transition-all duration-300 relative"
       style={{
         width: collapsed ? 64 : 240,
-        background: 'rgba(255,255,255,0.6)',
-        backdropFilter: 'blur(24px) saturate(140%)',
-        WebkitBackdropFilter: 'blur(24px) saturate(140%)',
-        color: 'hsl(var(--sidebar-foreground))',
-        borderRight: '1px solid rgba(0,0,0,0.06)',
+        background: 'var(--bg-surface)',
+        color: 'var(--text-mid)',
+        borderRight: '1px solid var(--line)',
       }}
     >
-      {/* Inner glass edge highlight */}
+      {/* Logo area */}
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8)',
-        }}
-      />
-
-      {/* Logo — gradient color-block */}
-      <div className="flex items-center h-14 px-4 shrink-0 border-b relative z-10" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
+        className="flex items-center h-14 px-4 shrink-0 relative z-10"
+        style={{ borderBottom: '1px solid var(--line)' }}
+      >
         {!collapsed && (
           <div className="flex items-center gap-3 animate-fade-in">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-base shrink-0"
-              style={{
-                background: 'linear-gradient(135deg, hsl(var(--accent-pink)), hsl(var(--accent-purple)), hsl(var(--accent-teal)), hsl(var(--accent-amber)))',
-                backgroundSize: '300% 300%',
-                animation: 'colorShift 8s ease infinite',
-              }}
-            >
-              荔
-            </div>
+            <img
+              src="/logo.png"
+              alt="logo"
+              className="w-8 h-8 rounded-lg object-cover flex-shrink-0 transition-transform duration-300 hover:scale-110"
+              style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+            />
             <div className="flex flex-col leading-tight">
-              <span className="font-bold text-sm tracking-[0.15em] uppercase">RIRIGANNNN</span>
-              <span className="text-[10px] opacity-50 font-medium -mt-0.5">荔荔绀工作台</span>
+              <span className="font-medium text-sm tracking-[0.04em] font-serif" style={{ color: 'var(--kon-dark)' }}>
+                荔荔绀工作台
+              </span>
+              <span className="text-[10px] font-medium -mt-0.5" style={{ color: 'var(--text-dim)' }}>
+                Ririgannnn
+              </span>
             </div>
           </div>
         )}
         {/* Close button on mobile */}
         {onMobileClose && (
-          <button onClick={onMobileClose} className="md:hidden ml-auto p-1.5 rounded-md hover:bg-black/5 transition-colors" style={{ color: 'hsl(var(--sidebar-foreground) / 0.6)' }}>
+          <button onClick={onMobileClose} className="md:hidden ml-auto p-1.5 rounded-md hover:bg-black/5 transition-colors"
+            style={{ color: 'var(--text-dim)' }}
+          >
             <X size={20} />
           </button>
         )}
@@ -80,7 +75,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: Props) {
           <button
             onClick={() => updateSettings({ sidebarCollapsed: !collapsed })}
             className="ml-auto p-1 rounded-md hover:bg-black/5 transition-colors"
-            style={{ opacity: collapsed ? 1 : undefined, color: 'hsl(var(--sidebar-foreground) / 0.5)' }}
+            style={{ color: 'var(--text-dim)' }}
           >
             <ChevronLeft size={18} style={{ transform: collapsed ? 'rotate(180deg)' : undefined, transition: 'transform 0.3s' }} />
           </button>
@@ -96,43 +91,46 @@ export default function Sidebar({ mobileOpen, onMobileClose }: Props) {
             <button
               key={item.id}
               onClick={() => handleNav(item.id)}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-150 group"
+              className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-all duration-200 group"
               style={{
-                marginLeft: collapsed ? 0 : 8,
-                marginRight: collapsed ? 0 : 8,
-                borderRadius: '0.5rem',
-                background: active ? 'hsl(var(--sidebar-accent))' : 'transparent',
-                color: active ? 'white' : 'hsl(var(--sidebar-foreground) / 0.7)',
-                ...(!collapsed && { marginBottom: 2 }),
+                marginLeft: collapsed ? 4 : 8,
+                marginRight: collapsed ? 4 : 8,
+                marginBottom: 2,
+                borderRadius: '8px',
+                background: active ? 'rgba(153, 167, 188, 0.12)' : 'transparent',
+                color: active ? 'var(--kon-deeper)' : 'var(--text-mid)',
+                fontWeight: active ? 500 : 400,
               }}
               title={collapsed ? item.label : undefined}
             >
               <Icon size={19} />
-              {!collapsed && <span className="font-medium">{item.label}</span>}
+              {!collapsed && <span>{item.label}</span>}
               {active && !collapsed && (
-                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white" />
+                <div className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: 'var(--kon-main)' }} />
               )}
             </button>
           );
         })}
       </nav>
 
-      {/* Bottom: decorative English + settings */}
-      <div className="border-t relative z-10" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
+      {/* Bottom */}
+      <div className="border-t relative z-10" style={{ borderColor: 'var(--line)' }}>
         {!collapsed && (
-          <div className="px-4 pt-3 pb-1 flex gap-2 text-[9px] uppercase tracking-[0.2em] font-bold opacity-30 select-none">
-            <span style={{ color: 'hsl(var(--accent-pink))' }}>Create</span>
-            <span className="opacity-30">·</span>
-            <span style={{ color: 'hsl(var(--accent-teal))' }}>Focus</span>
-            <span className="opacity-30">·</span>
-            <span style={{ color: 'hsl(var(--accent-amber))' }}>Flow</span>
+          <div className="px-4 pt-3 pb-1 flex gap-2 text-[9px] uppercase tracking-[0.15em] font-semibold select-none"
+            style={{ color: 'var(--text-dim)', opacity: 0.35 }}
+          >
+            <span>Create</span>
+            <span>·</span>
+            <span>Focus</span>
+            <span>·</span>
+            <span>Flow</span>
           </div>
         )}
         <div className="px-3 pb-3" style={{ paddingTop: collapsed ? 3 : 0 }}>
           <button
             onClick={() => handleNav('dashboard')}
-            className="w-full flex items-center gap-3 px-4 py-2 text-sm rounded-lg opacity-60 hover:opacity-100 transition-opacity"
-            style={{ color: 'hsl(var(--sidebar-foreground))' }}
+            className="w-full flex items-center gap-3 px-4 py-2 text-sm rounded-lg transition-all duration-200 hover:bg-black/3"
+            style={{ color: 'var(--text-dim)' }}
             title="设置"
           >
             <Settings size={17} />
@@ -147,12 +145,10 @@ export default function Sidebar({ mobileOpen, onMobileClose }: Props) {
   if (onMobileClose) {
     return (
       <>
-        {/* Backdrop */}
         <div
           className={`fixed inset-0 z-40 bg-black/20 transition-opacity duration-300 md:hidden ${mobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={onMobileClose}
         />
-        {/* Drawer */}
         <div
           className={`fixed top-0 left-0 z-50 h-full transition-transform duration-300 ease-out md:hidden ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
         >

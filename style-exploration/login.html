@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 — 个人工作台</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --c-bg:#f8f7f4;
+  --c-bg-deep:#f0eeea;
+  --c-surface:#fdfcfb;
+  --c-text:#1c1c1a;
+  --c-text-mid:#5c5b55;
+  --c-text-dim:#9c9b93;
+  --c-line:rgba(0,0,0,0.06);
+  --c-line-light:rgba(0,0,0,0.04);
+  --c-kon-main:#99a7bc;
+  --c-kon-dark:#7d8ba2;
+  --c-kon-deeper:#6a7a93;
+  --c-soft-rust:#d86b42;
+  --c-soft-teal:#5a9a8a;
+  --c-soft-warm:#c09a7a;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;--radius-xl:22px;
+  --shadow-xs:0 1px 2px rgba(0,0,0,0.02);
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.03),0 1px 2px rgba(0,0,0,0.02);
+  --shadow-md:0 3px 10px rgba(0,0,0,0.04),0 1px 3px rgba(0,0,0,0.03);
+  --shadow-lg:0 8px 28px rgba(0,0,0,0.06),0 2px 8px rgba(0,0,0,0.03);
+  --shadow-xl:0 14px 40px rgba(0,0,0,0.07),0 4px 14px rgba(0,0,0,0.04);
+  --ease-smooth:cubic-bezier(0.4,0,0.2,1);
+  --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+  --font-sans:'Inter',-apple-system,sans-serif;
+  --font-serif:'Noto Serif SC','Songti SC',serif;
+  --font-mono:'SF Mono','Consolas',monospace;
+}
+
+body{
+  font-family:var(--font-sans);
+  background:var(--c-bg);
+  color:var(--c-text);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.65;
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+
+/* ════════════ AMBIENT ════════════ */
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.ambient .orb{
+  position:absolute;border-radius:50%;
+}
+.orb-1{width:520px;height:520px;border:1px solid var(--c-kon-main);opacity:0.06;top:-12%;right:-10%;animation:drift 22s ease-in-out infinite}
+.orb-2{width:380px;height:380px;background:var(--c-soft-warm);opacity:0.04;bottom:-12%;left:-8%;animation:drift 26s ease-in-out infinite reverse}
+.orb-3{width:200px;height:200px;background:var(--c-kon-main);opacity:0.05;top:40%;right:-6%;animation:drift 30s ease-in-out infinite 5s}
+.orb-4{width:280px;height:280px;border:1px solid var(--c-soft-teal);opacity:0.04;bottom:25%;left:15%;animation:drift 28s ease-in-out infinite reverse 3s}
+@keyframes drift{
+  0%,100%{transform:translate(0,0) rotate(0deg)}
+  33%{transform:translate(35px,-25px) rotate(4deg)}
+  66%{transform:translate(-20px,18px) rotate(-3deg)}
+}
+
+/* ════════════ LAYOUT ════════════ */
+.login-wrapper{
+  position:relative;z-index:1;
+  width:100%;max-width:420px;
+  padding:0 28px;
+  animation:fadeUp 0.7s var(--ease-smooth) 0.1s both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ════════════ CARD ════════════ */
+.login-card{
+  background:var(--c-surface);
+  border-radius:var(--radius-xl);
+  border:1px solid var(--c-line);
+  box-shadow:var(--shadow-xl);
+  padding:48px 40px 40px;
+  transition:box-shadow 0.4s var(--ease-smooth);
+}
+
+/* ════════════ TOP DECORATION ════════════ */
+.card-decor{
+  display:flex;align-items:center;gap:12px;margin-bottom:36px;
+}
+.card-decor-line{
+  flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,var(--c-kon-main),transparent);
+  opacity:0.4;
+}
+.card-decor-diamond{
+  width:28px;height:28px;
+  transform:rotate(45deg);
+  border:1.5px solid var(--c-kon-main);
+  opacity:0.5;
+  flex-shrink:0;
+  transition:all 0.5s var(--ease-smooth);
+}
+.login-card:hover .card-decor-diamond{
+  opacity:0.8;
+  transform:rotate(45deg) scale(1.08);
+}
+
+/* ════════════ BRAND ════════════ */
+.brand-block{
+  text-align:center;margin-bottom:36px;
+}
+.brand-logo{
+  width:72px;height:72px;margin:0 auto 20px;
+  border-radius:50%;
+  overflow:hidden;
+  box-shadow:0 4px 20px rgba(153,167,188,0.25);
+  transition:all 0.4s var(--ease-smooth);
+  position:relative;
+}
+.brand-logo img{
+  width:100%;height:100%;object-fit:cover;
+  display:block;
+}
+.brand-logo::after{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid var(--c-kon-main);opacity:0.3;
+  transition:all 0.5s var(--ease-smooth);
+  pointer-events:none;
+}
+.brand-logo:hover{
+  transform:scale(1.04);
+  box-shadow:0 6px 28px rgba(153,167,188,0.35);
+}
+.brand-logo:hover::after{inset:-8px;opacity:0.15}
+.brand-name{
+  font-family:var(--font-serif);
+  font-size:26px;font-weight:400;color:var(--c-text);
+  letter-spacing:0.03em;margin-bottom:4px;
+}
+.brand-sub{
+  font-size:13px;color:var(--c-text-dim);
+  letter-spacing:0.05em;
+}
+
+/* ════════════ FORM ════════════ */
+.form-group{margin-bottom:20px}
+.form-label{
+  display:block;font-size:13px;font-weight:500;
+  color:var(--c-text-mid);margin-bottom:8px;
+  letter-spacing:0.01em;
+}
+.form-input{
+  width:100%;padding:12px 16px;
+  border:1px solid var(--c-line);
+  border-radius:var(--radius-md);
+  background:var(--c-bg);
+  font-size:14px;font-family:var(--font-sans);
+  color:var(--c-text);
+  transition:all 0.25s var(--ease-smooth);
+  outline:none;
+}
+.form-input::placeholder{color:var(--c-text-dim)}
+.form-input:focus{
+  border-color:var(--c-kon-main);
+  box-shadow:0 0 0 3px rgba(153,167,188,0.12);
+  background:var(--c-surface);
+}
+.form-input:focus::placeholder{opacity:0.5}
+
+/* ── password field with icon ── */
+.pw-wrap{position:relative}
+.pw-wrap .form-input{padding-right:44px}
+.pw-toggle{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:none;border:none;font-size:16px;cursor:pointer;
+  color:var(--c-text-dim);padding:4px;
+  transition:color 0.2s ease;
+}
+.pw-toggle:hover{color:var(--c-text-mid)}
+
+/* ════════════ OPTIONS ROW ════════════ */
+.form-options{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:28px;font-size:13px;
+}
+.remember-me{
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  color:var(--c-text-mid);
+}
+.remember-me input[type="checkbox"]{
+  width:16px;height:16px;accent-color:var(--c-kon-dark);
+  cursor:pointer;
+}
+.forgot-link{
+  color:var(--c-kon-dark);text-decoration:none;
+  font-weight:500;transition:color 0.2s ease;
+  position:relative;
+}
+.forgot-link::after{
+  content:'';position:absolute;bottom:-2px;left:0;width:0;height:1px;
+  background:var(--c-kon-dark);transition:width 0.25s var(--ease-smooth);
+}
+.forgot-link:hover::after{width:100%}
+
+/* ════════════ BUTTON ════════════ */
+.login-btn{
+  width:100%;padding:14px;
+  border:none;border-radius:var(--radius-md);
+  background:linear-gradient(135deg,var(--c-kon-dark),var(--c-kon-deeper));
+  color:#fff;font-size:15px;font-weight:500;
+  font-family:var(--font-sans);cursor:pointer;
+  letter-spacing:0.03em;
+  box-shadow:0 3px 14px rgba(106,122,147,0.25);
+  transition:all 0.3s var(--ease-smooth);
+  position:relative;overflow:hidden;
+}
+.login-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--c-soft-rust),var(--c-soft-warm));
+  opacity:0;transition:opacity 0.35s var(--ease-smooth);
+  border-radius:inherit;
+}
+.login-btn span{position:relative;z-index:1}
+.login-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 24px rgba(106,122,147,0.35);
+}
+.login-btn:hover::before{opacity:1}
+.login-btn:active{transform:translateY(0)}
+
+/* ════════════ FOOTER ════════════ */
+.login-footer{
+  text-align:center;margin-top:28px;font-size:13px;
+  color:var(--c-text-dim);
+}
+.login-footer a{
+  color:var(--c-kon-dark);text-decoration:none;
+  font-weight:500;transition:color 0.2s ease;
+}
+.login-footer a:hover{color:var(--c-kon-deeper)}
+
+/* ════════════ GEOMETRIC CORNER ════════════ */
+.card-corners{position:relative}
+.corner-dot{
+  position:absolute;width:6px;height:6px;border-radius:50%;
+  background:var(--c-kon-main);opacity:0.3;
+  transition:all 0.4s var(--ease-smooth);
+}
+.login-card:hover .corner-dot{opacity:0.55}
+.cd-tl{top:18px;left:18px}
+.cd-tr{top:18px;right:18px}
+.cd-bl{bottom:18px;left:18px}
+.cd-br{bottom:18px;right:18px}
+
+/* ════════════ RESPONSIVE ════════════ */
+@media(max-width:480px){
+  .login-card{padding:36px 24px 32px}
+  .brand-name{font-size:22px}
+  .brand-logo{width:60px;height:60px}
+  .brand-sub{font-size:12px}
+  .form-options{flex-direction:column;align-items:flex-start;gap:10px}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+</div>
+
+<div class="login-wrapper">
+  <div class="login-card card-corners">
+
+    <!-- 四角装饰点 -->
+    <div class="corner-dot cd-tl"></div>
+    <div class="corner-dot cd-tr"></div>
+    <div class="corner-dot cd-bl"></div>
+    <div class="corner-dot cd-br"></div>
+
+    <!-- 顶部装饰线 + 菱形 -->
+    <div class="card-decor">
+      <div class="card-decor-line"></div>
+      <div class="card-decor-diamond"></div>
+      <div class="card-decor-line"></div>
+    </div>
+
+    <!-- 品牌区 -->
+    <div class="brand-block">
+      <div class="brand-logo"><img src="ito.jpg" alt="头像"></div>
+      <div class="brand-name">个人工作台</div>
+      <div class="brand-sub">Ririgannnn · Personal Workspace</div>
+    </div>
+
+    <!-- 表单 -->
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label class="form-label">账户</label>
+        <input type="text" class="form-input" placeholder="请输入账户名" value="">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">密码</label>
+        <div class="pw-wrap">
+          <input type="password" class="form-input" id="password" placeholder="········" value="">
+          <button type="button" class="pw-toggle" onclick="togglePwd()" title="显示密码">👁</button>
+        </div>
+      </div>
+
+      <div class="form-options">
+        <label class="remember-me">
+          <input type="checkbox" checked>
+          保持登录
+        </label>
+        <a href="#" class="forgot-link">忘记密码？</a>
+      </div>
+
+      <button type="submit" class="login-btn">
+        <span>登 录</span>
+      </button>
+    </form>
+
+    <!-- 底部链接 -->
+    <div class="login-footer">
+      还没有账号？<a href="#">立即注册</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePwd(){
+  const el=document.getElementById('password');
+  el.type=el.type==='password'?'text':'password';
+}
+</script>
+
+</body>
+</html>

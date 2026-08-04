@@ -21,38 +21,44 @@ export default function UserMenu() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-muted transition-colors"
+        className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-black/3 transition-colors"
       >
-        <div className="w-6 h-6 rounded-md flex items-center justify-center text-white text-xs font-bold"
-          style={{ background: 'linear-gradient(135deg, hsl(var(--accent-pink)), hsl(var(--accent-purple)))' }}
+        <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0"
+          style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
         >
-          {user.username.charAt(0).toUpperCase()}
+          <img src="/ito.jpg" alt="" className="w-full h-full object-cover" />
         </div>
-        <span className="hidden sm:inline text-sm font-medium text-fg">{user.username}</span>
-        <ChevronDown size={12} className={`hidden sm:block text-muted-fg transition-transform ${open ? 'rotate-180' : ''}`} />
+        <span className="hidden sm:inline text-sm font-medium" style={{ color: 'var(--text-mid)' }}>
+          {user.username}
+        </span>
+        <ChevronDown size={12} className={`hidden sm:block transition-transform ${open ? 'rotate-180' : ''}`}
+          style={{ color: 'var(--text-dim)' }} />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-56 rounded-xl shadow-lg border overflow-hidden animate-scale-in z-50"
+        <div className="absolute right-0 top-full mt-2 w-56 rounded-xl overflow-hidden animate-scale-in z-50"
           style={{
-            background: 'hsl(var(--card))',
-            borderColor: 'hsl(var(--border))',
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--line)',
+            boxShadow: 'var(--shadow-xl)',
           }}
         >
           {/* User info */}
-          <div className="p-3 border-b" style={{ borderColor: 'hsl(var(--border))' }}>
+          <div className="p-3" style={{ borderBottom: '1px solid var(--line)' }}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg font-bold"
-                style={{ background: 'linear-gradient(135deg, hsl(var(--accent-pink)), hsl(var(--accent-purple)))' }}
+              <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0"
+                style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
               >
-                {user.username.charAt(0).toUpperCase()}
+                <img src="/ito.jpg" alt="" className="w-full h-full object-cover" />
               </div>
               <div>
-                <div className="text-sm font-semibold text-fg">{user.username}</div>
+                <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  {user.username}
+                </div>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   {isOfflineMode
-                    ? <><CloudOff size={10} className="text-amber-500" /><span className="text-[10px] text-amber-600">离线模式</span></>
-                    : <><Wifi size={10} className="text-green-500" /><span className="text-[10px] text-muted-fg">在线</span></>
+                    ? <><CloudOff size={10} style={{ color: 'var(--accent-rust)' }} /><span className="text-[10px] font-medium" style={{ color: 'var(--accent-rust)' }}>离线模式</span></>
+                    : <><Wifi size={10} style={{ color: 'var(--accent-teal)' }} /><span className="text-[10px]" style={{ color: 'var(--text-dim)' }}>在线</span></>
                   }
                 </div>
               </div>
@@ -63,7 +69,8 @@ export default function UserMenu() {
           <div className="p-1.5">
             <button
               onClick={() => { setOpen(false); logout(); }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg text-red-500 hover:bg-red-50 transition-colors"
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg transition-colors hover:bg-red-50"
+              style={{ color: 'var(--accent-dust)' }}
             >
               <LogOut size={15} />
               退出登录

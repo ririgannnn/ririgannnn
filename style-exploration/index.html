@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工作台风格探索 — 6套方向对比</title>
+<style>
+/* ====== CSS RESET & BASE ====== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --radius:0.75rem;
+  --primary-h:220;--primary-s:52%;--primary-l:48%;
+  --bg-h:220;--bg-s:20%;--bg-l:97%;
+  --fg-h:220;--fg-s:15%;--fg-l:15%;
+  --muted-h:220;--muted-s:14%;--muted-l:94%;
+  --border-h:220;--border-s:13%;--border-l:90%;
+}
+html{scroll-behavior:smooth;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+body{background:#f4f5f8;color:#20242a;line-height:1.6}
+
+/* ====== NAVIGATION ====== */
+.style-nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,0.82);
+  backdrop-filter:blur(20px) saturate(150%);
+  border-bottom:1px solid rgba(0,0,0,0.06);
+  padding:0 24px;display:flex;align-items:center;gap:4px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.style-nav a{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:12px 16px;font-size:13px;font-weight:500;
+  color:#64748b;text-decoration:none;white-space:nowrap;
+  border-bottom:2px solid transparent;
+  transition:all 0.2s ease;
+}
+.style-nav a:hover{color:#20242a;background:rgba(0,0,0,0.03)}
+.style-nav a .num{
+  width:22px;height:22px;border-radius:6px;
+  background:#e2e8f0;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:#64748b;
+  transition:all 0.2s ease;
+}
+.style-nav a:hover .num{background:#cbd5e1}
+
+/* ====== SECTION ====== */
+.style-section{
+  min-height:100vh;padding:60px 24px 80px;
+  position:relative;overflow:hidden;
+}
+.style-section .section-header{
+  text-align:center;margin-bottom:48px;
+}
+.style-section .section-tag{
+  display:inline-block;padding:4px 14px;border-radius:99px;
+  font-size:12px;font-weight:600;letter-spacing:0.08em;
+  text-transform:uppercase;margin-bottom:12px;
+}
+.style-section .section-title{
+  font-size:32px;font-weight:700;letter-spacing:-0.02em;
+  margin-bottom:8px;
+}
+.style-section .section-desc{
+  font-size:15px;color:#64748b;max-width:520px;margin:0 auto;
+}
+
+/* ====== DEMO CONTAINER ====== */
+.demo-grid{
+  max-width:1100px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:24px;
+}
+.demo-card{
+  border-radius:16px;overflow:hidden;
+  min-height:420px;position:relative;
+}
+.demo-card.full-width{grid-column:1/-1}
+.demo-label{
+  position:absolute;top:12px;right:14px;z-index:5;
+  font-size:10px;font-weight:700;letter-spacing:0.08em;
+  text-transform:uppercase;padding:3px 10px;
+  border-radius:99px;
+}
+
+@media(max-width:768px){
+  .demo-grid{grid-template-columns:1fr}
+  .style-section{padding:40px 16px 60px}
+  .style-section .section-title{font-size:24px}
+}
+
+/* ==========================================
+   STYLE 1: 空气感杂志风 (Editorial Air)
+   ========================================== */
+.s1{background:linear-gradient(180deg,#f8f6f3 0%,#fdfcfb 40%,#f8f6f3 100%)}
+.s1 .section-tag{background:rgba(0,0,0,0.06);color:#5c5c5c}
+.s1 .section-title{font-family:'Noto Serif SC','Source Han Serif SC',serif;font-size:40px;font-weight:400;line-height:1.3}
+.s1 .demo-grid{gap:32px}
+
+/* S1: 仪表盘 Hero */
+.s1-hero{
+  background:#fff;border-radius:0;box-shadow:none;
+  min-height:360px;padding:48px 40px 40px;
+  display:flex;flex-direction:column;gap:32px;
+  border-bottom:1px solid #eee;
+}
+.s1-hero-top{display:flex;justify-content:space-between;align-items:flex-start}
+.s1-hero-greeting{font-family:'Noto Serif SC',serif;font-size:36px;font-weight:300;line-height:1.2;color:#2c2c2c}
+.s1-hero-greeting em{font-style:normal;font-weight:600;color:#3b6fca}
+.s1-hero-date{font-size:13px;color:#999;margin-top:4px}
+.s1-hero-avatar{width:48px;height:48px;border-radius:50%;overflow:hidden}
+.s1-hero-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+
+.s1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.s1-stat{padding:0;text-align:left}
+.s1-stat-num{font-size:42px;font-weight:300;font-family:'Noto Serif SC',serif;line-height:1;color:#2c2c2c}
+.s1-stat-label{font-size:12px;color:#999;margin-top:6px;text-transform:uppercase;letter-spacing:0.06em}
+
+/* S1: 笔记详情 */
+.s1-note{
+  background:transparent;padding:32px 0;min-height:420px;
+  display:flex;flex-direction:column;gap:28px;
+}
+.s1-note-meta{display:flex;gap:16px;font-size:12px;color:#999}
+.s1-note-meta span{font-weight:600;color:#5c5c5c}
+.s1-note-title{font-family:'Noto Serif SC',serif;font-size:28px;font-weight:400;line-height:1.4;color:#1a1a1a}
+.s1-note-body{font-size:17px;line-height:2;color:#444}
+.s1-note-body p{margin-bottom:16px}
+
+.s1-timeline{margin-top:auto;display:flex;gap:0;flex-direction:column;padding-left:20px;border-left:2px solid #eee}
+.s1-timeline-item{position:relative;padding:8px 0 8px 20px;font-size:13px;color:#666}
+.s1-timeline-item::before{content:'';position:absolute;left:-26px;top:14px;width:10px;height:10px;border-radius:50%;background:#3b6fca}
+.s1-timeline-time{font-weight:600;color:#2c2c2c;margin-right:8px}
+
+/* ==========================================
+   STYLE 2: 柔和立体感 (Soft Depth)
+   ========================================== */
+.s2{background:linear-gradient(135deg,#f0f2f5 0%,#e8ecf1 50%,#f0f2f5 100%)}
+.s2 .section-tag{background:#e2e8f0;color:#64748b}
+.s2 .demo-grid{gap:20px}
+
+.s2-board{
+  display:flex;gap:16px;padding:24px;
+  min-height:440px;overflow-x:auto;
+}
+.s2-column{
+  flex:1;min-width:220px;background:rgba(255,255,255,0.8);
+  border-radius:20px;padding:16px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.04),0 4px 12px rgba(0,0,0,0.06);
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.s2-column:hover{
+  box-shadow:0 2px 6px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.1);
+  transform:translateY(-2px);
+}
+.s2-col-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:8px}
+.s2-col-dot{width:8px;height:8px;border-radius:50%}
+.s2-col-dot.amber{background:#f59e0b}
+.s2-col-dot.blue{background:#3b82f6}
+.s2-col-dot.emerald{background:#10b981}
+.s2-col-title{font-size:13px;font-weight:700;color:#334155}
+.s2-col-count{font-size:11px;color:#94a3b8;background:#f1f5f9;padding:1px 8px;border-radius:99px}
+
+.s2-task{
+  background:#fff;border-radius:14px;padding:14px;
+  margin-bottom:10px;
+  box-shadow:0 1px 2px rgba(0,0,0,0.04);
+  transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+  cursor:pointer;
+}
+.s2-task:hover{
+  box-shadow:0 4px 16px rgba(0,0,0,0.1);
+  transform:translateY(-1px);
+}
+.s2-task-title{font-size:13px;font-weight:600;color:#1e293b;margin-bottom:6px}
+.s2-task-meta{display:flex;align-items:center;gap:8px}
+.s2-task-tag{font-size:10px;padding:2px 8px;border-radius:6px;font-weight:600}
+.s2-task-tag.p0{background:#fef2f2;color:#dc2626}
+.s2-task-tag.p1{background:#fffbeb;color:#d97706}
+.s2-task-tag.p2{background:#f1f5f9;color:#64748b}
+.s2-task-date{font-size:11px;color:#94a3b8;margin-left:auto}
+.s2-task-avatar{width:22px;height:22px;border-radius:50%;background:#e2e8f0}
+
+/* S2: 项目卡片 */
+.s2-projects{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+  padding:24px;
+}
+.s2-project{
+  background:#fff;border-radius:18px;padding:24px;
+  box-shadow:0 1px 2px rgba(0,0,0,0.04),0 4px 8px rgba(0,0,0,0.06);
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  cursor:pointer;position:relative;overflow:hidden;
+}
+.s2-project:hover{
+  box-shadow:0 4px 12px rgba(0,0,0,0.08),0 12px 32px rgba(0,0,0,0.12);
+  transform:translateY(-2px);
+}
+.s2-project::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,#3b82f6,#8b5cf6);
+  border-radius:0 0 2px 2px;
+}
+.s2-proj-icon{width:40px;height:40px;border-radius:12px;margin-bottom:12px}
+.s2-proj-name{font-size:16px;font-weight:700;color:#1e293b;margin-bottom:4px}
+.s2-proj-desc{font-size:12px;color:#94a3b8;margin-bottom:12px}
+.s2-proj-bar{height:6px;border-radius:3px;background:#f1f5f9;overflow:hidden}
+.s2-proj-bar-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
+
+/* ==========================================
+   STYLE 3: 渐变色彩层 (Gradient Chroma)
+   ========================================== */
+.s3{background:linear-gradient(160deg,#eef2ff 0%,#f5f3ff 30%,#fdf2f8 60%,#fff7ed 100%)}
+.s3 .section-tag{background:rgba(99,102,241,0.12);color:#6366f1}
+
+.s3-charts{padding:24px;display:flex;flex-direction:column;gap:20px;min-height:440px}
+.s3-chart-row{display:flex;gap:20px}
+.s3-stat-card{
+  flex:1;border-radius:18px;padding:20px;
+  background:rgba(255,255,255,0.65);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.6);
+  box-shadow:0 1px 3px rgba(0,0,0,0.04);
+  position:relative;overflow:hidden;
+}
+.s3-stat-card::before{
+  content:'';position:absolute;top:-20px;right:-20px;
+  width:80px;height:80px;border-radius:50%;
+  opacity:0.15;
+}
+.s3-stat-card.pink::before{background:#ec4899}
+.s3-stat-card.purple::before{background:#8b5cf6}
+.s3-stat-card.teal::before{background:#14b8a6}
+.s3-stat-card.amber::before{background:#f59e0b}
+
+.s3-stat-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.s3-stat-value{font-size:36px;font-weight:800;letter-spacing:-0.03em;line-height:1}
+.s3-stat-change{font-size:12px;margin-top:4px;font-weight:600}
+.s3-stat-change.up{color:#10b981}
+.s3-stat-change.down{color:#ef4444}
+
+/* S3: 日历卡片 */
+.s3-calendar{
+  padding:24px;background:rgba(255,255,255,0.55);
+  backdrop-filter:blur(12px);border-radius:20px;
+  border:1px solid rgba(255,255,255,0.5);
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+.s3-cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.s3-cal-month{font-size:18px;font-weight:700}
+.s3-cal-nav{display:flex;gap:4px}
+.s3-cal-nav button{
+  width:28px;height:28px;border:none;border-radius:8px;
+  background:rgba(0,0,0,0.04);cursor:pointer;font-size:14px;
+  transition:0.2s;
+}
+.s3-cal-nav button:hover{background:rgba(0,0,0,0.08)}
+.s3-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.s3-cal-day-header{font-size:10px;font-weight:700;color:#94a3b8;text-align:center;padding:4px}
+.s3-cal-day{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  border-radius:10px;font-size:12px;font-weight:500;cursor:pointer;
+  position:relative;transition:0.2s;
+}
+.s3-cal-day:hover{background:rgba(99,102,241,0.08)}
+.s3-cal-day.today{background:#6366f1;color:#fff;font-weight:700}
+.s3-cal-day.event::after{
+  content:'';position:absolute;bottom:3px;width:4px;height:4px;
+  border-radius:50%;background:#f59e0b;
+}
+.s3-cal-day.event.teal::after{background:#14b8a6}
+.s3-cal-day.event.pink::after{background:#ec4899}
+
+.s3-events{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.s3-event{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:10px;font-size:12px;font-weight:500;
+  transition:0.2s;
+}
+.s3-event:hover{transform:translateX(4px)}
+.s3-event-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.s3-event-time{color:#94a3b8;font-size:11px;width:48px;flex-shrink:0}
+
+/* ==========================================
+   STYLE 4: 几何装饰风 (Geometric Play)
+   ========================================== */
+.s4{background:#f8f9fb;position:relative;overflow:hidden}
+.s4::before{
+  content:'';position:absolute;top:-120px;right:-80px;
+  width:360px;height:360px;border-radius:50%;
+  border:1px solid rgba(139,92,246,0.08);
+  pointer-events:none;
+}
+.s4::after{
+  content:'';position:absolute;bottom:-60px;left:-40px;
+  width:200px;height:200px;
+  border:1.5px solid rgba(236,72,153,0.06);
+  transform:rotate(45deg);
+  pointer-events:none;
+}
+.s4 .section-tag{background:rgba(139,92,246,0.1);color:#8b5cf6}
+
+.s4-inspo-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:auto auto;
+  gap:16px;padding:24px;min-height:440px;
+}
+.s4-card{
+  border-radius:20px;padding:24px;position:relative;overflow:hidden;
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  cursor:pointer;
+}
+.s4-card:nth-child(1){grid-row:span 2}
+.s4-card:nth-child(4){grid-column:span 2}
+.s4-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.1)}
+.s4-card-bg{position:absolute;inset:0;z-index:0;opacity:0.08}
+.s4-card-content{position:relative;z-index:1}
+.s4-card-icon{
+  width:48px;height:48px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;margin-bottom:16px;
+  background:rgba(255,255,255,0.8);
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+}
+.s4-card-title{font-size:16px;font-weight:700;margin-bottom:6px}
+.s4-card-desc{font-size:12px;color:#64748b;line-height:1.6}
+.s4-geo-accent{
+  position:absolute;pointer-events:none;z-index:0;
+}
+.s4-geo-circle{
+  width:60px;height:60px;border-radius:50%;
+  border:2px solid rgba(255,255,255,0.3);
+}
+.s4-geo-triangle{
+  width:0;height:0;
+  border-left:30px solid transparent;
+  border-right:30px solid transparent;
+  border-bottom:52px solid rgba(255,255,255,0.15);
+}
+
+/* S4: 知识库 */
+.s4-kb{
+  padding:24px;min-height:440px;display:flex;flex-direction:column;gap:16px;
+}
+.s4-kb-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.s4-kb-avatar{
+  width:36px;height:36px;border-radius:10px;
+  overflow:hidden;
+}
+.s4-kb-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.s4-kb-title{font-size:16px;font-weight:700}
+.s4-kb-item{
+  padding:16px 20px;border-radius:16px;
+  background:#fff;border:1px solid #f1f5f9;
+  display:flex;align-items:center;gap:12px;
+  transition:all 0.25s ease;
+  position:relative;overflow:hidden;
+}
+.s4-kb-item::before{
+  content:'';position:absolute;left:0;top:12px;bottom:12px;
+  width:3px;border-radius:0 2px 2px 0;
+  background:linear-gradient(180deg,#8b5cf6,#ec4899);
+  opacity:0;transition:opacity 0.25s ease;
+}
+.s4-kb-item:hover::before{opacity:1}
+.s4-kb-item:hover{border-color:#e2e8f0;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.s4-kb-icon{font-size:20px;flex-shrink:0}
+.s4-kb-name{font-size:14px;font-weight:600;flex:1}
+.s4-kb-tag{font-size:10px;padding:2px 8px;border-radius:6px;font-weight:600}
+.s4-decorative-dots{
+  position:absolute;bottom:16px;right:20px;
+  display:grid;grid-template-columns:repeat(3,4px);
+  gap:4px;opacity:0.15;pointer-events:none;
+}
+.s4-decorative-dots span{
+  width:4px;height:4px;border-radius:50%;background:#8b5cf6;
+}
+
+/* ==========================================
+   STYLE 5: 微动效交互 (Motion Flow)
+   ========================================== */
+.s5{background:#fafbfc}
+.s5 .section-tag{background:rgba(16,185,129,0.1);color:#10b981}
+
+.s5-timer{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:440px;padding:40px 24px;gap:24px;
+}
+.s5-timer-ring{
+  width:160px;height:160px;border-radius:50%;
+  position:relative;display:flex;align-items:center;justify-content:center;
+  background:conic-gradient(#3b82f6 0deg 240deg,#f1f5f9 240deg 360deg);
+  transition:background 0.5s ease;
+}
+.s5-timer-ring::after{
+  content:'';position:absolute;inset:8px;border-radius:50%;
+  background:#fff;
+}
+.s5-time-display{
+  position:relative;z-index:1;font-size:36px;font-weight:700;
+  font-family:'SF Mono','Consolas',monospace;
+  letter-spacing:-0.02em;
+  color:#1e293b;
+}
+.s5-timer-label{font-size:13px;color:#94a3b8;text-align:center}
+.s5-timer-btn{
+  padding:10px 28px;border-radius:99px;border:none;
+  font-size:14px;font-weight:600;cursor:pointer;
+  background:#3b82f6;color:#fff;
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:0 2px 8px rgba(59,130,246,0.3);
+}
+.s5-timer-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(59,130,246,0.4);
+}
+
+/* S5: 任务列表 - 交错 */
+.s5-tasks{
+  padding:24px;min-height:440px;display:flex;flex-direction:column;gap:12px;
+}
+.s5-task-item{
+  padding:16px 20px;border-radius:14px;
+  background:#fff;border:1px solid #f1f5f9;
+  display:flex;align-items:center;gap:14px;
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  cursor:pointer;
+  transform:translateY(0);
+}
+.s5-task-item:nth-child(1){transform:translateX(0)}.s5-task-item:nth-child(2){transform:translateX(8px)}.s5-task-item:nth-child(3){transform:translateX(-4px)}.s5-task-item:nth-child(4){transform:translateX(12px)}
+.s5-task-item:hover{
+  box-shadow:0 4px 16px rgba(0,0,0,0.08);
+  transform:translateX(0)!important; /* all snap to aligned on hover */
+  border-color:#3b82f6;
+}
+.s5-checkbox{
+  width:20px;height:20px;border-radius:6px;
+  border:2px solid #cbd5e1;flex-shrink:0;
+  transition:all 0.25s ease;
+  display:flex;align-items:center;justify-content:center;
+}
+.s5-task-item:hover .s5-checkbox{border-color:#3b82f6}
+.s5-checkbox.done{background:#10b981;border-color:#10b981}
+.s5-checkbox.done::after{content:'✓';color:#fff;font-size:12px;font-weight:700}
+.s5-task-text{font-size:14px;font-weight:500;flex:1;transition:color 0.25s ease}
+.s5-task-item:hover .s5-task-text{color:#1e40af}
+.s5-task-text.done{text-decoration:line-through;color:#94a3b8}
+.s5-task-arrow{
+  opacity:0;transform:translateX(-4px);
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  color:#3b82f6;font-size:16px;
+}
+.s5-task-item:hover .s5-task-arrow{opacity:1;transform:translateX(0)}
+
+/* Number scroll effect */
+@keyframes countUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.s5-count-up{animation:countUp 0.6s ease-out both}
+.s5-count-up:nth-child(1){animation-delay:0s}.s5-count-up:nth-child(2){animation-delay:0.15s}.s5-count-up:nth-child(3){animation-delay:0.3s}.s5-count-up:nth-child(4){animation-delay:0.45s}
+
+/* Title underline animation */
+.s5-underline{
+  position:relative;display:inline-block;
+}
+.s5-underline::after{
+  content:'';position:absolute;left:0;bottom:-2px;width:0;height:2px;
+  background:linear-gradient(90deg,#3b82f6,#8b5cf6);
+  transition:width 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.s5-task-item:hover .s5-underline::after{width:100%}
+
+/* ==========================================
+   STYLE 6: 综合平衡风 (Balanced Hybrid)
+   ========================================== */
+.s6{background:linear-gradient(180deg,hsl(220,20%,97%) 0%,hsl(220,18%,99%) 50%,hsl(220,20%,97%) 100%)}
+.s6 .section-tag{background:rgba(59,111,202,0.1);color:#3b6fca}
+
+.s6-workspace{
+  max-width:1000px;margin:0 auto;padding:0;
+  display:flex;flex-direction:column;gap:20px;
+}
+.s6-header{
+  background:rgba(255,255,255,0.72);
+  backdrop-filter:blur(16px) saturate(140%);
+  border-radius:16px;padding:16px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  border:1px solid rgba(0,0,0,0.05);
+  box-shadow:0 1px 3px rgba(0,0,0,0.04);
+}
+.s6-header-greet{font-size:14px;font-weight:500}
+.s6-header-greet strong{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:400}
+.s6-header-actions{display:flex;gap:8px;align-items:center}
+.s6-header-btn{
+  padding:6px 14px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);
+  background:rgba(255,255,255,0.8);font-size:12px;font-weight:500;
+  cursor:pointer;transition:all 0.2s ease;
+}
+.s6-header-btn:hover{background:rgba(59,111,202,0.06);border-color:rgba(59,111,202,0.2)}
+.s6-header-btn.primary{background:#3b6fca;color:#fff;border-color:#3b6fca}
+.s6-header-btn.primary:hover{opacity:0.9}
+
+.s6-main-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+
+.s6-card{
+  background:rgba(255,255,255,0.72);
+  backdrop-filter:blur(12px);
+  border-radius:16px;padding:20px;
+  border:1px solid rgba(0,0,0,0.05);
+  box-shadow:0 1px 3px rgba(0,0,0,0.04);
+  transition:all 0.25s ease;
+}
+.s6-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.s6-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.s6-card-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.s6-card-accent{width:8px;height:8px;border-radius:50%}
+
+/* S6: Mini 任务看板 */
+.s6-mini-board{display:flex;gap:10px}
+.s6-mini-col{flex:1;display:flex;flex-direction:column;gap:8px}
+.s6-mini-task{
+  background:rgba(255,255,255,0.9);border-radius:10px;
+  padding:10px 12px;font-size:12px;font-weight:500;
+  border:1px solid rgba(0,0,0,0.04);
+  transition:all 0.2s ease;cursor:pointer;
+}
+.s6-mini-task:hover{box-shadow:0 2px 8px rgba(0,0,0,0.06);transform:translateY(-1px)}
+.s6-mini-task .tag{font-size:10px;padding:1px 6px;border-radius:4px;margin-top:4px;display:inline-block}
+
+/* S6: 右侧面板 */
+.s6-side-cards{display:flex;flex-direction:column;gap:16px}
+.s6-side-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px;
+  border-radius:12px;
+  transition:all 0.2s ease;
+  background:rgba(255,255,255,0.5);
+}
+.s6-side-item:hover{background:rgba(255,255,255,0.8)}
+.s6-side-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.s6-side-text{font-size:13px;font-weight:500;flex:1}
+.s6-side-value{font-size:12px;color:#94a3b8}
+
+/* S6: Geo decoration */
+.s6-geo-blob{
+  position:absolute;right:-20px;bottom:-20px;
+  width:120px;height:120px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(139,92,246,0.06),rgba(59,111,202,0.04));
+  pointer-events:none;
+}
+
+/* ====== GLOBAL DECORATION ====== */
+.section-divider{
+  height:1px;background:linear-gradient(90deg,transparent,rgba(0,0,0,0.06),transparent);
+  margin:0 24px;
+}
+
+/* Animations for style 5 */
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.4}}
+.s5-pulse{animation:pulse-dot 2s ease-in-out infinite}
+
+/* Smooth entry animations */
+.style-section{animation:fadeInSection 0.6s ease-out both}
+@keyframes fadeInSection{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ====== FLOATING TOOLBAR ====== */
+.float-toolbar{
+  position:fixed;bottom:24px;right:24px;z-index:200;
+  display:flex;flex-direction:column;gap:8px;
+}
+.float-toolbar button{
+  width:40px;height:40px;border-radius:12px;border:none;
+  background:rgba(255,255,255,0.82);
+  backdrop-filter:blur(12px);
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+  cursor:pointer;font-size:18px;
+  transition:all 0.2s ease;
+}
+.float-toolbar button:hover{
+  background:#fff;box-shadow:0 4px 16px rgba(0,0,0,0.12);
+  transform:translateY(-1px);
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="style-nav">
+  <a href="#s1"><span class="num">1</span> 空气感·杂志</a>
+  <a href="#s2"><span class="num">2</span> 柔和·立体</a>
+  <a href="#s3"><span class="num">3</span> 渐变·色彩</a>
+  <a href="#s4"><span class="num">4</span> 几何·装饰</a>
+  <a href="#s5"><span class="num">5</span> 微动效·交互</a>
+  <a href="#s6"><span class="num">6</span> 综合·平衡</a>
+</nav>
+
+<!-- ===== STYLE 1: 空气感杂志风 ===== -->
+<section class="style-section s1" id="s1">
+  <div class="section-header">
+    <div class="section-tag">Style 01 · Typography & Layout</div>
+    <div class="section-title">空气感杂志风</div>
+    <p class="section-desc">Noto Serif SC 衬线标题 × 超大留白 × 不对称双栏 — 用字号对比和间距替代分割线</p>
+  </div>
+
+  <div class="demo-grid">
+    <!-- 仪表盘 Hero -->
+    <div class="demo-card full-width s1-hero">
+      <div class="demo-label" style="background:rgba(0,0,0,0.06);color:#666">Dashboard</div>
+      <div class="s1-hero-top">
+        <div>
+          <div class="s1-hero-greeting">早安，<em>荔荔绀</em></div>
+          <div class="s1-hero-date">2026年8月4日 · 星期二</div>
+        </div>
+        <div class="s1-hero-avatar"><img src="ito.jpg" alt="头像"></div>
+      </div>
+      <div class="s1-stats">
+        <div class="s1-stat"><div class="s1-stat-num">12</div><div class="s1-stat-label">进行中任务</div></div>
+        <div class="s1-stat"><div class="s1-stat-num">3</div><div class="s1-stat-label">活跃项目</div></div>
+        <div class="s1-stat"><div class="s1-stat-num">128<small style="font-size:20px">min</small></div><div class="s1-stat-label">今日专注</div></div>
+        <div class="s1-stat"><div class="s1-stat-num">86<small style="font-size:20px">%</small></div><div class="s1-stat-label">周完成率</div></div>
+      </div>
+    </div>
+
+    <!-- 笔记详情 -->
+    <div class="demo-card s1-note">
+      <div class="demo-label" style="background:rgba(0,0,0,0.06);color:#666">Notes Detail</div>
+      <div class="s1-note-meta">
+        <span>📝 产品思考</span>
+        <span style="font-weight:400;color:#bbb">·</span>
+        <span>8月4日</span>
+        <span style="font-weight:400;color:#bbb">·</span>
+        <span>5 min read</span>
+      </div>
+      <div class="s1-note-title">关于个人工作台<br>下一阶段的迭代方向</div>
+      <div class="s1-note-body">
+        <p>在完成了任务树、专注计时器和数据同步的基础能力之后，下一阶段的核心命题是：如何让工具更好地适应个人的工作节奏……</p>
+        <p>我认为应该从三个维度来思考：信息的组织方式、时间的感知粒度、以及注意力流动的自然路径。</p>
+      </div>
+    </div>
+
+    <!-- 时间轴 -->
+    <div class="demo-card s1-note">
+      <div class="demo-label" style="background:rgba(0,0,0,0.06);color:#666">Timeline</div>
+      <div class="s1-note-title" style="font-size:22px">今日时间线</div>
+      <div class="s1-timeline">
+        <div class="s1-timeline-item"><span class="s1-timeline-time">09:30</span> 完成设计稿初版评审</div>
+        <div class="s1-timeline-item"><span class="s1-timeline-time">10:15</span> 专注编码：TaskTree 重构</div>
+        <div class="s1-timeline-item"><span class="s1-timeline-time">12:00</span> 午休 · 阅读一篇关于设计系统的文章</div>
+        <div class="s1-timeline-item"><span class="s1-timeline-time">14:00</span> 团队周会 · 同步本周进度</div>
+        <div class="s1-timeline-item"><span class="s1-timeline-time">15:30</span> 修复 FocusTimer 计时归零 Bug</div>
+        <div class="s1-timeline-item"><span class="s1-timeline-time">17:00</span> 计划中：导出功能方案讨论</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== STYLE 2: 柔和立体感 ===== -->
+<section class="style-section s2" id="s2">
+  <div class="section-header">
+    <div class="section-tag">Style 02 · Depth & Shadow</div>
+    <div class="section-title">柔和立体感</div>
+    <p class="section-desc">多层次阴影 × 渐进圆角 × 悬浮抬起 — 用光影塑造卡片的前后空间关系</p>
+  </div>
+
+  <div class="demo-grid">
+    <!-- 任务看板 -->
+    <div class="demo-card full-width" style="background:transparent;box-shadow:none">
+      <div class="demo-label" style="background:rgba(0,0,0,0.08);color:#64748b">Task Board</div>
+      <div class="s2-board">
+        <div class="s2-column">
+          <div class="s2-col-header"><div class="s2-col-dot amber"></div><span class="s2-col-title">待处理</span><span class="s2-col-count">4</span></div>
+          <div class="s2-task">
+            <div class="s2-task-title">设计新的 Onboarding 流程</div>
+            <div class="s2-task-meta"><span class="s2-task-tag p1">P1</span><span class="s2-task-date">8/6</span></div>
+          </div>
+          <div class="s2-task">
+            <div class="s2-task-title">优化移动端侧边栏动画</div>
+            <div class="s2-task-meta"><span class="s2-task-tag p2">P2</span><span class="s2-task-date">8/8</span></div>
+          </div>
+        </div>
+        <div class="s2-column">
+          <div class="s2-col-header"><div class="s2-col-dot blue"></div><span class="s2-col-title">进行中</span><span class="s2-col-count">3</span></div>
+          <div class="s2-task">
+            <div class="s2-task-title">TaskTree 递归渲染重构</div>
+            <div class="s2-task-meta"><span class="s2-task-tag p0">P0</span><span class="s2-task-date">8/4</span></div>
+          </div>
+          <div class="s2-task">
+            <div class="s2-task-title">数据库索引性能优化</div>
+            <div class="s2-task-meta"><span class="s2-task-tag p1">P1</span><span class="s2-task-date">8/5</span></div>
+          </div>
+        </div>
+        <div class="s2-column">
+          <div class="s2-col-header"><div class="s2-col-dot emerald"></div><span class="s2-col-title">已完成</span><span class="s2-col-count">8</span></div>
+          <div class="s2-task" style="opacity:0.6">
+            <div class="s2-task-title">Railway 502 修复</div>
+            <div class="s2-task-meta"><span class="s2-task-tag p0">P0</span><span class="s2-task-date">8/3</span></div>
+          </div>
+          <div class="s2-task" style="opacity:0.6">
+            <div class="s2-task-title">FocusTimer UI 重写</div>
+            <div class="s2-task-meta"><span class="s2-task-tag p1">P1</span><span class="s2-task-date">8/2</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 项目卡片 -->
+    <div class="demo-card full-width" style="background:transparent;box-shadow:none">
+      <div class="demo-label" style="background:rgba(0,0,0,0.08);color:#64748b">Projects</div>
+      <div class="s2-projects">
+        <div class="s2-project">
+          <div class="s2-proj-icon" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe)"></div>
+          <div class="s2-proj-name">个人工作台</div>
+          <div class="s2-proj-desc">全栈个人效率工具 · React + Express</div>
+          <div class="s2-proj-bar"><div class="s2-proj-bar-fill" style="width:75%;background:linear-gradient(90deg,#3b82f6,#6366f1)"></div></div>
+        </div>
+        <div class="s2-project">
+          <div class="s2-proj-icon" style="background:linear-gradient(135deg,#fce7f3,#fbcfe8)"></div>
+          <div class="s2-proj-name">设计系统</div>
+          <div class="s2-proj-desc">组件库 & 设计令牌 · Figma + CSS</div>
+          <div class="s2-proj-bar"><div class="s2-proj-bar-fill" style="width:40%;background:linear-gradient(90deg,#ec4899,#f472b6)"></div></div>
+        </div>
+        <div class="s2-project">
+          <div class="s2-proj-icon" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0)"></div>
+          <div class="s2-proj-name">博客重构</div>
+          <div class="s2-proj-desc">Next.js SSG · MDX 内容管理</div>
+          <div class="s2-proj-bar"><div class="s2-proj-bar-fill" style="width:90%;background:linear-gradient(90deg,#10b981,#34d399)"></div></div>
+        </div>
+        <div class="s2-project">
+          <div class="s2-proj-icon" style="background:linear-gradient(135deg,#fef3c7,#fde68a)"></div>
+          <div class="s2-proj-name">自动化脚本集</div>
+          <div class="s2-proj-desc">日常效率工具 · Python & Shell</div>
+          <div class="s2-proj-bar"><div class="s2-proj-bar-fill" style="width:60%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== STYLE 3: 渐变色彩层 ===== -->
+<section class="style-section s3" id="s3">
+  <div class="section-header">
+    <div class="section-tag">Style 03 · Color & Gradient</div>
+    <div class="section-title">渐变色彩层</div>
+    <p class="section-desc">四色渐变背景 × 半透明卡片叠加 × 6 色辅助色板 — 让每个信息模块拥有独立的色彩身份</p>
+  </div>
+
+  <div class="demo-grid">
+    <!-- 数据分析 -->
+    <div class="demo-card s3-charts" style="background:transparent">
+      <div class="demo-label" style="background:rgba(99,102,241,0.12);color:#6366f1">Data Dashboard</div>
+      <div class="s3-chart-row">
+        <div class="s3-stat-card pink">
+          <div class="s3-stat-label" style="color:#ec4899">本周专注</div>
+          <div class="s3-stat-value" style="color:#be185d">8.5<small style="font-size:18px">h</small></div>
+          <div class="s3-stat-change up">↑ 12% vs 上周</div>
+        </div>
+        <div class="s3-stat-card purple">
+          <div class="s3-stat-label" style="color:#8b5cf6">完成任务</div>
+          <div class="s3-stat-value" style="color:#6d28d9">23</div>
+          <div class="s3-stat-change up">↑ 5 项</div>
+        </div>
+      </div>
+      <div class="s3-chart-row">
+        <div class="s3-stat-card teal">
+          <div class="s3-stat-label" style="color:#14b8a6">效率评分</div>
+          <div class="s3-stat-value" style="color:#0f766e">86<small style="font-size:18px">%</small></div>
+          <div class="s3-stat-change up">↑ 3%</div>
+        </div>
+        <div class="s3-stat-card amber">
+          <div class="s3-stat-label" style="color:#f59e0b">待处理</div>
+          <div class="s3-stat-value" style="color:#b45309">7</div>
+          <div class="s3-stat-change down">↓ 2 项逾期</div>
+        </div>
+      </div>
+      <!-- 简易柱状图 -->
+      <div style="display:flex;align-items:flex-end;gap:12px;height:100px;padding:0 4px;margin-top:8px">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:100%;background:linear-gradient(180deg,#ec4899,#f9a8d4);border-radius:6px 6px 0 0;height:60%;transition:height 0.4s"></div><span style="font-size:10px;color:#94a3b8">周一</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:100%;background:linear-gradient(180deg,#8b5cf6,#c4b5fd);border-radius:6px 6px 0 0;height:80%;transition:height 0.4s"></div><span style="font-size:10px;color:#94a3b8">周二</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:100%;background:linear-gradient(180deg,#3b82f6,#93c5fd);border-radius:6px 6px 0 0;height:95%"></div><span style="font-size:10px;color:#94a3b8">周三</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:100%;background:linear-gradient(180deg,#f59e0b,#fcd34d);border-radius:6px 6px 0 0;height:50%"></div><span style="font-size:10px;color:#94a3b8">周四</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:100%;background:linear-gradient(180deg,#10b981,#6ee7b7);border-radius:6px 6px 0 0;height:70%"></div><span style="font-size:10px;color:#94a3b8">周五</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 日历 -->
+    <div class="demo-card" style="background:transparent">
+      <div class="demo-label" style="background:rgba(236,72,153,0.1);color:#db2777">Calendar</div>
+      <div class="s3-calendar">
+        <div class="s3-cal-header">
+          <span class="s3-cal-month">2026年 8月</span>
+          <div class="s3-cal-nav"><button>‹</button><button>›</button></div>
+        </div>
+        <div class="s3-cal-grid">
+          <div class="s3-cal-day-header">日</div><div class="s3-cal-day-header">一</div><div class="s3-cal-day-header">二</div><div class="s3-cal-day-header">三</div><div class="s3-cal-day-header">四</div><div class="s3-cal-day-header">五</div><div class="s3-cal-day-header">六</div>
+          <div class="s3-cal-day"></div><div class="s3-cal-day"></div><div class="s3-cal-day"></div><div class="s3-cal-day"></div><div class="s3-cal-day"></div><div class="s3-cal-day"></div><div class="s3-cal-day">1</div>
+          <div class="s3-cal-day">2</div><div class="s3-cal-day">3</div><div class="s3-cal-day today">4</div><div class="s3-cal-day event">5</div><div class="s3-cal-day event teal">6</div><div class="s3-cal-day">7</div><div class="s3-cal-day">8</div>
+          <div class="s3-cal-day">9</div><div class="s3-cal-day">10</div><div class="s3-cal-day event pink">11</div><div class="s3-cal-day">12</div><div class="s3-cal-day">13</div><div class="s3-cal-day">14</div><div class="s3-cal-day">15</div>
+        </div>
+        <div class="s3-events">
+          <div class="s3-event" style="background:rgba(245,158,11,0.08)">
+            <div class="s3-event-dot" style="background:#f59e0b"></div>
+            <span class="s3-event-time">14:00</span>
+            <span>团队周会 · 同步进度</span>
+          </div>
+          <div class="s3-event" style="background:rgba(20,184,166,0.08)">
+            <div class="s3-event-dot" style="background:#14b8a6"></div>
+            <span class="s3-event-time">16:00</span>
+            <span>设计评审 · 新功能</span>
+          </div>
+          <div class="s3-event" style="background:rgba(236,72,153,0.08)">
+            <div class="s3-event-dot" style="background:#ec4899"></div>
+            <span class="s3-event-time">19:00</span>
+            <span>和朋友吃饭</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== STYLE 4: 几何装饰风 ===== -->
+<section class="style-section s4" id="s4">
+  <div class="section-header">
+    <div class="section-tag">Style 04 · Geometric & Playful</div>
+    <div class="section-title">几何装饰风</div>
+    <p class="section-desc">背景装饰圆与三角形 × 不对称网格 × 突破边界的元素 — 为界面注入活力与个性</p>
+  </div>
+
+  <div class="demo-grid">
+    <!-- 灵感收集 -->
+    <div class="demo-card full-width" style="background:transparent;box-shadow:none;min-height:440px">
+      <div class="demo-label" style="background:rgba(139,92,246,0.1);color:#7c3aed">Inspiration Board</div>
+      <div class="s4-inspo-grid">
+        <div class="s4-card" style="background:linear-gradient(135deg,#faf5ff,#ede9fe)">
+          <div class="s4-card-content">
+            <div class="s4-card-icon" style="background:rgba(255,255,255,0.9)">🎨</div>
+            <div class="s4-card-title" style="color:#6d28d9">极简主义配色参考</div>
+            <div class="s4-card-desc">收集的一些低饱和度配色方案，适合作为新主题的基础色板。包含暖调、冷调各三套。</div>
+          </div>
+          <div class="s4-geo-accent" style="top:-10px;right:-10px"><div class="s4-geo-circle" style="border-color:rgba(139,92,246,0.15)"></div></div>
+        </div>
+        <div class="s4-card" style="background:linear-gradient(135deg,#fdf2f8,#fce7f3)">
+          <div class="s4-card-content">
+            <div class="s4-card-icon" style="background:rgba(255,255,255,0.9)">💡</div>
+            <div class="s4-card-title" style="color:#be185d">一个有趣的交互动效</div>
+            <div class="s4-card-desc">在 Dribbble 上看到的状态切换动画，可以考虑用在我们设置面板的开关上。</div>
+          </div>
+          <div class="s4-geo-accent" style="bottom:-15px;left:-15px"><div class="s4-geo-triangle" style="border-bottom-color:rgba(236,72,153,0.1)"></div></div>
+        </div>
+        <div class="s4-card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7)">
+          <div class="s4-card-content">
+            <div class="s4-card-icon" style="background:rgba(255,255,255,0.9)">📖</div>
+            <div class="s4-card-title" style="color:#166534">设计心理学笔记</div>
+            <div class="s4-card-desc">希克定律：选择越多，决策越慢。我们的导航项控制在 7 个以内是合理的。</div>
+          </div>
+        </div>
+        <div class="s4-card" style="background:linear-gradient(135deg,#eff6ff,#dbeafe)">
+          <div class="s4-card-content">
+            <div class="s4-card-icon" style="background:rgba(255,255,255,0.9)">🔗</div>
+            <div class="s4-card-title" style="color:#1e40af">Tailwind v4 迁移指南</div>
+            <div class="s4-card-desc">官方文档中的 breaking changes 清单，CSS-first 配置方式是我们下一步的方向。</div>
+          </div>
+          <div class="s4-geo-accent" style="top:50%;right:-20px;transform:translateY(-50%)"><div class="s4-geo-circle" style="border-color:rgba(59,130,246,0.1);width:40px;height:40px"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 知识库 -->
+    <div class="demo-card full-width" style="background:transparent;box-shadow:none">
+      <div class="demo-label" style="background:rgba(139,92,246,0.1);color:#7c3aed">Knowledge Base</div>
+      <div class="s4-kb" style="position:relative">
+        <div class="s4-decorative-dots">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+        <div class="s4-kb-header">
+          <div class="s4-kb-avatar"><img src="ito.jpg" alt="头像"></div>
+          <div class="s4-kb-title">个人知识库</div>
+        </div>
+        <div class="s4-kb-item">
+          <span class="s4-kb-icon">📋</span>
+          <span class="s4-kb-name">React 性能优化 Checklist</span>
+          <span class="s4-kb-tag" style="background:#dbeafe;color:#1e40af">前端</span>
+        </div>
+        <div class="s4-kb-item">
+          <span class="s4-kb-icon">🗄️</span>
+          <span class="s4-kb-name">PostgreSQL 索引策略</span>
+          <span class="s4-kb-tag" style="background:#fce7f3;color:#be185d">数据库</span>
+        </div>
+        <div class="s4-kb-item">
+          <span class="s4-kb-icon">🎯</span>
+          <span class="s4-kb-name">OKR 制定方法论</span>
+          <span class="s4-kb-tag" style="background:#fef3c7;color:#92400e">管理</span>
+        </div>
+        <div class="s4-kb-item">
+          <span class="s4-kb-icon">🖌️</span>
+          <span class="s4-kb-name">设计系统 Token 命名规范</span>
+          <span class="s4-kb-tag" style="background:#ede9fe;color:#6d28d9">设计</span>
+        </div>
+        <div class="s4-kb-item">
+          <span class="s4-kb-icon">⚡</span>
+          <span class="s4-kb-name">Vite 插件开发笔记</span>
+          <span class="s4-kb-tag" style="background:#d1fae5;color:#065f46">工具</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== STYLE 5: 微动效交互 ===== -->
+<section class="style-section s5" id="s5">
+  <div class="section-header">
+    <div class="section-tag">Style 05 · Motion & Interaction</div>
+    <div class="section-title">微动效交互</div>
+    <p class="section-desc">hover 抬起 × 交错排列 × 下划线动画 × 数字渐入 — 让每一次交互都有细腻的反馈</p>
+  </div>
+
+  <div class="demo-grid">
+    <!-- 专注计时器 -->
+    <div class="demo-card" style="background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+      <div class="demo-label" style="background:rgba(16,185,129,0.1);color:#059669">Focus Timer</div>
+      <div class="s5-timer">
+        <div class="s5-timer-ring">
+          <div class="s5-time-display">25:00</div>
+        </div>
+        <div class="s5-timer-label" style="font-weight:500">🍅 专注中 · 剩余 25 分钟</div>
+        <button class="s5-timer-btn">暂停</button>
+        <div style="display:flex;gap:24px;margin-top:8px">
+          <div class="s5-count-up" style="text-align:center">
+            <div style="font-size:20px;font-weight:700;color:#1e293b">4</div>
+            <div style="font-size:11px;color:#94a3b8">今日番茄</div>
+          </div>
+          <div class="s5-count-up" style="text-align:center">
+            <div style="font-size:20px;font-weight:700;color:#1e293b">128<small style="font-size:12px">min</small></div>
+            <div style="font-size:11px;color:#94a3b8">总专注</div>
+          </div>
+          <div class="s5-count-up" style="text-align:center">
+            <div style="font-size:20px;font-weight:700;color:#1e293b">85<small style="font-size:12px">%</small></div>
+            <div style="font-size:11px;color:#94a3b8">完成率</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 任务列表 -->
+    <div class="demo-card" style="background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+      <div class="demo-label" style="background:rgba(59,130,246,0.08);color:#2563eb">Task List</div>
+      <div class="s5-tasks" style="padding-top:28px">
+        <div class="s5-task-item">
+          <div class="s5-checkbox done"></div>
+          <span class="s5-task-text done"><span class="s5-underline">FocusTimer UI 重写</span></span>
+          <span class="s5-task-arrow">→</span>
+        </div>
+        <div class="s5-task-item">
+          <div class="s5-checkbox"></div>
+          <span class="s5-task-text"><span class="s5-underline">移动端侧边栏动画优化</span></span>
+          <span class="s5-task-arrow">→</span>
+        </div>
+        <div class="s5-task-item">
+          <div class="s5-checkbox"></div>
+          <span class="s5-task-text"><span class="s5-underline">数据导出 CSV 功能</span></span>
+          <span class="s5-task-arrow">→</span>
+        </div>
+        <div class="s5-task-item">
+          <div class="s5-checkbox"></div>
+          <span class="s5-task-text"><span class="s5-underline">暗色模式支持</span></span>
+          <span class="s5-task-arrow">→</span>
+        </div>
+        <div class="s5-task-item" style="opacity:0.5">
+          <div class="s5-checkbox done"></div>
+          <span class="s5-task-text done"><span class="s5-underline">Railway 502 修复</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== STYLE 6: 综合平衡风 ===== -->
+<section class="style-section s6" id="s6">
+  <div class="section-header">
+    <div class="section-tag">Style 06 · Balanced Hybrid</div>
+    <div class="section-title">综合平衡风</div>
+    <p class="section-desc">保留毛玻璃基因 × 适度排版对比 × 辅助色点缀 × 微交互动效 — 在现有基础上自然的视觉升级</p>
+  </div>
+
+  <div class="s6-workspace" style="position:relative">
+    <div class="s6-geo-blob"></div>
+
+    <!-- Header -->
+    <div class="s6-header">
+      <div>
+        <div class="s6-header-greet">下午好，<strong>荔荔绀</strong></div>
+        <div style="font-size:11px;color:#94a3b8">今天完成了 3/8 项任务</div>
+      </div>
+      <div class="s6-header-actions">
+        <button class="s6-header-btn">🔍 搜索</button>
+        <button class="s6-header-btn primary">+ 新建任务</button>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="s6-main-grid">
+      <!-- 任务看板 -->
+      <div class="s6-card">
+        <div class="s6-card-header">
+          <div class="s6-card-title"><span class="s6-card-accent" style="background:#3b6fca"></span>任务看板</div>
+          <span style="font-size:11px;color:#94a3b8">8 项任务</span>
+        </div>
+        <div class="s6-mini-board">
+          <div class="s6-mini-col">
+            <div class="s6-mini-task">设计 Onboarding<span class="tag" style="background:#fef3c7;color:#92400e">P1</span></div>
+            <div class="s6-mini-task">API 文档编写<span class="tag" style="background:#f1f5f9;color:#64748b">P2</span></div>
+          </div>
+          <div class="s6-mini-col">
+            <div class="s6-mini-task">TaskTree 重构<span class="tag" style="background:#fee2e2;color:#dc2626">P0</span></div>
+            <div class="s6-mini-task">索引优化<span class="tag" style="background:#fef3c7;color:#92400e">P1</span></div>
+            <div class="s6-mini-task">测试覆盖<span class="tag" style="background:#f1f5f9;color:#64748b">P2</span></div>
+          </div>
+          <div class="s6-mini-col">
+            <div class="s6-mini-task" style="opacity:0.6">502 修复<span class="tag" style="background:#d1fae5;color:#065f46">Done</span></div>
+            <div class="s6-mini-task" style="opacity:0.6">UI 重写<span class="tag" style="background:#d1fae5;color:#065f46">Done</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 侧边面板 -->
+      <div class="s6-side-cards">
+        <div class="s6-card">
+          <div class="s6-card-header">
+            <div class="s6-card-title"><span class="s6-card-accent" style="background:#8b5cf6"></span>日历</div>
+          </div>
+          <div class="s6-side-item">
+            <div class="s6-side-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b">📅</div>
+            <span class="s6-side-text">团队周会</span>
+            <span class="s6-side-value">14:00</span>
+          </div>
+          <div class="s6-side-item">
+            <div class="s6-side-icon" style="background:rgba(20,184,166,0.1);color:#14b8a6">🎨</div>
+            <span class="s6-side-text">设计评审</span>
+            <span class="s6-side-value">16:00</span>
+          </div>
+        </div>
+
+        <div class="s6-card">
+          <div class="s6-card-header">
+            <div class="s6-card-title"><span class="s6-card-accent" style="background:#ec4899"></span>快速笔记</div>
+          </div>
+          <div class="s6-side-item">
+            <div class="s6-side-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6">📝</div>
+            <span class="s6-side-text">设计系统 Token 规范...</span>
+          </div>
+          <div class="s6-side-item">
+            <div class="s6-side-icon" style="background:rgba(236,72,153,0.1);color:#ec4899">💡</div>
+            <span class="s6-side-text">一个有趣的交互动效...</span>
+          </div>
+          <div class="s6-side-item">
+            <div class="s6-side-icon" style="background:rgba(59,130,246,0.1);color:#3b82f6">⚡</div>
+            <span class="s6-side-text">Vite 插件开发笔记...</span>
+          </div>
+        </div>
+
+        <!-- 专注计时器小卡片 -->
+        <div class="s6-card" style="text-align:center">
+          <div style="font-size:28px;font-weight:700;color:#1e293b;font-family:'SF Mono',monospace">32:18</div>
+          <div style="font-size:12px;color:#94a3b8;margin-top:4px">
+            <span class="s5-pulse" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-right:6px;vertical-align:middle"></span>
+            专注中
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Floating toolbar -->
+<div class="float-toolbar">
+  <button title="回到顶部" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+</div>
+
+</body>
+</html>
