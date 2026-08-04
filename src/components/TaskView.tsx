@@ -465,14 +465,12 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
           </div>
         </div>
       ) : isDone ? (
-        <div className="p-4">
-          <div className="flex items-start gap-2.5">
-            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background: 'var(--accent-teal)' }}>
-              <Check size={14} className="text-white" />
-            </div>
+        <div className="p-3">
+          <div className="flex items-start gap-2">
+            <div className="w-2 h-2 rounded-full shrink-0 mt-1.5" style={{ background: 'var(--accent-teal)' }} />
             <div className="flex-1 min-w-0">
               <div className="flex items-start gap-2">
-                <span className="text-base font-semibold leading-snug" style={{ opacity: 0.55, textDecoration: 'line-through', color: 'var(--text-primary)' }}>
+                <span className="text-sm font-medium leading-relaxed" style={{ opacity: 0.55, textDecoration: 'line-through', color: 'var(--text-primary)' }}>
                   {task.title}
                 </span>
                 <button
