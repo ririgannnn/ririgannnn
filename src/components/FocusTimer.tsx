@@ -235,25 +235,25 @@ export default function FocusTimer({ taskId, taskTitle, focusSession, onRestart 
     <div>
       {/* Compact summary bar */}
       <div
-        className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer hover:shadow-sm transition-all select-none group"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border cursor-pointer hover:shadow-sm transition-all select-none group whitespace-nowrap"
         style={{ background: 'var(--bg-surface)', borderColor: 'var(--line)' }}
         onClick={() => setShowDetails(!showDetails)}
       >
-        <Timer size={13} style={{ color: 'var(--accent-teal)' }} className="shrink-0" />
-        <span className="text-xs font-medium" style={{ color: 'var(--text-mid)' }}>
+        <Timer size={11} style={{ color: 'var(--accent-teal)' }} className="shrink-0" />
+        <span className="text-[11px] font-medium whitespace-nowrap" style={{ color: 'var(--text-mid)' }}>
           专注 {formatTotal(totalAccumulated)}
         </span>
-        <span className="text-[10px]" style={{ color: 'var(--text-dim)' }}>· {sessions.length} 次</span>
-        <span className="flex-1" />
+        <span className="text-[10px] whitespace-nowrap shrink-0" style={{ color: 'var(--text-dim)' }}>· {sessions.length} 次</span>
+        <span className="flex-1 min-w-[4px]" />
         <button onClick={(e) => { e.stopPropagation(); startTimer(taskId, taskTitle); }}
-          className="flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium transition-colors opacity-0 group-hover:opacity-100"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium transition-colors opacity-0 group-hover:opacity-100 whitespace-nowrap shrink-0"
           style={{ background: 'rgba(74,138,122,0.12)', color: 'var(--accent-teal)' }}>
-          <Play size={10} /> 开始
+          <Play size={9} /> 开始
         </button>
         {showDetails ? (
-          <ChevronDown size={13} style={{ color: 'var(--accent-teal)' }} className="shrink-0" />
+          <ChevronDown size={11} style={{ color: 'var(--accent-teal)' }} className="shrink-0" />
         ) : (
-          <ChevronRight size={13} style={{ color: 'var(--accent-teal)' }} className="shrink-0" />
+          <ChevronRight size={11} style={{ color: 'var(--accent-teal)' }} className="shrink-0" />
         )}
       </div>
 

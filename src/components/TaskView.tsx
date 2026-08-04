@@ -330,6 +330,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
   const [editTitle, setEditTitle] = useState(task.title);
   const [editDesc, setEditDesc] = useState(task.description);
   const [showSubtasks, setShowSubtasks] = useState(false);
+  const [showTimer, setShowTimer] = useState(false);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
   const [editingSubtaskTitle, setEditingSubtaskTitle] = useState('');
@@ -412,6 +413,7 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
 
   const handleStartTimer = () => {
     setShowTimerPrompt(false);
+    setShowTimer(true);
     useStore.getState().startTimer(task.id, task.title);
     onUpdate({ status: 'in-progress' });
   };
@@ -565,25 +567,14 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             <p className="text-xs mt-1.5 line-clamp-2 ml-3.5" style={{ color: 'var(--text-dim)' }}>{task.description}</p>
           )}
 
-          {subtasks.length > 0 && (
-            <div className="mt-2 ml-3.5">
-              <button
-                onClick={() => setShowSubtasks(!showSubtasks)}
-                className="flex items-center gap-1.5 text-xs transition-colors"
-                style={{ color: 'var(--text-dim)' }}
-              >
-                {showSubtasks ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-                <ListChecks size={12} />
-                <span>{completedSubtasks}/{subtasks.length} 子任务</span>
-              </button>
-              <div className="h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'var(--bg-deep)' }}>
-                <div className="h-full rounded-full transition-all duration-300" style={{ width: `${subtasks.length > 0 ? (completedSubtasks / subtasks.length) * 100 : 0}%`, background: 'var(--kon-main)' }} />
-              </div>
-            </div>
-          )}
 
           {showSubtasks && (
             <div className="mt-2 ml-3.5 space-y-1 animate-scale-in">
+              {subtasks.length > 0 && (
+                <div className="h-1 rounded-full overflow-hidden mb-1" style={{ background: 'var(--bg-deep)' }}>
+                  <div className="h-full rounded-full transition-all duration-300" style={{ width: `${subtasks.length > 0 ? (completedSubtasks / subtasks.length) * 100 : 0}%`, background: 'var(--kon-main)' }} />
+                </div>
+              )}
               {subtasks.map((st) => (
                 <div key={st.id} className="flex items-center gap-1.5 group/sub">
                   <button
@@ -646,28 +637,35 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
             </div>
           )}
 
-          {!showSubtasks && subtasks.length < MAX_SUBTASKS && (
-            <button
-              onClick={() => setShowSubtasks(true)}
-              className="mt-2 ml-3.5 flex items-center gap-1 text-xs opacity-0 group-hover:opacity-100 transition-all"
-              style={{ color: 'var(--text-dim)' }}
-            >
-              <Plus size={11} /> 添加子任务
-            </button>
-          )}
 
-          <div className="mt-2">
-            <FocusTimer
-              taskId={task.id}
-              taskTitle={task.title}
-              focusSession={task.focusSession}
-            />
-          </div>
-
-          <div className="flex items-center gap-2 mt-2 ml-3.5">
+          <div className="flex items-center gap-2 mt-2 ml-3.5 flex-wrap">
             <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: statusBgMap[task.status], color: statusLabels[task.status].color }}>
               {statusLabels[task.status].label}
             </span>
+
+            {/* 子任务下拉 */}
+            <button
+              onClick={() => setShowSubtasks(!showSubtasks)}
+              className="text-xs flex items-center gap-1 transition-colors"
+              style={{ color: 'var(--text-dim)' }}
+            >
+              <ListChecks size={10} />
+              {subtasks.length > 0 ? `${completedSubtasks}/${subtasks.length}` : '子任务'}
+              {showSubtasks ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
+            </button>
+
+            {/* 专注计时 */}
+            <button
+              onClick={() => setShowTimer(!showTimer)}
+              className="text-xs flex items-center gap-1 transition-colors"
+              style={{ color: 'var(--text-dim)' }}
+            >
+              <Timer size={10} />
+              {(task.focusSession?.totalDuration ?? 0) > 0
+                ? `${formatDuration(task.focusSession!.totalDuration)} · ${(task.focusSession?.sessions ?? []).length}次`
+                : '专注'}
+            </button>
+
             {childCount > 0 && (
               <span className="text-xs flex items-center gap-1" style={{ color: 'var(--text-dim)' }} title={`${childCount} 个子任务`}>
                 <ListChecks size={10} /> {childCount}
@@ -679,6 +677,17 @@ function TaskCard({ task, onUpdate, onDelete, onEdit, isEditing, onEditingChange
               </span>
             )}
           </div>
+
+          {/* FocusTimer — 可选项，默认隐藏 */}
+          {showTimer && (
+            <div className="mt-2">
+              <FocusTimer
+                taskId={task.id}
+                taskTitle={task.title}
+                focusSession={task.focusSession}
+              />
+            </div>
+          )}
 
           {/* Timer Start Prompt Modal */}
           {showTimerPrompt && (
