@@ -240,12 +240,14 @@ export async function initDatabase(): Promise<void> {
     await addColumnIfNotExists('tasks', 'project_id');
     await addColumnIfNotExists('tasks', 'parent_id');
 
-    // 创建索引
-    const tables = ['tasks', 'notes', 'events', 'knowledge', 'inspirations', 'projects', 'activity_logs'];
+    // 创建索引（activity_logs 没有 updated_at，单独处理）
+    const tables = ['tasks', 'notes', 'events', 'knowledge', 'inspirations', 'projects'];
     for (const table of tables) {
       await client.query(`CREATE INDEX IF NOT EXISTS idx_${table}_user_id ON ${table}(user_id)`);
       await client.query(`CREATE INDEX IF NOT EXISTS idx_${table}_updated_at ON ${table}(updated_at)`);
     }
+    // activity_logs 索引（只有 user_id，没有 updated_at）
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_activity_logs_user_id ON activity_logs(user_id)`);
     // tasks 表额外索引
     await client.query(`CREATE INDEX IF NOT EXISTS idx_tasks_project_id ON tasks(project_id)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_tasks_parent_id ON tasks(parent_id)`);
