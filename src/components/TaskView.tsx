@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useStore } from '../stores';
 import type { Task, TaskStatus, TaskPriority, SubTask } from '../types';
 import { format } from 'date-fns';
