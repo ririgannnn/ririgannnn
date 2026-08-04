@@ -6,7 +6,7 @@ import api from '../services/api';
 
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
-// ── Timer runtime state (in-memory, NOT persisted) ──
+// ── Timer runtime state ──
 export interface TimerState {
   taskId: string;
   taskTitle: string;
@@ -14,6 +14,32 @@ export interface TimerState {
   accumulatedMs: number;
   isPaused: boolean;
   tick: number;
+}
+
+// ── Timer localStorage persistence (survives page refresh) ──
+const TIMER_KEY = 'pw-active-timer';
+
+/** Save timer to localStorage (strips tick — it's just a re-render counter). */
+function saveTimer(timer: TimerState | null): void {
+  try {
+    if (timer) {
+      const { tick: _tick, ...rest } = timer;
+      localStorage.setItem(TIMER_KEY, JSON.stringify(rest));
+    } else {
+      localStorage.removeItem(TIMER_KEY);
+    }
+  } catch { /* localStorage not available */ }
+}
+
+/** Load timer from localStorage. Returns null if none. */
+function loadTimer(): TimerState | null {
+  try {
+    const raw = localStorage.getItem(TIMER_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    // Restore with tick: 0 — TimerEngine will start incrementing it
+    return { ...parsed, tick: 0 } as TimerState;
+  } catch { return null; }
 }
 
 // Parse tags from various formats (array, JSON string, undefined)
@@ -110,7 +136,7 @@ interface AppState {
   initSync: (token: string) => Promise<void>;
   stopSync: () => void;
 
-  // ── Focus Timer (runtime, not persisted) ──
+  // ── Focus Timer (persisted to localStorage, survives refresh) ──
   activeTimer: TimerState | null;
   startTimer: (taskId: string, taskTitle: string) => void;
   pauseTimer: () => void;
@@ -118,6 +144,7 @@ interface AppState {
   stopTimer: () => void;
   resetTimer: () => void;
   tickTimer: () => void;
+  restoreTimer: () => void;
   addManualFocusSession: (taskId: string, durationMs: number, date?: string) => void;
 
   // Projects
@@ -1165,7 +1192,7 @@ export const useStore = create<AppState>()(
       },
 
       // ── Focus Timer ──
-      activeTimer: null,
+      activeTimer: loadTimer(),
 
       startTimer: (taskId, taskTitle) => {
         const current = get().activeTimer;
@@ -1187,6 +1214,7 @@ export const useStore = create<AppState>()(
             tick: 0,
           },
         });
+        saveTimer(get().activeTimer);
       },
 
       pauseTimer: () => {
@@ -1199,6 +1227,7 @@ export const useStore = create<AppState>()(
             isPaused: true,
           },
         });
+        saveTimer(get().activeTimer);
       },
 
       resumeTimer: () => {
@@ -1211,6 +1240,7 @@ export const useStore = create<AppState>()(
             isPaused: false,
           },
         });
+        saveTimer(get().activeTimer);
       },
 
       stopTimer: () => {
@@ -1219,6 +1249,7 @@ export const useStore = create<AppState>()(
         const duration = current.isPaused
           ? current.accumulatedMs
           : Date.now() - current.startTime + current.accumulatedMs;
+        saveTimer(null);
         set({ activeTimer: null });
         if (duration > 1000) {
           const { tasks, updateTask } = get();
@@ -1252,12 +1283,20 @@ export const useStore = create<AppState>()(
             isPaused: false,
           },
         });
+        saveTimer(get().activeTimer);
       },
 
       tickTimer: () => {
         const current = get().activeTimer;
         if (!current || current.isPaused) return;
         set({ activeTimer: { ...current, tick: current.tick + 1 } });
+      },
+
+      restoreTimer: () => {
+        const saved = loadTimer();
+        if (saved) {
+          set({ activeTimer: saved });
+        }
       },
 
       addManualFocusSession: (taskId, durationMs, date) => {
